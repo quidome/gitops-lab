@@ -8,7 +8,7 @@ spec:
     - name: gateway-internal
       namespace: gateway
   hostnames:
-    - "argocd.quido.me"
+    - argocd.quido.me
   rules:
     - matches:
         - path:
