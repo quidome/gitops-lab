@@ -30,9 +30,7 @@ spec:
         server: https://kubernetes.default.svc
         namespace: "{{path.basename}}"
       syncPolicy:
-        automated:
-          prune: true
-          selfHeal: false
+        automated: {}
         retry:
           limit: 5
           backoff:
