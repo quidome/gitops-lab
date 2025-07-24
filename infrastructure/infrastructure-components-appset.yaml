@@ -11,7 +11,7 @@ spec:
         revision: HEAD
         directories:
           - path: infrastructure/networking/*
-          # - path: infrastructure/storage/*
+          - path: infrastructure/storage/*
           - path: infrastructure/controllers/*
   template:
     metadata:
@@ -29,16 +29,4 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         namespace: "{{path.basename}}"
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        retry:
-          limit: 5
-          backoff:
-            duration: 5s
-            factor: 2
-            maxDuration: 3m
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
+      syncPolicy: {}
