@@ -5,7 +5,7 @@ resources:
   # Gateway resources
   - gateway-class.yaml
   - ns.yaml
-  - gw-external.yaml
+  # - gw-external.yaml
   - gw-internal.yaml
   - cert-quidome.yaml
 
