@@ -76,6 +76,8 @@ loadBalancer:
 
 gatewayAPI:
   enabled: true
+  hostNetwork:
+    enabled: true
 envoy:
   securityContext:
     capabilities:
