@@ -17,3 +17,6 @@ spec:
       backendRefs:
         - name: argocd-server
           port: 8080
+          weight: 1
+          group: ''
+          kind: Service
