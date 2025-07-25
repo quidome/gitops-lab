@@ -4,9 +4,9 @@ metadata:
   name: gateway-internal
   namespace: gateway
 spec:
-  addresses:
-    - type: IPAddress
-      value: 172.16.40.50
+  # addresses:
+  #   - type: IPAddress
+  #     value: 172.16.40.50
   gatewayClassName: cilium
   listeners:
     - name: http
