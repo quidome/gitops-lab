@@ -7,6 +7,8 @@ spec:
   parentRefs:
     - name: gateway-internal
       namespace: gateway
+      group: gateway.networking.k8s.io
+      kind: Gateway
   hostnames:
     - argocd.quido.me
   rules:
