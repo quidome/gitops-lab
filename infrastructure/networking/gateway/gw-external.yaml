@@ -6,7 +6,7 @@ metadata:
 spec:
   addresses:
     - type: IPAddress
-      value: 172.16.40.49
+      value: 172.16.40.51
   gatewayClassName: cilium
   listeners:
     - name: http
@@ -24,7 +24,7 @@ spec:
         certificateRefs:
           - name: cert-quidome
             kind: Secret
-            group: "something" # required
+            group: "" # required
       allowedRoutes:
         namespaces:
           from: All

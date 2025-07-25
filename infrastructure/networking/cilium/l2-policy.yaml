@@ -4,11 +4,6 @@ metadata:
   name: main-l2-policy
   namespace: kube-system
 spec:
-  interfaces:
-    - eth.*
-    - enp.*
-    - ens.*
-    - wlan.*
-    - wlp.*
+  interfaces: [ens18]
   loadBalancerIPs: true
   externalIPs: true
