@@ -76,6 +76,8 @@ loadBalancer:
 
 gatewayAPI:
   enabled: true
+  gatewayClass:
+    create: auto
   hostNetwork:
     enabled: true
 envoy:
