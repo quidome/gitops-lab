@@ -24,7 +24,7 @@ spec:
         certificateRefs:
           - name: cert-quidome
             kind: Secret
-            group: "" # required
+            group: "something" # required
       allowedRoutes:
         namespaces:
           from: All
