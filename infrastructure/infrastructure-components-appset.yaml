@@ -11,7 +11,7 @@ spec:
         revision: HEAD
         directories:
           - path: infrastructure/networking/*
-          - path: infrastructure/storage/*
+          # - path: infrastructure/storage/*
           - path: infrastructure/controllers/*
   template:
     metadata:
