@@ -1,5 +1,5 @@
 driver:
-  # existingConfigSecret: true
+  existingConfigSecret: dont overwrite existing config
   config:
     driver: freenas-api-iscsi
     httpConnection:
