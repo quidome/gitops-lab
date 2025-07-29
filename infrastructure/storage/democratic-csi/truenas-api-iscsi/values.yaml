@@ -3,8 +3,8 @@ driver:
     driver: freenas-api-iscsi
     httpConnection:
       protocol: https
-      apiKey: FREENAS_API_KEY
-      host: FREENAS_ADDRESS
+      apiKey: TRUENAS_API_KEY
+      host: TRUENAS_ADDRESS
       port: 443
       allowInsecure: true
     zfs:
@@ -34,10 +34,10 @@ driver:
 
 csiDriver:
   # should be globally unique for a given cluster
-  name: "org.democratic-csi.freenas-api-iscsi"
+  name: "org.democratic-csi.iscsi"
 
 storageClasses:
-  - name: truenas-iscsi
+  - name: freenas-iscsi-csi
     defaultClass: true
     reclaimPolicy: Retain
     volumeBindingMode: Immediate
@@ -54,7 +54,7 @@ storageClasses:
       controller-expand-secret:
 
 # volumeSnapshotClasses:
-#   - name: truenas-iscsi
+#   - name: freenas-iscsi-csi
 #     parameters:
 #       detachedSnapshots: "true"
 
