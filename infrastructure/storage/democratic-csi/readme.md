@@ -1,40 +1,42 @@
 # Democratic CSO
 
-I don't know how to deploy democratic with argocd.
-Until I figure it out, I'll stick to manual deployments.
+Democratic is now deployed by argocd.
+It took a while to come to a working setup, mainly because of mistakes I made.
 
-## Install / upgrade with config changes
+The most important one is about the iscsi values file:
 
-With every run, the `driver.config` secret gets overwritten.
-I don't want to store my api key in `values.yaml`, which makes this process annoying for me.
+```yaml
+driver:
+  existingConfigSecret: "truenas-iscsi-driver-config"
+```
+The value of `existingConfigSecret` should be the name of a secret, not 'true'.
 
-With the command below, the config gets overwritten.
+It took me a while to figure that out.
+
+Next to that, generating the contents of the sealed secret took me a while as well.
+I was unaware that the default settings for a sealed secret are that the secret can only be unlocked if the namespace and the secret name match.
+Both are also contained in the encrypted part.
+
+## Generate new sealed secret for driver config
+
+Easiest is to use the `driver.config` content from the values file.
 
 ```sh
-# set variables
-API_KEY='Enter your api key here'
-API_HOST='Enter your api host address here'
+# Pick the useful part from values.yaml
+cat truenas-api-iscsi/values.yaml | yq '.driver.config' > driver-config-file.yaml
 
-helm upgrade \
-  --install \
-  --values truenas-api-iscsi/values.yaml \
-  --namespace democratic-csi \
-  --set driver.config.httpConnection.apiKey=$API_KEY \
-  --set driver.config.httpConnection.host=$API_HOST \
-  --set driver.config.iscsi.targetPortal="$API_HOST:3260" \
-  truenas-iscsi democratic-csi/democratic-csi
+# edit the file as needed
+# create a new secret
+kubectl create secret generic tmp-secret --from-file driver-config-file.yaml
+
+# pull key
+kubectl get secrets tmp-secret -o yaml | rg -v 'uid|creationTimestamp|resourceVersion' > new-secret.yaml
+
+# Edit the file to set name and namespace to what they need to be
+# Create a sealed secret
+cat new-secret.yaml | kubeseal --controller-namespace kube-system --controller-name sealed-secrets -o yaml > truenas-api-iscsi/driver-config-file.yaml
+
+# Clean up
+rm driver-config-file.yaml
+kubectl delete secret tmp-secret
 ```
-
-## Upgrade without config changes
-
-The following command uses a setting that prevents the `driver.config` to be overwritten.
-
-```sh
-helm upgrade \
-  --values truenas-api-iscsi/values.yaml \
-  --namespace democratic-csi \
-  --set driver.existingConfigSecret='true' \
-  truenas-iscsi democratic-csi/democratic-csi
-```
-
-Be aware that for `existingConfigSecret`, `true` must be quoted.
