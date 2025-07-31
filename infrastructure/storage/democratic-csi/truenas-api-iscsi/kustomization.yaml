@@ -6,7 +6,7 @@ helmCharts:
   - name: democratic-csi
     repo: https://democratic-csi.github.io/charts/
     version: 0.15.0
-    releaseName: democratic-csi
+    releaseName: truenas-iscsi
     namespace: democratic-csi
     valuesFile: values.yaml
 commonAnnotations:
