@@ -1,24 +1,33 @@
----
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  creationTimestamp: null
-  name: truenas-iscsi-democratic-csi-driver-config
-  namespace: democratic-csi
-spec:
-  encryptedData:
-    driver-config-file.yaml: AgCRJNsGeqWXdtN0HL9qQVJ+nlmlYEhmcyzHmEwaBsPBctE0f6COZ9QnUmT60wUZqXhhnlOTSrLmBK/g1zmqzlmegmoBxp9wS3rytASfdW+3MbhGmI0NaTBEXw0jlU2pMCEeQnceoqxvicjzHSIaAD1uYF1vXRGxPWmM98VJ3pbtK9FFTXlsQ6m6xW7BOVuLP56/POJp6aMTLNhyFOG3RrWC0Dp07omKUYOGlLYG1ToAYEobEgImO9qqiYi+O/iU1qh6bb0qPoEqCjMaap0JMYKsCruWqAFcdgrjSl3+yBo5NsSBthfwgeSDqJIjmytSbP4+ofuY6vE2aIJqalayVyHIGkcocZxroCq0vFxDzGsosVrUjuItT8OYRtwQHyOjTBtJHjNsQl2srZoWypyXvrpUEBSB9pDbgX2TWVBOTzR5bpbcRQpNWTPq0CNIFJtfq9613AimtA0fcsakVNoIl2vEiD5m0yD4S0ViYnlmnVrdWT+0CDfiRWHfd4RSArtmWklotPqvY9xi5Caq29CTbEyabQIr7KYm5oMWNyELL34blxBdzdYgWSECwoFBb5KjPcgLe7R/8YxratGAKGBSG5hdWDQo/9PDm8Q2ycRT9E+holv5NPQ9qn2qNqezIsZ0DO3WRMOSiFsFC8+jaJPNJaodYMW3h2t6lOvl6lqVMcwte8CF1/UlY5r1gJFESyphmcUTo2PAVqnM2eQsZH29E7HRLCAB7KZ+Q1vO6QsnYS+Pe90sIOKk0fFDQ0HJEleue+1Cn0vYrGptOnN0lDj/560ihmxwp+8WxWlY4Zhtf74UD4v1seP5DjBvvig5v8CBDuiDR6y+p5aJmkVh4FVzlaSFTu7zyvZDv9U7CfbknBm0GdIDuUpp2O5s1JeEBTIY2DtqgxAd/LhU7p3BgzvOw4o2+s0zlbzgkNfgtP40rUhsk2cmo/0+kI4yqHkWhVpHI2xEXmfUTdl2hL4yQQs+kJC0+fOrK4Qi6mn/kmXH7CKSY3p67igwJaCFjqyBQsYwUj+rDEKsEQMvZKyhG9M1rfLrLdEpK6FB8LoJojgJfuYSRNFGfvmbRKT7XBNlnJIkk+vTreXrEtWY9hkcnEBwJ3wxXG1bPdUv2o6h+YKI1S5SBYF30AxvUPUKqFWtWneXsjIqyg0Np+WaMYLzgfOAzTMvCBmG+JKvdX+drvkxZyUG/ofuU9otjI5I9q5AA884UWZ5pjC1SvaT0pCxoOm4NnK+NNj4VilAiowD54v0jCFE/oL2I1I7TAnUyLa8IzKCOzcl4z2uRraMyC8u0r3qDq/oCZrAiCufGE6YYgsAtLN+HDAeYwVdO+uHhSmCMXWzzy4LoQacamidPq8N3xxgAy5T4UebGoieP0xRkx2/dy6HJ5tLBE1piUkE9BABHfhWEN30tWAyp828ZwMCsp59wZ/XF5mJdGl3q5Rx2gXsPqVLlwAALkJgjkNuPR2v1DQMQhtbgAVHhDbEWffkwDm4++1hBioQLJWYxRu+8oLVVtb/iGMssfJoGI5Vm2ltYYtAprxxbagf9M4Tm77LIWMdXOCXhmKPt2URBJt2rVcpV3rJHS4hSjLnGO0xyWUh41JJ4eLZkP2fzXDoDsj6st/jf0W667m9vVKFbvkkmJSIgueoyMJdIgExAaG0IAlgjCE5xBFQUs7VSVdv7q6WrWwe6iHUtBcCTpiAHGhCBMiDZ8S5XSS0vWG+bqQUIzqcWmQ0Cj9v3g44IBTYLdwWEJKkNJZQohQbQWfjA/aYX4Dm+Az1J/nxlApc4gnSBH8TeIcYBOODHcl2cuc=
-  template:
-    metadata:
-      annotations:
-        meta.helm.sh/release-name: truenas-iscsi
-        meta.helm.sh/release-namespace: kube-system
-      creationTimestamp: null
-      labels:
-        app.kubernetes.io/instance: truenas-iscsi
-        app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: democratic-csi
-        helm.sh/chart: democratic-csi-0.15.0
-      name: truenas-iscsi-democratic-csi-driver-config
-      namespace: democratic-csi
-    type: Opaque
+{
+  "kind": "SealedSecret",
+  "apiVersion": "bitnami.com/v1alpha1",
+  "metadata": {
+    "name": "democratic-csi-driver-config",
+    "namespace": "kube-system",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "name": "democratic-csi-driver-config",
+        "namespace": "kube-system",
+        "creationTimestamp": null,
+        "labels": {
+          "app.kubernetes.io/instance": "democratic-csi",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "democratic-csi",
+          "argocd.argoproj.io/instance": "democratic-csi",
+          "helm.sh/chart": "democratic-csi-0.15.0"
+        },
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-10",
+          "argocd.argoproj.io/tracking-id": "democratic-csi:/Secret:kube-system/democratic-csi-driver-config"
+        }
+      },
+      "type": "Opaque"
+    },
+    "encryptedData": {
+      "driver-config-file.yaml": "AgCK9BiK7FFv1Uske/Be/nx9uRmRG5+RYeugwXVweEtJPhZiQc+9IRLozo+bCi8scrPODJJaW6ANmJ5qOqAm/k++3hWK9A0Qa2oa/szKz7acvp5913j9t9rC95IfzgHdXtorcNA43d4PMLKNSN6vWq2UsZqeIFYRLILuKRXdxsKZy77WTVhVYK7esn4r7jK+RChcZm6PS+d5KudK2HmHsTSTxT+JlcWS1GjTAXwbPJcmElYG70+NMHpX/pXKM7/1IYHkZXvNXAAWjCuInrk1C+a4R59NZ5xHll7CY36KmJvunWOBuIap7h5QW0QuDtwPWZVb0hzq8bBDLBiq/7szX9Jikj2m7rSZpIA+PD2XSM0c1w0reAqpvoRRv70sw3j6lijHFQIkCRRtbfcj6Mzf+wdzvqWxDBkKTrFBrOPFfuPAFLZYH7CutvXKDHO4H02Kw280VQqT5Oqwrjm3NJ8oQtjePp5Jcpc0JDKEPs0VndAGHpmacFo5UX0bhk01yP295uGsc2HliOYHDBsajGcsQA4P5WEWcE8sx6UJEZeD1xbDv/DiyCgHmeZKIg9Ko2vW4ibvh8PMxpcBqxOPQlAR4oHSmgl0C9hq4GGaMthCMt/2zorj31pHkTRqK7qjgEIRZtViBn5P9uYoiEUpPWY45lo1ljwIgWAC7g3rH1Va2EUtw9loX6EncqnNo6Jlfcb/+bE1u7vYdZ+oEcY/9S3iVxkqVt4/3TTwGB+L3mEyT0q+9LBPg8ZTouaCUmqkR1DIPOBuTUwRUDuY9+DiJwp8PwZ7Z89xtPNU/JVjaFol+4hycdMNGXossOh+o1zoIGzo6doizmYsaBmxXm8JwT9MYb14sHcnh1AmvDL6s+u0cQ9RK2Uz5yPRPBsYQ6j65xI/KMXdNWmKVw1ZU+AmyGzCx19SuE9lUxzxleF/mql0Z5FDdlfykEGhZwg196kLD+xwAYfz385HQmsXjvn80evLW5njqjveebOQ/66zyYCJIXFnfbsZEvWL+ZtPR32rEmqt+7pUbQVeHjM0TpzLsWNgyYSriVi6nq3gt7nyn9IJCjKjEaQLjqwGhuPYlV0zm+94HO37JE6ikHGdMhI54dKzPMEZDZgK9SNFeMUDte5KVYK+kE/uVVqLbrrNoXZewBmc9oe+NjyAcxSAMDK/uMRIgIObgBDJzgIdjtWYTqig0oTJNWVpr5bZjAwMo4poqHqncYzH5hsPjRglumTiaZOaIFnFt2gfjxNmnBenUVL9dXSC+X6Heqf3gyuPaiozg8s2ewyh4seprc68Buh4M8sEZ18QBHsqMjfpKfoRiLxnE8yEj0Cj3C6YYeM4UiZsSsFiDOgTHKdhJOa0cjVS5MH/rDBUD6OCnrExdMlm/j2wOXxiZCkrT1u2N24mNV2Yk67g3xMqLOMQ/dYkpVbX2q8VNNzeum3UbCY4EjAMHb9E7BEUOIVST23gnljv3vgzlbbgHUrUAqwHkORr1EZAherRyOYKAqshRSMHNg2idU+MDTorNHiVozMYU36gVMjJ+NpW0vv7SME4CH3bvD32VsBUmTvl1tGYzGCo15puygKFINj1irxUZ3mEGzwXm9o2vz/ZM98o+YFW4C6FfPIvtbu+2MUDbzJNU+7Fl+kF5gdG22vjOoSgRxl+InJxws8BXd/LYN967Kq2SF0njJEVmyqXiEy82HGQFqm6FBthpt3AdqILBMjNri9Jdy4is8q1dSRy3CCdyCfTb60MKks+pCwLwtIBEmyXi96G1TXwpC2Cocs9v5ARrSND5JsjFRms965ShAfQNbZ2wV0="
+    }
+  }
+}
