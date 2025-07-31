@@ -12,7 +12,7 @@ spec:
     metadata:
       annotations:
         meta.helm.sh/release-name: truenas-iscsi
-        meta.helm.sh/release-namespace: democratic-csi
+        meta.helm.sh/release-namespace: kube-system
       creationTimestamp: null
       labels:
         app.kubernetes.io/instance: truenas-iscsi
