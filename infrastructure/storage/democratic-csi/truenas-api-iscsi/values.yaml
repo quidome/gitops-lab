@@ -1,5 +1,5 @@
 driver:
-  # existingConfigSecret: "true"
+  existingConfigSecret: "true"
   config:
     driver: freenas-api-iscsi
     httpConnection:
