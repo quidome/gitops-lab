@@ -12,7 +12,7 @@ spec:
     metadata:
       annotations:
         argocd.argoproj.io/sync-wave: "-10"
-        argocd.argoproj.io/tracking-id: democratic-csi:/Secret:democratic-csi/truenas-iscsi-democratic-csi-driver-config
+        argocd.argoproj.io/tracking-id: democratic-csi:/Secret:democratic-csi/truenas-iscsi-driver-config
       creationTimestamp: null
       labels:
         app.kubernetes.io/instance: truenas-iscsi
@@ -20,6 +20,6 @@ spec:
         app.kubernetes.io/name: democratic-csi
         argocd.argoproj.io/instance: democratic-csi
         helm.sh/chart: democratic-csi-0.15.0
-      name: truenas-iscsi-democratic-csi-driver-config
+      name: truenas-iscsi-driver-config
       namespace: democratic-csi
     type: Opaque
