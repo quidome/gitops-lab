@@ -1,5 +1,5 @@
 driver:
-  existingConfig: "true"
+  existingConfigSecret: "true"
 
 csiDriver:
   # should be globally unique for a given cluster
