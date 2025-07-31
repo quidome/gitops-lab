@@ -1,5 +1,5 @@
 driver:
-  existingConfigSecret: "use sealed secret"
+  existingConfigSecret: "truenas-iscsi-driver-config"
   config:
     driver: freenas-api-iscsi
     httpConnection:
