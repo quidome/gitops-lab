@@ -1,0 +1,24 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: truenas-iscsi-democratic-csi-driver-config
+  namespace: democratic-csi
+spec:
+  encryptedData:
+    driver-config-file.yaml: AgCRJNsGeqWXdtN0HL9qQVJ+nlmlYEhmcyzHmEwaBsPBctE0f6COZ9QnUmT60wUZqXhhnlOTSrLmBK/g1zmqzlmegmoBxp9wS3rytASfdW+3MbhGmI0NaTBEXw0jlU2pMCEeQnceoqxvicjzHSIaAD1uYF1vXRGxPWmM98VJ3pbtK9FFTXlsQ6m6xW7BOVuLP56/POJp6aMTLNhyFOG3RrWC0Dp07omKUYOGlLYG1ToAYEobEgImO9qqiYi+O/iU1qh6bb0qPoEqCjMaap0JMYKsCruWqAFcdgrjSl3+yBo5NsSBthfwgeSDqJIjmytSbP4+ofuY6vE2aIJqalayVyHIGkcocZxroCq0vFxDzGsosVrUjuItT8OYRtwQHyOjTBtJHjNsQl2srZoWypyXvrpUEBSB9pDbgX2TWVBOTzR5bpbcRQpNWTPq0CNIFJtfq9613AimtA0fcsakVNoIl2vEiD5m0yD4S0ViYnlmnVrdWT+0CDfiRWHfd4RSArtmWklotPqvY9xi5Caq29CTbEyabQIr7KYm5oMWNyELL34blxBdzdYgWSECwoFBb5KjPcgLe7R/8YxratGAKGBSG5hdWDQo/9PDm8Q2ycRT9E+holv5NPQ9qn2qNqezIsZ0DO3WRMOSiFsFC8+jaJPNJaodYMW3h2t6lOvl6lqVMcwte8CF1/UlY5r1gJFESyphmcUTo2PAVqnM2eQsZH29E7HRLCAB7KZ+Q1vO6QsnYS+Pe90sIOKk0fFDQ0HJEleue+1Cn0vYrGptOnN0lDj/560ihmxwp+8WxWlY4Zhtf74UD4v1seP5DjBvvig5v8CBDuiDR6y+p5aJmkVh4FVzlaSFTu7zyvZDv9U7CfbknBm0GdIDuUpp2O5s1JeEBTIY2DtqgxAd/LhU7p3BgzvOw4o2+s0zlbzgkNfgtP40rUhsk2cmo/0+kI4yqHkWhVpHI2xEXmfUTdl2hL4yQQs+kJC0+fOrK4Qi6mn/kmXH7CKSY3p67igwJaCFjqyBQsYwUj+rDEKsEQMvZKyhG9M1rfLrLdEpK6FB8LoJojgJfuYSRNFGfvmbRKT7XBNlnJIkk+vTreXrEtWY9hkcnEBwJ3wxXG1bPdUv2o6h+YKI1S5SBYF30AxvUPUKqFWtWneXsjIqyg0Np+WaMYLzgfOAzTMvCBmG+JKvdX+drvkxZyUG/ofuU9otjI5I9q5AA884UWZ5pjC1SvaT0pCxoOm4NnK+NNj4VilAiowD54v0jCFE/oL2I1I7TAnUyLa8IzKCOzcl4z2uRraMyC8u0r3qDq/oCZrAiCufGE6YYgsAtLN+HDAeYwVdO+uHhSmCMXWzzy4LoQacamidPq8N3xxgAy5T4UebGoieP0xRkx2/dy6HJ5tLBE1piUkE9BABHfhWEN30tWAyp828ZwMCsp59wZ/XF5mJdGl3q5Rx2gXsPqVLlwAALkJgjkNuPR2v1DQMQhtbgAVHhDbEWffkwDm4++1hBioQLJWYxRu+8oLVVtb/iGMssfJoGI5Vm2ltYYtAprxxbagf9M4Tm77LIWMdXOCXhmKPt2URBJt2rVcpV3rJHS4hSjLnGO0xyWUh41JJ4eLZkP2fzXDoDsj6st/jf0W667m9vVKFbvkkmJSIgueoyMJdIgExAaG0IAlgjCE5xBFQUs7VSVdv7q6WrWwe6iHUtBcCTpiAHGhCBMiDZ8S5XSS0vWG+bqQUIzqcWmQ0Cj9v3g44IBTYLdwWEJKkNJZQohQbQWfjA/aYX4Dm+Az1J/nxlApc4gnSBH8TeIcYBOODHcl2cuc=
+  template:
+    metadata:
+      annotations:
+        meta.helm.sh/release-name: truenas-iscsi
+        meta.helm.sh/release-namespace: democratic-csi
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: truenas-iscsi
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: democratic-csi
+        helm.sh/chart: democratic-csi-0.15.0
+      name: truenas-iscsi-democratic-csi-driver-config
+      namespace: democratic-csi
+    type: Opaque

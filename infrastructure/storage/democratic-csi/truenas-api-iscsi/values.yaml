@@ -1,4 +1,5 @@
 driver:
+  existingConfig: "true"
   config:
     driver: freenas-api-iscsi
     httpConnection:
