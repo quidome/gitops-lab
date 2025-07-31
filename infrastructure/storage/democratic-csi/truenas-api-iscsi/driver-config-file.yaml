@@ -1,33 +1,25 @@
-{
-  "kind": "SealedSecret",
-  "apiVersion": "bitnami.com/v1alpha1",
-  "metadata": {
-    "name": "democratic-csi-driver-config",
-    "namespace": "kube-system",
-    "creationTimestamp": null
-  },
-  "spec": {
-    "template": {
-      "metadata": {
-        "name": "democratic-csi-driver-config",
-        "namespace": "kube-system",
-        "creationTimestamp": null,
-        "labels": {
-          "app.kubernetes.io/instance": "democratic-csi",
-          "app.kubernetes.io/managed-by": "Helm",
-          "app.kubernetes.io/name": "democratic-csi",
-          "argocd.argoproj.io/instance": "democratic-csi",
-          "helm.sh/chart": "democratic-csi-0.15.0"
-        },
-        "annotations": {
-          "argocd.argoproj.io/sync-wave": "-10",
-          "argocd.argoproj.io/tracking-id": "democratic-csi:/Secret:kube-system/democratic-csi-driver-config"
-        }
-      },
-      "type": "Opaque"
-    },
-    "encryptedData": {
-      "driver-config-file.yaml": "AgCK9BiK7FFv1Uske/Be/nx9uRmRG5+RYeugwXVweEtJPhZiQc+9IRLozo+bCi8scrPODJJaW6ANmJ5qOqAm/k++3hWK9A0Qa2oa/szKz7acvp5913j9t9rC95IfzgHdXtorcNA43d4PMLKNSN6vWq2UsZqeIFYRLILuKRXdxsKZy77WTVhVYK7esn4r7jK+RChcZm6PS+d5KudK2HmHsTSTxT+JlcWS1GjTAXwbPJcmElYG70+NMHpX/pXKM7/1IYHkZXvNXAAWjCuInrk1C+a4R59NZ5xHll7CY36KmJvunWOBuIap7h5QW0QuDtwPWZVb0hzq8bBDLBiq/7szX9Jikj2m7rSZpIA+PD2XSM0c1w0reAqpvoRRv70sw3j6lijHFQIkCRRtbfcj6Mzf+wdzvqWxDBkKTrFBrOPFfuPAFLZYH7CutvXKDHO4H02Kw280VQqT5Oqwrjm3NJ8oQtjePp5Jcpc0JDKEPs0VndAGHpmacFo5UX0bhk01yP295uGsc2HliOYHDBsajGcsQA4P5WEWcE8sx6UJEZeD1xbDv/DiyCgHmeZKIg9Ko2vW4ibvh8PMxpcBqxOPQlAR4oHSmgl0C9hq4GGaMthCMt/2zorj31pHkTRqK7qjgEIRZtViBn5P9uYoiEUpPWY45lo1ljwIgWAC7g3rH1Va2EUtw9loX6EncqnNo6Jlfcb/+bE1u7vYdZ+oEcY/9S3iVxkqVt4/3TTwGB+L3mEyT0q+9LBPg8ZTouaCUmqkR1DIPOBuTUwRUDuY9+DiJwp8PwZ7Z89xtPNU/JVjaFol+4hycdMNGXossOh+o1zoIGzo6doizmYsaBmxXm8JwT9MYb14sHcnh1AmvDL6s+u0cQ9RK2Uz5yPRPBsYQ6j65xI/KMXdNWmKVw1ZU+AmyGzCx19SuE9lUxzxleF/mql0Z5FDdlfykEGhZwg196kLD+xwAYfz385HQmsXjvn80evLW5njqjveebOQ/66zyYCJIXFnfbsZEvWL+ZtPR32rEmqt+7pUbQVeHjM0TpzLsWNgyYSriVi6nq3gt7nyn9IJCjKjEaQLjqwGhuPYlV0zm+94HO37JE6ikHGdMhI54dKzPMEZDZgK9SNFeMUDte5KVYK+kE/uVVqLbrrNoXZewBmc9oe+NjyAcxSAMDK/uMRIgIObgBDJzgIdjtWYTqig0oTJNWVpr5bZjAwMo4poqHqncYzH5hsPjRglumTiaZOaIFnFt2gfjxNmnBenUVL9dXSC+X6Heqf3gyuPaiozg8s2ewyh4seprc68Buh4M8sEZ18QBHsqMjfpKfoRiLxnE8yEj0Cj3C6YYeM4UiZsSsFiDOgTHKdhJOa0cjVS5MH/rDBUD6OCnrExdMlm/j2wOXxiZCkrT1u2N24mNV2Yk67g3xMqLOMQ/dYkpVbX2q8VNNzeum3UbCY4EjAMHb9E7BEUOIVST23gnljv3vgzlbbgHUrUAqwHkORr1EZAherRyOYKAqshRSMHNg2idU+MDTorNHiVozMYU36gVMjJ+NpW0vv7SME4CH3bvD32VsBUmTvl1tGYzGCo15puygKFINj1irxUZ3mEGzwXm9o2vz/ZM98o+YFW4C6FfPIvtbu+2MUDbzJNU+7Fl+kF5gdG22vjOoSgRxl+InJxws8BXd/LYN967Kq2SF0njJEVmyqXiEy82HGQFqm6FBthpt3AdqILBMjNri9Jdy4is8q1dSRy3CCdyCfTb60MKks+pCwLwtIBEmyXi96G1TXwpC2Cocs9v5ARrSND5JsjFRms965ShAfQNbZ2wV0="
-    }
-  }
-}
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: democratic-csi-driver-config
+  namespace: democratic-csi
+spec:
+  encryptedData:
+    driver-config-file.yaml: AgCTCGUvMj7Epgu7jBTkLcmeBQIHZu0vic+60d3LvemShsk3ec7pgfY0FrppEJNXi7TKUYDJISqcfP3PkxHOoUaXdtf4nOIAx46zhUDtABlPW3gAYCu61krL3Z3GWANZKuz9L/lM/m6BE/Di7eiaoVnv19pamZ3wxOWyVsvR1HfSHc0qiz4nheDb6Vm9mm57kcyw9l4ZZ5v04t+vS0HJBL/iFQmv0Xb80KMk1tohIybPXYMkXvDFXqd/dFy/X/a9MQ15wPzoIfILK5wYoR3kNO5l4h3uI2qjgPIQQbidVe3WJ6Jv7BG2bcHDucy3uIwfhxSgakw1jooH6hc4bEvRqISeyHVG0o1MC5DSTJWh0PWKtwu7TFQQHmfavxJJwGedMpN0tRuwWVjFHRAe8FVGriWbKY3n22LOQpWp4vBi2NSrP0sC2EamSQ1BETmwXzSxqKH+HQVGZTBgfRcw4plbmNCW349652ql0lgYGKSU981ZQJOAY5EDWHEw42aC6gMtUij+zyGwyTUOBjxdeJ1tCrc97qJk2ETPZXLtsaB7Lou6HPF4z25h++Htq1ZY2sMsrlGiNROexQuayP5DQD47zupXQ9bKCda+xpkJ3ctHcFF5nSjgxhkVlmizAWDa1sksyo0mp3ndB0hkxx02LFjzyG+TzRyDTnl+nNhhAq66xs2WnI4a+JjXX6pPXB9qwlI9vzgh23MvMCqSSe4A+1wPhwbKUvQ3jF7RHuIrGwpA2ZE0OAjxGrETxXCTXemNQsURcWIu5I/1OO5QEwwZSansOTOCD04nacyetHW8QWUHCTBai+sCfdg8jZa+yFRIGtzk9u6AuUqCuUfRaTfD7Dx+j/u9XscbY6Hb+U9yFeDZyVJV6GFrqOv5KoeUQWCGX9ogTKU6jJGK7HxsFte0dCjCvK6KV/MwHI8aJtvRur8otZd/qnT51DUUZolrZVfMDkTu0RabUS2y4vHJpZkI5tzY6tW0tXsvkWCCm05wTIAElzV/+QjsCatSw23MNiIXnn8a9eRs2BbAMJexcIpIUrjUbToSI4yXz6myJ2aKjSMLFcinRT35fwJAd/pFhuxmzFuDilw7EAXZx8QgZk31M9wcB9hotrv6VGzXjYvb9wtR35G+h9ME9YMkS51/O4X/uXPptA8dBhoOhSHT0Z0g+cGYixManspM/6YVwvBGTowTmXwaiXHIXBvhfkBf0eDve1bWOmkxKHEJPsCbAxX2Q6BSZJ0gZzfArTSdyUIw4foCq9S6VkyYXKeBciOSeBDjyJt4LD4HY3YS6dERqzDkplphYp4CRY3aMOZacm0/XTlg3nlf7INmRT22YVYVfuhZ7+AT7vekY2NcLKtNoS8oO29ar+glsD1KrO2KQqKFX/PUqwvTQoo9bh3ft5FvLmAzda1I/8l09PzA0JzJCMQ5eWP1XItbVShXunDp0S3jCFiWFvcaRT9XTkJkn1Dn4PUI/z74cgrkzzp3ttAyydioQloLnajJZPlmJEdRsmlXnYfMt+rGen9ZP8dc+es5GT2NSDyB5qumf9HE3yynmhjTVM9crV/sG2s0LuTr8MI/KWWH/Y3sBSlkGwHSLQsUe9ARUKPN9KerNl+P+1PmkIMhI7+ZRekTQTcW1EMlWZMwM9zYJy1tq7+yHE3tgfzHkqwCqoDnTrp1VPEI5suJaj5YuMKQ96sK8wyiIFutMJRfzTTbe0S2YdpGePaXvm0pg63+gaU3CVa2BcDG9iyI2sKg02nSZKC6YpTJM6GCeux5tzbtCFKmuaiXyvzhIJLuRaMaKWU6jC6MDwpiA9Q=
+  template:
+    metadata:
+      annotations:
+        argocd.argoproj.io/sync-wave: "-10"
+        argocd.argoproj.io/tracking-id: democratic-csi:/Secret:democratic-csi/democratic-csi-driver-config
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: democratic-csi
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: democratic-csi
+        argocd.argoproj.io/instance: democratic-csi
+        helm.sh/chart: democratic-csi-0.15.0
+      name: democratic-csi-driver-config
+      namespace: democratic-csi
+    type: Opaque

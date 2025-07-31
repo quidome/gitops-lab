@@ -7,7 +7,7 @@ helmCharts:
     repo: https://democratic-csi.github.io/charts/
     version: 0.15.0
     releaseName: democratic-csi
-    namespace: kube-system
+    namespace: democratic-csi
     valuesFile: values.yaml
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "-10"

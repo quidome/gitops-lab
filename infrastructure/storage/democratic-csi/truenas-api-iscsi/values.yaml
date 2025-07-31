@@ -22,11 +22,6 @@ storageClasses:
       node-publish-secret:
       controller-expand-secret:
 
-# volumeSnapshotClasses:
-#   - name: freenas-iscsi-csi
-#     parameters:
-#       detachedSnapshots: "true"
-
 node:
   hostPID: true
   driver:
