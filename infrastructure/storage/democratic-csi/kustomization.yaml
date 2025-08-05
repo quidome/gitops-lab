@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ns.yaml
   - truenas-api-iscsi
+  - truenas-api-nfs
