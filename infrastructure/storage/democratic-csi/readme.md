@@ -1,5 +1,11 @@
 # Democratic CSO
 
+## Resources
+
+https://blog.dalydays.com/post/kubernetes-homelab-series-part-6-storage-with-democratic-csi/
+
+## Description
+
 Democratic is now deployed by argocd.
 It took a while to come to a working setup, mainly because of mistakes I made.
 
