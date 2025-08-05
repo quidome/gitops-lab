@@ -43,5 +43,5 @@ storageClasses:
       - noatime
       - nfsvers=4
 
-volumeSnapshotClasses:
-  - name: truenas-nfs
+# volumeSnapshotClasses:
+#   - name: truenas-nfs
