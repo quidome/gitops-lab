@@ -3,6 +3,7 @@ DNS1:
   172.16.40.1
 persistentVolumeClaim:
   enabled: true
+  storageClass: truenas-nfs
 # ingress:
 #   enabled: true
 #   hosts:
