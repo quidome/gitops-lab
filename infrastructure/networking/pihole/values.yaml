@@ -1,6 +1,5 @@
 ---
-DNS1:
-  172.16.40.1
+DNS1: 172.16.40.1
 persistentVolumeClaim:
   enabled: true
   storageClass: truenas-nfs
@@ -11,7 +10,7 @@ persistentVolumeClaim:
 # serviceWeb:
 #   loadBalancerIP: 172.16.40.52
 #   type: LoadBalancer
-# serviceDns:
-#   loadBalancerIP: 172.16.40.52
-#   type: LoadBalancer
+serviceDns:
+  loadBalancerIP: 172.16.40.52
+  type: LoadBalancer
 replicaCount: 1
