@@ -3,10 +3,10 @@ DNS1:
   172.16.40.1
 persistentVolumeClaim:
   enabled: true
-ingress:
-  enabled: true
-  hosts:
-    - "pihole.quido.me"
+# ingress:
+#   enabled: true
+#   hosts:
+#     - "pihole.quido.me"
 # serviceWeb:
 #   loadBalancerIP: 172.16.40.52
 #   type: LoadBalancer
