@@ -10,7 +10,7 @@ persistentVolumeClaim:
 # serviceWeb:
 #   loadBalancerIP: 172.16.40.52
 #   type: LoadBalancer
-serviceDns:
+serviceUDP:
   loadBalancerIP: 172.16.40.52
   type: LoadBalancer
 replicaCount: 1
