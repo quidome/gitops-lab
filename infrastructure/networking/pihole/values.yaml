@@ -4,6 +4,8 @@ persistentVolumeClaim:
   enabled: true
   storageClass: truenas-nfs
 serviceDns:
-  loadBalancerIP: 172.16.40.52
+  loadBalancerIP: 172.16.40.53
   type: LoadBalancer
+  annotations:
+    "lbipam.cilium.io/sharing-key": "pihole-dns"
 replicaCount: 1
