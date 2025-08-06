@@ -11,8 +11,6 @@ persistentVolumeClaim:
 #   loadBalancerIP: 172.16.40.52
 #   type: LoadBalancer
 serviceDns:
-  loadBalancerIP: 172.16.40.52
+  loadBalancerIP: 172.16.40.50
   type: LoadBalancer
-  annotations:
-    "lbipam.cilium.io/sharing-key": "dns-services"
 replicaCount: 1
