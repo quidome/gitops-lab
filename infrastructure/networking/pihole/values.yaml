@@ -13,4 +13,4 @@ ingress:
 # serviceDns:
 #   loadBalancerIP: 172.16.40.52
 #   type: LoadBalancer
-replicaCount: 3
+replicaCount: 1
