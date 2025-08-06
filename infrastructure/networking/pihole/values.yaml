@@ -3,14 +3,7 @@ DNS1: 172.16.40.1
 persistentVolumeClaim:
   enabled: true
   storageClass: truenas-nfs
-# ingress:
-#   enabled: true
-#   hosts:
-#     - "pihole.quido.me"
-# serviceWeb:
-#   loadBalancerIP: 172.16.40.52
-#   type: LoadBalancer
 serviceDns:
-  loadBalancerIP: 172.16.40.50
+  loadBalancerIP: 172.16.40.52
   type: LoadBalancer
 replicaCount: 1
