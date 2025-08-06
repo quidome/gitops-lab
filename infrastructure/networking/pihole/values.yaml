@@ -7,10 +7,10 @@ ingress:
   enabled: true
   hosts:
     - "pihole.quido.me"
-serviceWeb:
-  loadBalancerIP: 172.16.40.52
-  type: LoadBalancer
-serviceDns:
-  loadBalancerIP: 172.16.40.52
-  type: LoadBalancer
-replicaCount: 1
+# serviceWeb:
+#   loadBalancerIP: 172.16.40.52
+#   type: LoadBalancer
+# serviceDns:
+#   loadBalancerIP: 172.16.40.52
+#   type: LoadBalancer
+replicaCount: 3
