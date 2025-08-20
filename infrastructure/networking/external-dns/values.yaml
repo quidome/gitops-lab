@@ -7,6 +7,7 @@ env:
         key: *name
 # podAnnotations:
 #   secret.reloader.stakater.com/reload: *secret
+logLevel: debug
 extraArgs:
   - --pihole-server=http://pihole-web.pihole.svc.cluster.local
   - --gateway-name=internal
