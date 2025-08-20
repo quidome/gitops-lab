@@ -18,7 +18,7 @@ dnsmasq:
   additionalHostsEntries:
     - 172.16.40.50 argocd.quido.me
     - 172.16.40.50 hubble.quido.me
-    - 172.16.40.50 pihole.quido.me
+    # - 172.16.40.50 pihole.quido.me
     - 172.16.40.68 grafana.quido.me
     - 172.16.40.68 overseerr.quido.me
     - 172.16.40.68 plex.quido.me
