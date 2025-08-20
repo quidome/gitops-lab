@@ -1,3 +1,4 @@
 provider:
   name: pihole
-  pihole-server: pihole-web
+pihole-server: pihole-web
+  
