@@ -15,8 +15,7 @@ dnsmasq:
   customDnsEntries:
     - address=/lan.quido.me/172.16.40.78
     - address=/web.quido.me/172.16.40.68
-  additionalHostsEntries:
-    - 172.16.40.68 grafana.quido.me
-    - 172.16.40.68 overseerr.quido.me
-    - 172.16.40.68 plex.quido.me
-    - 172.16.40.68 proxy.quido.me
+    - address=/grafana.quido.me/172.16.40.68
+    - address=/overseerr.quido.me/172.16.40.68
+    - address=/plex.quido.me/172.16.40.68
+    - address=/proxy.quido.me/172.16.40.68
