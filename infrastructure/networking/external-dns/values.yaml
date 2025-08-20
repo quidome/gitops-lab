@@ -10,7 +10,7 @@ env:
 logLevel: debug
 extraArgs:
   - --pihole-server=http://pihole-web.pihole.svc.cluster.local
-  - --gateway-name=internal
+  - --gateway-name=gateway-internal
   - --pihole-api-version=6
 policy: sync
 sources: ["gateway-httproute"]
