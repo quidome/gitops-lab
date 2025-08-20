@@ -8,7 +8,7 @@ env:
 # podAnnotations:
 #   secret.reloader.stakater.com/reload: *secret
 extraArgs:
-  - --pihole-server=http://10.0.0.254
+  - --pihole-server=http://pihole-web.pihole.svc.cluster.local
   - --gateway-name=internal
   - --pihole-api-version=6
 policy: sync
