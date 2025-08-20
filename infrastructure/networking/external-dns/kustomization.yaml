@@ -5,9 +5,9 @@ resources:
   - ns.yaml
 
 helmCharts:
-  - name: external-dns-pihole
-    repo: https://kubernetes-sigs.github.io/external-dns/
+  - name: external-dns
+    repo: https://kubernetes-sigs.github.io/external-dns
     version: 1.17.0
     releaseName: external-dns
-    namespace: pihole
+    namespace: external-dns
     valuesFile: values.yaml
