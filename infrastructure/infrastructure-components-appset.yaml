@@ -20,6 +20,13 @@ spec:
         type: infrastructure
     spec:
       project: default
+      ignoreDifferences:
+        - kind: Secret
+          jsonPointers:
+            - /data/ca.crt
+            - /data/ca.key
+            - /data/tls.crt
+            - /data/tls.key
       source:
         plugin:
           name: kustomize-build-with-helm
