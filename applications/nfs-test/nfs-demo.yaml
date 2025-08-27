@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nfs-demo
+  namespace: nfs-demo
+spec:
+  containers:
+    - name: sleep
+      image: alpine:latest
+      command: ["sleep", "infinity"]
