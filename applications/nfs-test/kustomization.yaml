@@ -3,5 +3,6 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  - persistent-volume.yaml
-  - nfs-demo.yaml
+  - pv.yaml
+  - pvc.yaml
+  - deployment.yaml
