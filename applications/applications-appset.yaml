@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: applications
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  generators:
+    - git:
+        repoURL: git@github.com:quidome/gitops-lab.git
+        revision: HEAD
+        directories:
+          - path: applications/*
+          - exclude: true
+            path: applications/applications-appset.yaml
+  template:
+    metadata:
+      name: "{{path.basename}}"
+      labels:
+        type: application
+    spec:
+      project: default
+      source:
+        plugin:
+          name: kustomize-build-with-helm
+        repoURL: git@github.com:quidome/gitops-lab.git
+        targetRevision: HEAD
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{path.basename}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - RespectIgnoreDifferences=true
+          - ApplyOutOfSyncOnly=true
+          - Replace=false
+          - IgnoreMissingTemplate=true
