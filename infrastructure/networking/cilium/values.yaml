@@ -59,8 +59,8 @@ debug:
 
 # Increase rate limit when doing L2 announcements
 k8sClientRateLimit:
-  qps: 20
-  burst: 100
+  qps: 50
+  burst: 200
 
 l2announcements:
   enabled: true
