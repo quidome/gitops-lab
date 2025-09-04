@@ -1,0 +1,7 @@
+persistence:
+  data:
+    enabled: true
+    mountPath: /var/syncthing
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass: truenas-nfs
