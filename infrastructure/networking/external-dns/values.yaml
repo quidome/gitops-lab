@@ -6,7 +6,7 @@ env:
         name: external-dns-pihole
         key: *name
 extraArgs:
-  - --pihole-server=http://172.16.40.1
+  - --pihole-server=http://pihole-web.pihole.svc.cluster.local
   - --gateway-name=gateway-internal
   - --pihole-api-version=6
 policy: sync
