@@ -14,5 +14,5 @@ spec:
         recurse: true
         include: "{application.yaml,applicationset.yaml,*/application.yaml,*/applicationset.yaml}"
         jsonnet: {}
-      repoURL: https://github.com/simisimis/moires.git
+      repoURL: https://github.com/quidome/gitops-lab.git
       targetRevision: main
