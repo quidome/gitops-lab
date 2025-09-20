@@ -16,3 +16,10 @@ spec:
         jsonnet: {}
       repoURL: git@github.com:quidome/gitops-lab.git
       targetRevision: main
+    - path: .
+      directory:
+        recurse: true
+        include: "{application.yaml,applicationset.yaml,*/application.yaml,*/applicationset.yaml}"
+        jsonnet: {}
+      repoURL: git@github.com:quidome/gitops-apps.git
+      targetRevision: main
