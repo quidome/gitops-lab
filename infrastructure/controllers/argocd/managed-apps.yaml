@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-managed-apps
+  namespace: argocd
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: default
+  sources:
+    - path: .
+      directory:
+        recurse: true
+        include: "{application.yaml,applicationset.yaml,*/application.yaml,*/applicationset.yaml}"
+        jsonnet: {}
+      repoURL: https://github.com/simisimis/moires.git
+      targetRevision: main
