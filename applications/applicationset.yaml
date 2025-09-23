@@ -12,7 +12,7 @@ spec:
         directories:
           - path: applications/*
           - exclude: true
-            path: applications.yaml
+            path: applicationset.yaml
   template:
     metadata:
       name: "{{path.basename}}"
