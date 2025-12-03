@@ -1,0 +1,14 @@
+{
+  extends: [
+    'config:base'
+  ],
+  
+  kubernetes: {
+    enabled: true,
+    managerFilePatterns: ["/\\.ya?ml$/"]
+  },
+
+  docker: {
+    enabled: true
+  }
+}
