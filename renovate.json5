@@ -1,14 +1,19 @@
 {
   extends: [
-    'config:base'
+    'config:recommended',
   ],
-  
   kubernetes: {
     enabled: true,
-    managerFilePatterns: ["/\\.ya?ml$/"]
+    managerFilePatterns: [
+      '/\\.ya?ml$/',
+    ],
   },
-
-  docker: {
-    enabled: true
-  }
+  packageRules: [
+    {
+      matchCategories: [
+        'docker',
+      ],
+      enabled: true,
+    },
+  ],
 }
