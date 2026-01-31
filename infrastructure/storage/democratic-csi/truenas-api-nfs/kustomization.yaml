@@ -5,7 +5,7 @@ resources:
 helmCharts:
   - name: democratic-csi
     repo: https://democratic-csi.github.io/charts/
-    version: 0.15.0
+    version: 0.15.1
     releaseName: truenas-nfs
     namespace: democratic-csi
     valuesFile: values.yaml
