@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - nfd-api-crds.yaml
   - intel-igpu-rule.yaml
+  - usb-conbee2-rule.yaml
 helmCharts:
   - name: node-feature-discovery
     repo: https://kubernetes-sigs.github.io/node-feature-discovery/charts
