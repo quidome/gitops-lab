@@ -1,7 +1,6 @@
 zigbee2mqtt:
   advanced:
     channel: 25
-    network_key: secret
   timezone: Europe/Amsterdam
   mqtt:
     server: mqtt://srv02.lan.balti.casa:1883
