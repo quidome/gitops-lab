@@ -1,5 +1,5 @@
 master:
-  namespace: nfd
+  namespace: node-feature-discovery
 
 worker:
   tolerations:
