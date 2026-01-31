@@ -5,6 +5,7 @@ metadata:
   namespace: kube-system
 spec:
   type: LoadBalancer
+  loadBalancerIP: 172.16.40.49
   ports:
     - name: dns
       port: 53
