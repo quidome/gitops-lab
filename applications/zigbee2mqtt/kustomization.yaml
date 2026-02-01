@@ -18,3 +18,13 @@ helmCharts:
       statefulset:
         secrets:
           name: secrets
+        nodeSelector:
+          feature.node.kubernetes.io/usb-conbee2.present: "true"
+        volumes:
+          - name: usb-device
+            hostPath:
+              path: /dev/ttyACM0
+              type: CharDevice
+        volumeMounts:
+          - name: usb-device
+            mountPath: /dev/ttyACM0
