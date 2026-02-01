@@ -4,14 +4,20 @@ zigbee2mqtt:
   timezone: Europe/Amsterdam
   mqtt:
     server: mqtt://srv02.lan.balti.casa:1883
+    user: "!secret.yaml MQTT_USERNAME"
+    password: "!secret.yaml MQTT_PASSWORD"
 statefulset:
+  nodeSelector:
+    feature.node.kubernetes.io/usb-conbee2.present: "true"
+  secrets:
+    name: secrets.yaml
   storage:
     storageClassName: truenas-nfs
+  volumeMounts:
+    - name: usb-device
+      mountPath: /dev/ttyACM0
   volumes:
     - name: usb-device
       hostPath:
         path: /dev/ttyACM0
         type: CharDevice
-  volumeMounts:
-    - name: usb-device
-      mountPath: /dev/ttyACM0

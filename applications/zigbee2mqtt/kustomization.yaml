@@ -14,9 +14,3 @@ helmCharts:
     namespace: zigbee2mqtt
     releaseName: zigbee2mqtt
     valuesFile: values.yaml
-    valuesInline:
-      statefulset:
-        secrets:
-          name: secrets
-        nodeSelector:
-          feature.node.kubernetes.io/usb-conbee2.present: "true"
