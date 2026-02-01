@@ -9,8 +9,8 @@ zigbee2mqtt:
 statefulset:
   nodeSelector:
     feature.node.kubernetes.io/usb-conbee2.present: "true"
-  secrets:
-    name: secrets.yaml
+  # secrets:
+  #   name: secrets.yaml
   # storage:
   #   enabled: true
   #   storageClassName: truenas-nfs
