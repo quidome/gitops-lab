@@ -4,6 +4,9 @@ kind: Kustomization
 # resources:
 #   - http-route.yaml
 
+resources:
+  - secret.yaml
+
 helmCharts:
   - name: zigbee2mqtt
     repo: https://charts.zigbee2mqtt.io
@@ -11,3 +14,7 @@ helmCharts:
     namespace: zigbee2mqtt
     releaseName: zigbee2mqtt
     valuesFile: values.yaml
+    valuesInline:
+      statefulset:
+        secrets:
+          name: zigbee2mqtt-credentials

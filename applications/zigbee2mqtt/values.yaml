@@ -1,11 +1,12 @@
 zigbee2mqtt:
   advanced:
     channel: 25
+    network_key: ${NETWORK_KEY}
   timezone: Europe/Amsterdam
   mqtt:
     server: mqtt://srv02.lan.balti.casa:1883
-    user: secret
-    password: secret
+    user: ${MQTT_USERNAME}
+    password: ${MQTT_PASSWORD}
 statefulset:
   storage:
     enable: true
