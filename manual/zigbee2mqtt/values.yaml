@@ -1,11 +1,12 @@
 zigbee2mqtt:
   advanced:
     channel: 25
+    network_key: "!secret network_key"
   timezone: Europe/Amsterdam
   mqtt:
     server: mqtt://srv02.lan.balti.casa:1883
-    user: "!secret MQTT_USERNAME"
-    password: "!secret MQTT_PASSWORD"
+    user: "!secret username"
+    password: "!secret password"
   serial:
     port: /dev/ttyACM0
     adapter: deconz
@@ -36,7 +37,7 @@ extraResources:
       namespace: zigbee2mqtt
     spec:
       encryptedData:
-        secret.yaml: AgASZ3b20e7hQdZGa1X7Rf/Y+jbldDpcwxK2CtvHvUqLIVwolA/RdSF9AWfFHitmZODl/61o5gJPzG8MLX3X6zYoH6FTU6R+gYz5aYKTw2cbsyUL3Q2EFu5YOtsvOEkScoPBIpx4am/c8/od0U0kwvyFX3+zuLTe3wJo3MPJeLknW26hiA4RmtCUVc65r8BcDHa9tlDYYVGqmHhxjPcuEyYR6EOnUvGyZC5Sha90K3bNDgljLBEQGieFBi1cLxB7CQydEYVyndjY43PzVDyeyjw7qCqLntePiOCRzHhfquOdaWDd9/UO62W7JrjqJQBe3OGHNy8Y3A4FCLtlqr8sqQH9qg2Qod5pSEIFdgElnZukx6aBQUaIk4MRI1He7Gysd8GFrlD3rHsATpVxEy+d9Crev5BTy8IPKheIWvco8zyl68mLUS3N5TjI0O3F3yUBOncFKinomeGE6SdAZKl5yJ9bYMX4cAlcBSYKhOYsHPmeKO+EXhEotc0yAV64m6K/fth83aH1oXIUR+Isw+Up3hmun7U7Z5z3KYnmRtqgDmQJZlZdXRtbwZi/7v1HV5477tjFGoD+6sWO7R4+pBN5G+rLYFREcoTsGznub7vHRslpZhl6DQgL6MWF0S5Flv7QEQHoG/pHSVE7Z/hEwj5BDTS9gGr3xkc9Ndpk4SJus6Fo2SGegzLW2rYeYuiXAFCP2J2WIWw77lGW0YJ2UMOD3xN4wBJumFNWfRVk7jafaIQZAbNturLE0W68Ww32SbS4C+e+qPTVZMGOdUFDBeQFqqPki85RAvWuh2E47xgee8dCt5+rTByHXjqXjQxL0TL5NDygdqlUNRYqLkIiwyiGu09p+7cWMyvWPE4ojMrKFLhehwnWBNr2b3jFgNqc8pzrCvmEYlI8ItbUPw2v+CUe1ZkMPMQEdSF5+Ih7vqWIY0bqhSvmIMNINcLQpAFpG7qeKISfP3TAu9VBhwM3BuSqdf3f7b/7L6yBBpZsuKUCUwhstZ9f9mZUxXut23oE8PVsgxM63m4MOEKIzKJmthsq+83p0p9pg8K0l55zA6Bo
+        secret.yaml: AgAQrgveGKmLyW02pQFsavBCT5gRF7CcksYeV1fjNiA2G8akm9dXCx7DHS+ghEwWemSlVc/CLxBXagYJVRLBnHsZgxniUGbe/6T0Jq8a55M9b62p1JjntRoKaBA9vnw2vbe82GpurHbU4OiKPpf/YlXBqvSRPPJ6Bgba90u39mF7/1GRJm481ZFd91MFxOz1FmyjCSqajXAB6DB/n0lqxhaj4bPBiWNnw6myGG0IR7jIAJu/m1uwgdClH9X+aQ6OqQPBbi9p1HDXI8z7vQPued7Ee7o/06CTy/vJz5HTZUtwK/PsO+PaSo4C0m7W3yYlizD/b74u6r3AoMEq06BeL5PyQtuzJ16Zk38XPcYVIf1Si+EyZXzzCERxf7ZdO0DdNvpEpPTeMyTsl2XobKlMmxQbVFhDgYdMUSMtifLOo+h1F/Rs8UV+0qcu3MH3XhWjXUmx6w7CMkYd9PpnpvVy1Srt8TaCm3qIO5+hFYZFwiYT0mNlkuHfuGz1i4B02jXOct83XjdZJVbcErSZfR19LmA5UEiVv5fbmxC7JTLRKqZcHBsJY0tWohRBcJXFozDmvU22R01Fkig0b1Rq6vPuZrWc/ElXJvKYpNM1yrWI+EV7StliwTNSB6/nr1jS8LhUd9+SCw6QW75aItiyki/nHOOgREIisOKpVR3XgGh5a+9inMs1gYLY/GiNmjTXfkqCQWnLlJsK6L14Csa/d03SyAntNtiqyDEWyYigo8m97Tv0QyZNw5Yfw/9VpAHVF5SQjr3ytrf54z7QA/ynWQpuUCF4/tab+GXelnX/8wATeTemzZPX1r40waOUJmHfWZbRVvU2TVzeVENh3xgQc3O/wpMAM+ksUeNk7MTxAVHVcUjK+NWFyxsOOk+5
       template:
         metadata:
           name: zigbee2mqtt
