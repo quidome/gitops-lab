@@ -20,6 +20,20 @@ Core of the setup:
 
 ## setup
 
+### Sealed secrets
+
+Show secret without what is added by the cluster and frameworks:
+
+```sh
+kubectl get secrets zigbee2mqtt -o yaml | yq eval-all 'del(.metadata.annotations, .metadata.labels, .metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid)'
+```
+
+This secret can be piped into sealedsecrets:
+
+```sh
+kubectl get secrets zigbee2mqtt -o yaml | yq eval-all 'del(.metadata.annotations, .metadata.labels, .metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid)' | kubeseal --controller-namespace kube-system --controller-name sealed-secrets -o yaml
+```
+
 ### Nixos
 
 The key elements to make this setup work are in the snipper below.
