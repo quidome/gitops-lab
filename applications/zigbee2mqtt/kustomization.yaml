@@ -5,7 +5,7 @@ kind: Kustomization
 #   - http-route.yaml
 
 resources:
-  - secret.yaml
+  - sealedSecret.yaml
 
 helmCharts:
   - name: zigbee2mqtt
