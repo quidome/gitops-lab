@@ -12,6 +12,7 @@ statefulset:
   secrets:
     name: secrets.yaml
   storage:
+    enabled: true
     storageClassName: truenas-nfs
   volumeMounts:
     - name: usb-device
