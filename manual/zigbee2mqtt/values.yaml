@@ -4,9 +4,14 @@ zigbee2mqtt:
   timezone: Europe/Amsterdam
   mqtt:
     server: mqtt://srv02.lan.balti.casa:1883
-    # user: "!secrets.yaml MQTT_USERNAME"
-    # password: "!secrets.yaml MQTT_PASSWORD"
+    # user: "!secrets MQTT_USERNAME"
+    # password: "!secrets MQTT_PASSWORD"
+  # serial:
+    # port: /dev/ttyACM0
 statefulset:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
   nodeSelector:
     feature.node.kubernetes.io/usb-conbee2.present: "true"
   secrets:
