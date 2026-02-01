@@ -4,7 +4,7 @@ kind: Kustomization
 helmCharts:
   - name: zigbee2mqtt
     repo: https://charts.zigbee2mqtt.io
-    version: "1.42.0"
+    version: "2.8.0"
     namespace: zigbee2mqtt
     releaseName: zigbee2mqtt
     valuesFile: values.yaml
