@@ -17,4 +17,4 @@ helmCharts:
     valuesInline:
       statefulset:
         secrets:
-          name: zigbee2mqtt-credentials
+          name: secrets
