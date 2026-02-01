@@ -9,16 +9,30 @@ zigbee2mqtt:
 statefulset:
   nodeSelector:
     feature.node.kubernetes.io/usb-conbee2.present: "true"
-  # secrets:
-  #   name: secrets.yaml
+  secrets:
+    name: secrets
   # storage:
   #   enabled: true
   #   storageClassName: truenas-nfs
   volumeMounts:
-    - name: usb-device
+    - name: ttyacm
       mountPath: /dev/ttyACM0
   volumes:
-    - name: usb-device
+    - name: ttyacm
       hostPath:
         path: /dev/ttyACM0
-        type: CharDevice
+        type: ""
+extraResources:
+ -  apiVersion: bitnami.com/v1alpha1
+    kind: SealedSecret
+    metadata:
+      name: secrets
+      namespace: zigbee2mqtt
+    spec:
+      encryptedData:
+        secrets.yaml: AgBNnvEjdIxJxMtS0dTIEk8A1WXt/3NEAm0GftBMrj91x2ztzBWgC/PS10ITDxNV3C0D72ICLDWUM3VITuHPJFsej17CMNsXyI9HjJwupGo5CKDqNNTus8Q+ALFK2o50OxgjTAl4qQtb9xfGXEy0LiqalPT7U9i9kFmR/JghdSXi3Fr3y39kN5fDIMdfiq/oHtkccylxt/1iZalMAHEUxYYEeCa2nxWXvjfgdb05DD2+g+CO3D2TTfaonVGjwYSTFjc07OMHzSuiBMueOBUkeGaGsVtTXqFWQJVvQ97s7vFvQxzh8okw/zimhN61iera92DLG/P7Aous0HpSd1fhDkkULx5PREwtKhcpHWbqueIHl6jBNrnZEHeeXgbz982oIL4Ob9lgDf2/bnz7I/ZuaNjEajOQC9aQYXZUFRY2rn0wsLo7iFNGa/IFsRVSdOXuSIHkI1hkiuISQRghTE2OGOk2eXZo32De+4d3g1CNnlgfzCxkgZLZUFrac/N3k8vDYDvTfkNln2TO1bll1EehTWHI2lcv7MKYGaK8828e2hWxdTmz2SlS55EnVak44wXSoKwQ2f+cP6Prx/rQlaWURLueSr2Oy1ypE8wOXImDpXPCDzXo9h+72YbMrbSuucSECY2V2ZjLpuaNtrar1FlGwSprZNDAQz6+afSSs5wGjpKmvPyYB/yVMCRBpSf5njxrlFfFfyOc6XmEZS7b1FRtF7WTE2tZ3XYABnRqIgkld6slouve81ACupwpiYFRhKL4q6NnY79weQV2HN6R/Afm4PrK9bLUPbZGVMYG8UmmH5TC7OBHzx0ofuvP/pW5rcQPe1gKllUdCL+QsVOS0QQ7YykWadhO12EkiYcuwdOblJNPbmYE6gfFD2txHP5fKH0UmVnivqK9a9Isi2u6pO2EJtagsvuBOVyOsa2nRZpLnzQGyZBOTEMwh4qa0MXp7kp9ZsUHx5rVIpS3xz9a2VR6C5Tut8ldfmbrKlQXjYlkcIDDm8M2hpN9LBP6ER52LP2bwrK0oIyVl+cIoz0y2TLyCzIt1Up/+OH13OgupqY5
+      template:
+        metadata:
+          name: secrets
+          namespace: zigbee2mqtt
+        type: Opaque
