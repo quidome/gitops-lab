@@ -11,9 +11,9 @@ statefulset:
     feature.node.kubernetes.io/usb-conbee2.present: "true"
   secrets:
     name: secrets.yaml
-  storage:
-    enabled: true
-    storageClassName: truenas-nfs
+  # storage:
+  #   enabled: true
+  #   storageClassName: truenas-nfs
   volumeMounts:
     - name: usb-device
       mountPath: /dev/ttyACM0
