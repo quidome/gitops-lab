@@ -7,3 +7,11 @@ zigbee2mqtt:
 statefulset:
   storage:
     storageClassName: truenas-nfs
+  volumes:
+    - name: usb-device
+      hostPath:
+        path: /dev/ttyACM0
+        type: CharDevice
+  volumeMounts:
+    - name: usb-device
+      mountPath: /dev/ttyACM0
