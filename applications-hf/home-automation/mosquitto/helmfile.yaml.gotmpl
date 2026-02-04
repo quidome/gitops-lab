@@ -1,0 +1,17 @@
+repositories:
+  - name: k8sonlab
+    url: https://charts.ar80.eu
+
+---
+releases:
+  - name: mosquitto
+    namespace: home-automation
+    forceNamespace: home-automation
+    chart: k8sonlab/mosquitto
+    values:
+      - serviceAccount:
+         create: false
+      - fullnameOverride: mosquitto
+        persistence:
+          storageClass: truenas-iscsi
+          size: 100Mi
