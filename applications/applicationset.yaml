@@ -8,7 +8,7 @@ spec:
   generators:
     - git:
         repoURL: git@github.com:quidome/gitops-lab.git
-        revision: HEAD
+        revision: main
         directories:
           - path: applications/*
           - exclude: true
@@ -24,7 +24,7 @@ spec:
         plugin:
           name: kustomize-build-with-helm
         repoURL: git@github.com:quidome/gitops-lab.git
-        targetRevision: HEAD
+        targetRevision: main
         path: "{{path}}"
       destination:
         server: https://kubernetes.default.svc

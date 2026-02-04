@@ -8,7 +8,7 @@ spec:
   goTemplate: true
   generators:
     - git:
-        repoURL: https://github.com/quidome/gitops-lab.git
+        repoURL: git@github.com:quidome/gitops-lab.git
         revision: main
         directories:
           - path: applications-hf/*
@@ -22,7 +22,7 @@ spec:
       source:
         plugin:
           name: helmfile
-        repoURL: https://github.com/quidome/gitops-lab.git
+        repoURL: git@github.com:quidome/gitops-lab.git
         targetRevision: main
         path: '{{.path.path}}'
       destination:
