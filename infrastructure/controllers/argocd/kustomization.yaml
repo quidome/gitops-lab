@@ -5,6 +5,7 @@ resources:
   - ns.yaml
   - http-route.yaml
   - managed-apps.yaml
+  - helmfile-plugin-configmap.yaml
 
 helmCharts:
   - name: argo-cd

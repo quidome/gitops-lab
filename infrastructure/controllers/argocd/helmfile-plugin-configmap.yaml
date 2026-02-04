@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmp-helmfile
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cmp-helmfile
+    app.kubernetes.io/part-of: argocd
+data:
+  plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: helmfile
+    spec:
+      version: v1.0
+      init:
+        command: [sh, -c]
+        args: ["helmfile repos"]
+      discover:
+        fileNames:
+          - "helmfile.yaml"
+          - "helmfile.d/**/*.yaml"
+      generate:
+        command: [sh, -c]
+        args: ["helmfile -f ${HELMFILE_FILEPATH:-helmfile.yaml} template"]
+      lockRepo: true
