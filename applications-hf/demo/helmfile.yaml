@@ -7,7 +7,7 @@ releases:
   - name: demo-nginx
     namespace: demo
     chart: bitnami/nginx
-    version: "18.0.0"
+    version: "22.4.4"
     values:
       - service:
           type: ClusterIP
