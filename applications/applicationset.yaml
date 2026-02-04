@@ -11,13 +11,11 @@ spec:
         revision: main
         directories:
           - path: applications/*
-          - exclude: true
-            path: applicationset.yaml
   template:
     metadata:
-      name: "{{path.basename}}"
+      name: '{{.path.basename}}'
       labels:
-        type: application
+        type: applications
     spec:
       project: default
       source:
@@ -25,10 +23,10 @@ spec:
           name: kustomize-build-with-helm
         repoURL: git@github.com:quidome/gitops-lab.git
         targetRevision: main
-        path: "{{path}}"
+        path: '{{.path.path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{path.basename}}"
+        namespace: '{{ .path.basename }}'
       syncPolicy:
         retry:
           limit: 5

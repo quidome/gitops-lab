@@ -16,7 +16,7 @@ spec:
           - path: infrastructure/monitoring/*
   template:
     metadata:
-      name: "{{path.basename}}"
+      name: '{{.path.basename}}'
       labels:
         type: infrastructure
     spec:
@@ -33,10 +33,10 @@ spec:
           name: kustomize-build-with-helm
         repoURL: git@github.com:quidome/gitops-lab.git
         targetRevision: main
-        path: "{{path}}"
+        path: '{{.path.path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{path.basename}}"
+        namespace: '{{ .path.basename }}'
       syncPolicy:
         retry:
           limit: 5
@@ -47,3 +47,7 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+          - RespectIgnoreDifferences=true
+          - ApplyOutOfSyncOnly=true
+          - Replace=false
+          - IgnoreMissingTemplate=true
