@@ -4,6 +4,7 @@ DNS2:
 persistentVolumeClaim:
   enabled: true
   storageClass: truenas-nfs
+  size: 1Gi
 serviceDns:
   loadBalancerIP: 172.16.40.53
   type: LoadBalancer
