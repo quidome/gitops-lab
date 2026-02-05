@@ -50,3 +50,7 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+          - RespectIgnoreDifferences=true
+          - ApplyOutOfSyncOnly=true
+          - Replace=false
+          - IgnoreMissingTemplate=true

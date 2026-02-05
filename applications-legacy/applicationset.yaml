@@ -11,8 +11,6 @@ spec:
         revision: HEAD
         directories:
           - path: applications/*
-          - exclude: true
-            path: applicationset.yaml
   template:
     metadata:
       name: "{{path.basename}}"
