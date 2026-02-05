@@ -1,6 +1,20 @@
 # AGENTS.md
 
-This document provides guidance for agentic coding assistants working with this GitOps repository. This is a k3s home lab setup managed via ArgoCD with Kubernetes manifests, Kustomize configurations, and Helm charts.
+This document provides guidance for agentic coding assistants working with this GitOps repository. This is a k3s home lab setup managed via ArgoCD with Kubernetes manifests, Kustomize configurations, Helm charts, and Helmfile.
+
+## ArgoCD Config Management Plugins
+
+This repository uses ArgoCD with the following Config Management Plugins (CMPs):
+
+1. **kustomize-build-with-helm** - Native Kustomize with Helm chart support
+   - Discovers: Any directory with `kustomization.yaml`
+   - Command: `kustomize build --enable-helm`
+
+2. **helmfile** - Helmfile support for declarative Helm deployments
+   - Image: `ghcr.io/helmfile/helmfile:v0.169.1`
+   - Discovers: Any directory with `helmfile.yaml`
+   - Init: `helmfile repos` (syncs Helm repositories)
+   - Generate: `helmfile template --include-crds`
 
 ## Repository Structure
 
@@ -75,6 +89,22 @@ helm template <release-name> <chart-path> --namespace <ns> --values <values-file
 
 # Dry-run Helm installs
 helm install <release-name> <chart-path> --dry-run --namespace <ns>
+```
+
+### Helmfile Validation
+
+```bash
+# Validate helmfile syntax
+helmfile lint
+
+# Template helmfile (dry-run)
+helmfile template --include-crds
+
+# List releases defined in helmfile
+helmfile list
+
+# Template with specific environment
+helmfile --environment <env> template
 ```
 
 ### ArgoCD-Specific Validation
@@ -250,6 +280,28 @@ This repository uses `kustomize-build-with-helm` plugin for ApplicationSets. Ens
 2. Run `kubectl kustomize` to preview changes
 3. Commit with message like `feat(infrastructure): update <controller> config`
 4. Verify sync in ArgoCD after push
+
+### Adding Application with Helmfile
+
+1. Create directory in `applications/<app-name>/` or `infrastructure/<category>/<component>/`
+2. Add `helmfile.yaml` with release definitions
+3. Optionally add `values.yaml` files referenced by helmfile
+4. Commit and push - ArgoCD auto-discovers via ApplicationSet
+
+**Example helmfile.yaml:**
+```yaml
+repositories:
+  - name: <repo-name>
+    url: <helm-repo-url>
+
+releases:
+  - name: <release-name>
+    namespace: <namespace>
+    chart: <repo-name>/<chart-name>
+    version: <version>
+    values:
+      - values.yaml
+```
 
 ## Testing Checklist
 

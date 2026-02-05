@@ -9,6 +9,17 @@ configs:
         generate:
           command: [ "sh", "-c" ]
           args: [ "kustomize build --enable-helm" ]
+      helmfile:
+        discover:
+          find:
+            command: [ "sh", "-c" ]
+            args: [ "find . -name helmfile.yaml" ]
+        init:
+          command: [ "sh", "-c" ]
+          args: [ "helmfile repos" ]
+        generate:
+          command: [ "sh", "-c" ]
+          args: [ "helmfile template --include-crds" ]
   params:
     server.insecure: true
 
@@ -60,7 +71,12 @@ repoServer:
     - name: cmp-kustomize-build-with-helm
       configMap:
         name: argocd-cmp-cm
+    - name: cmp-helmfile
+      configMap:
+        name: argocd-cmp-cm
     - name: cmp-tmp
+      emptyDir: {}
+    - name: helmfile-tmp
       emptyDir: {}
   resources:
     requests:
@@ -91,6 +107,29 @@ repoServer:
           subPath: kustomize-build-with-helm.yaml
         - mountPath: /tmp
           name: cmp-tmp
+    - name: helmfile
+      command:
+        - /var/run/argocd/argocd-cmp-server
+      image: ghcr.io/helmfile/helmfile:v0.169.1
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop: [ "ALL" ]
+      volumeMounts:
+        - name: plugins
+          mountPath: /home/argocd/cmp-server/plugins
+        - name: cmp-helmfile
+          mountPath: /home/argocd/cmp-server/config/plugin.yaml
+          subPath: helmfile.yaml
+        - mountPath: /tmp
+          name: helmfile-tmp
+        - mountPath: /var/run/argocd
+          name: var-files
 
 applicationSet:
   resources:
