@@ -22,7 +22,7 @@ spec:
 
               # Check if cert-manager is running
               echo "Checking cert-manager pods..."
-              kubectl get pods -n cert-manager -l app.kubernetes.io/name=cert-manager
+              kubectl get pods -n kube-system -l app.kubernetes.io/name=cert-manager
 
               # Check if ClusterIssuer is ready
               echo "Checking ClusterIssuer status..."
@@ -30,11 +30,11 @@ spec:
 
               # Check if the secret exists
               echo "Checking Cloudflare secret..."
-              if kubectl get secret cloudflare-api-token -n cert-manager > /dev/null 2>&1; then
+              if kubectl get secret cloudflare-api-token -n kube-system > /dev/null 2>&1; then
                 echo "✓ Cloudflare API token secret exists"
               else
                 echo "✗ Cloudflare API token secret missing!"
-                echo "Create it with: kubectl create secret generic cloudflare-api-token --from-literal=api-token=YOUR_TOKEN -n cert-manager"
+                echo "Create it with: kubectl create secret generic cloudflare-api-token --from-literal=api-token=YOUR_TOKEN -n kube-system"
                 exit 1
               fi
 

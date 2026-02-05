@@ -2,7 +2,7 @@
 global:
   leaderElection:
     # This should be the same namespace cert-manager is installed into
-    namespace: cert-manager
+    namespace: kube-system
 crds:
   enabled: true
   keep: true
