@@ -34,7 +34,7 @@ csiDriver:
 storageClasses:
   - name: truenas-nfs
     defaultClass: false
-    reclaimPolicy: Retain
+    reclaimPolicy: Delete
     volumeBindingMode: Immediate
     allowVolumeExpansion: true
     parameters:
