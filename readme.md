@@ -280,9 +280,11 @@ kubectl kustomize --enable-helm infrastructure-legacy/networking/gateway | kubec
 
 **Components:**
 - GatewayClass: `cilium`
-- Gateway: `cilium-gateway` in `gateway` namespace
+- Gateway: `gateway-internal` in `networking` namespace (IP: 172.16.40.50)
 - Internal services routed via `gw-internal.yaml`
 - Certificates managed by cert-manager
+
+**Note:** Gateway resources are now in `networking` namespace alongside pihole and external-dns.
 
 ### pihole
 
@@ -293,9 +295,11 @@ DNS ad-blocker and DHCP server.
 kubectl kustomize --enable-helm infrastructure-legacy/networking/pihole | kubectl apply -f -
 ```
 
+**Namespace:** `networking`
+
 **Access:**
-- Web UI: http://pihole.gateway.domain.com (via Gateway)
-- DNS: pihole.gateway:53
+- Web UI: http://pihole.quido.me (via Gateway)
+- DNS: pihole.networking:53
 
 **Configuration:**
 - Values in `infrastructure-legacy/networking/pihole/values.yaml`
@@ -310,10 +314,11 @@ Synchronizes Kubernetes services with DNS providers.
 kubectl kustomize --enable-helm infrastructure-legacy/networking/external-dns | kubectl apply -f -
 ```
 
+**Namespace:** `networking`
+
 **Configuration:**
 - Provider: Cloudflare
 - Source: pihole (DNS entries from pihole)
-- Namespace: `networking`
 - Policy: sync (creates/updates DNS records)
 
 **Check sync status:**
