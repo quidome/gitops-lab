@@ -10,10 +10,10 @@ spec:
         repoURL: git@github.com:quidome/gitops-lab.git
         revision: main
         directories:
-          - path: infrastructure/networking/*
-          - path: infrastructure/storage/*
-          - path: infrastructure/controllers/*
-          - path: infrastructure/monitoring/*
+          - path: infrastructure-legacy/networking/*
+          - path: infrastructure-legacy/storage/*
+          - path: infrastructure-legacy/controllers/*
+          - path: infrastructure-legacy/monitoring/*
   template:
     metadata:
       name: "{{path.basename}}"
