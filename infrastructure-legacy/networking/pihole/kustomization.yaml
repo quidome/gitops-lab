@@ -10,5 +10,5 @@ helmCharts:
     repo: https://mojo2600.github.io/pihole-kubernetes
     version: 2.35.0
     releaseName: pihole
-    namespace: pihole
+    namespace: networking
     valuesFile: values.yaml
