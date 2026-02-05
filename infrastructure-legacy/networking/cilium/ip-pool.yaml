@@ -2,6 +2,7 @@ apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
 metadata:
   name: main-pool
+  namespace: kube-system
 spec:
   blocks:
     - cidr: "172.16.40.48/28" # Use "blocks" instead of "cidrs" Usable IPs: 172.16.40.49 to 172.16.40.62
