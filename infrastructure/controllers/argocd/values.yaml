@@ -12,10 +12,10 @@ configs:
       helmfile:
         generate:
           command: [ "sh", "-c" ]
-          args: [ "helmfile --file {{path}}/helmfile.yaml build" ]
+          args: [ "/custom-tools/helmfile --file {{path}}/helmfile.yaml build" ]
         init:
           command: [ "sh", "-c" ]
-          args: [ "helmfile --file {{path}}/helmfile.yaml repos" ]
+          args: [ "/custom-tools/helmfile --file {{path}}/helmfile.yaml repos" ]
   params:
     server.insecure: true
 
@@ -65,20 +65,22 @@ repoServer:
     readOnlyRootFilesystem: true
   volumeMounts:
     - name: tools
-      mountPath: /usr/local/bin
+      mountPath: /custom-tools
+  env:
+    - name: PATH
+      value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   initContainers:
     - name: install-helmfile
-      image: alpine:latest
+      image: busybox:1.36
       command:
         - sh
         - -c
         - |
-          apk add --no-cache curl && \
-          curl -L https://github.com/helmfile/helmfile/releases/download/v0.160.0/helmfile_0.160.0_linux_amd64 -o /usr/local/bin/helmfile && \
-          chmod +x /usr/local/bin/helmfile
+          curl -sL https://github.com/helmfile/helmfile/releases/download/v0.160.0/helmfile_0.160.0_linux_amd64 -o /custom-tools/helmfile && \
+          chmod +x /custom-tools/helmfile
       volumeMounts:
         - name: tools
-          mountPath: /usr/local/bin
+          mountPath: /custom-tools
   volumes:
     - name: tools
       emptyDir: {}
@@ -108,6 +110,9 @@ repoServer:
           type: RuntimeDefault
         capabilities:
           drop: [ "ALL" ]
+      env:
+        - name: PATH
+          value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       volumeMounts:
         - name: plugins
           mountPath: /home/argocd/cmp-server/plugins
@@ -117,7 +122,7 @@ repoServer:
         - mountPath: /tmp
           name: cmp-tmp
         - name: tools
-          mountPath: /usr/local/bin
+          mountPath: /custom-tools
 
 applicationSet:
   resources:
