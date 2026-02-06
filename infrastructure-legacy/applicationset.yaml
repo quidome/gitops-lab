@@ -21,6 +21,9 @@ spec:
         type: infrastructure
     spec:
       project: default
+      destination:
+        namespace: "{{path.1}}"
+        server: https://kubernetes.default.svc
       ignoreDifferences:
         - kind: Secret
           jsonPointers:
@@ -34,8 +37,6 @@ spec:
         repoURL: git@github.com:quidome/gitops-lab.git
         targetRevision: main
         path: "{{path}}"
-      destination:
-        server: https://kubernetes.default.svc
       syncPolicy:
         automated:
           prune: false
