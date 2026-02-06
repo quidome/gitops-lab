@@ -3,6 +3,5 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  - driver-config-file.yaml
   - truenas-api-iscsi
   - truenas-api-nfs
