@@ -3,8 +3,8 @@ repositories:
     url: https://charts.bitnami.com/bitnami
 
 releases:
-  - name: nginx-{{ .Environment.Name }}
-    namespace: demo
+  - name: nginx
+    namespace: frontend
     chart: bitnami/nginx
     version: 18.1.0
     values:
