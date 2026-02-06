@@ -27,6 +27,8 @@ spec:
         path: '{{ .path.path }}'
       destination:
         server: https://kubernetes.default.svc
+        # Extract namespace from path structure demo/<namespace>/<app>
+        # Example: "demo/frontend/nginx" -> ["demo", "frontend", "nginx"] -> get element at index 1 -> "frontend"
         namespace: '{{ index (splitList "/" .path.path) (sub (len (splitList "/" .path.path)) 2) }}'
       syncPolicy:
         retry:
