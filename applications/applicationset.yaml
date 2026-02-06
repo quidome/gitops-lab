@@ -11,10 +11,10 @@ spec:
         repoURL: git@github.com/quidome/gitops-lab.git
         revision: main
         directories:
-          - path: demo/*/*
+          - path: applications/*/*
   template:
     metadata:
-      name: '{{ .path.basename }}'
+      name: "{{ .path.basename }}"
       labels:
         type: applications
     spec:
@@ -24,7 +24,7 @@ spec:
           name: helmfile
         repoURL: git@github.com/quidome/gitops-lab.git
         targetRevision: main
-        path: '{{ .path.path }}'
+        path: "{{ .path.path }}"
       destination:
         server: https://kubernetes.default.svc
         # Extract namespace from path structure demo/<namespace>/<app>

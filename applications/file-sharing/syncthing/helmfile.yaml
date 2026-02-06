@@ -1,0 +1,11 @@
+repositories:
+  - name: k8s-home-lab
+    url: https://k8s-home-lab.github.io/helm-charts/
+
+releases:
+  - name: syncthing
+    namespace: file-sharing
+    chart: k8s-home-lab/syncthing
+    version: 4.0.0
+    values:
+      - values.yaml
