@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: applications
+  name: applications-legacy
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
@@ -10,7 +10,7 @@ spec:
         repoURL: git@github.com:quidome/gitops-lab.git
         revision: HEAD
         directories:
-          - path: applications/*
+          - path: applications-legacy/*
           - exclude: true
             path: applicationset.yaml
   template:
