@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: demo
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  goTemplate: true
+  generators:
+    - git:
+        repoURL: git@github.com/quidome/gitops-lab.git
+        revision: main
+        directories:
+          - path: demo/*/*
+  template:
+    metadata:
+      name: '{{ .path.basename }}'
+      labels:
+        type: applications
+    spec:
+      project: default
+      source:
+        plugin:
+          name: helmfile
+        repoURL: git@github.com/quidome/gitops-lab.git
+        targetRevision: main
+        path: '{{ .path.path }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ index (splitList "/" path) (sub (len (splitList "/" path)) 1) }}'
+      syncPolicy:
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
