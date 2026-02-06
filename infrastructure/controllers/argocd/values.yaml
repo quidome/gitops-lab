@@ -9,6 +9,13 @@ configs:
         generate:
           command: [ "sh", "-c" ]
           args: [ "kustomize build --enable-helm" ]
+      helmfile:
+        generate:
+          command: [ "sh", "-c" ]
+          args: [ "helmfile --file {{path}}/helmfile.yaml build" ]
+        init:
+          command: [ "sh", "-c" ]
+          args: [ "helmfile --file {{path}}/helmfile.yaml repos" ]
   params:
     server.insecure: true
 
@@ -56,7 +63,25 @@ server:
 repoServer:
   containerSecurityContext:
     readOnlyRootFilesystem: true
+  volumeMounts:
+    - name: tools
+      mountPath: /usr/local/bin
+  initContainers:
+    - name: install-helmfile
+      image: alpine:latest
+      command:
+        - sh
+        - -c
+        - |
+          apk add --no-cache curl && \
+          curl -L https://github.com/helmfile/helmfile/releases/download/v0.160.0/helmfile_0.160.0_linux_amd64 -o /usr/local/bin/helmfile && \
+          chmod +x /usr/local/bin/helmfile
+      volumeMounts:
+        - name: tools
+          mountPath: /usr/local/bin
   volumes:
+    - name: tools
+      emptyDir: {}
     - name: cmp-kustomize-build-with-helm
       configMap:
         name: argocd-cmp-cm
@@ -91,6 +116,8 @@ repoServer:
           subPath: kustomize-build-with-helm.yaml
         - mountPath: /tmp
           name: cmp-tmp
+        - name: tools
+          mountPath: /usr/local/bin
 
 applicationSet:
   resources:
