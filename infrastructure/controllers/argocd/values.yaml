@@ -9,13 +9,6 @@ configs:
         generate:
           command: [ "sh", "-c" ]
           args: [ "kustomize build --enable-helm" ]
-      helmfile:
-        generate:
-          command: [ "sh", "-c" ]
-          args: [ "/custom-tools/helmfile --file {{path}}/helmfile.yaml build" ]
-        init:
-          command: [ "sh", "-c" ]
-          args: [ "/custom-tools/helmfile --file {{path}}/helmfile.yaml repos" ]
   params:
     server.insecure: true
 
@@ -61,37 +54,11 @@ server:
       memory: 256Mi
 
 repoServer:
-  containerSecurityContext:
-    readOnlyRootFilesystem: true
-  volumeMounts:
-    - name: tools
-      mountPath: /custom-tools
-  env:
-    - name: PATH
-      value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-  initContainers:
-    - name: install-helmfile
-      image: alpine:3.19
-      command:
-        - sh
-        - -c
-        - |
-          apk add --no-cache curl && \
-          curl -sL https://github.com/helmfile/helmfile/releases/download/v0.160.0/helmfile_0.160.0_linux_amd64 -o /custom-tools/helmfile && \
-          chmod +x /custom-tools/helmfile
-      volumeMounts:
-        - name: tools
-          mountPath: /custom-tools
   volumes:
-    - name: tools
-      emptyDir: {}
     - name: cmp-kustomize-build-with-helm
       configMap:
         name: argocd-cmp-cm
-    - name: cmp-helmfile
-      configMap:
-        name: argocd-cmp-cm
-    - name: cmp-tmp
+    - name: helmfile-cmp-tmp
       emptyDir: {}
   resources:
     requests:
@@ -114,9 +81,6 @@ repoServer:
           type: RuntimeDefault
         capabilities:
           drop: [ "ALL" ]
-      env:
-        - name: PATH
-          value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       volumeMounts:
         - name: plugins
           mountPath: /home/argocd/cmp-server/plugins
@@ -124,35 +88,20 @@ repoServer:
           mountPath: /home/argocd/cmp-server/config/plugin.yaml
           subPath: kustomize-build-with-helm.yaml
         - mountPath: /tmp
-          name: cmp-tmp
-        - name: tools
-          mountPath: /custom-tools
-    - name: helmfile
-      command:
-        - argocd-cmp-server
-      image: '{{ default .Values.global.image.repository .Values.repoServer.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.repoServer.image.tag }}'
+          name: helmfile-cmp-tmp
+    - name: helmfile-plugin
+      image: travisghansen/argo-cd-helmfile:latest
+      command: [/var/run/argocd/argocd-cmp-server]
       securityContext:
         runAsNonRoot: true
         runAsUser: 999
-        allowPrivilegeEscalation: false
-        readOnlyRootFilesystem: true
-        seccompProfile:
-          type: RuntimeDefault
-        capabilities:
-          drop: [ "ALL" ]
-      env:
-        - name: PATH
-          value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       volumeMounts:
-        - name: plugins
-          mountPath: /home/argocd/cmp-server/plugins
-        - name: cmp-helmfile
-          mountPath: /home/argocd/cmp-server/config/plugin.yaml
-          subPath: helmfile.yaml
+        - mountPath: /var/run/argocd
+          name: var-files
+        - mountPath: /home/argocd/cmp-server/plugins
+          name: plugins
         - mountPath: /tmp
-          name: cmp-tmp
-        - name: tools
-          mountPath: /custom-tools
+          name: helmfile-cmp-tmp
 
 applicationSet:
   resources:
