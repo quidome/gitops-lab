@@ -2,6 +2,12 @@ cluster:
   name: homelab
   id: 1
 
+# Prevent ArgoCD from trying to prune kube-system namespace
+namespace:
+  metadata:
+    annotations:
+      argocd.argoproj.io/sync-options: Prune=false
+
 kubeProxyReplacement: true
 
 k8sServiceHost: 172.16.40.76
