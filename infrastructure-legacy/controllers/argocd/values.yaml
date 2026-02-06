@@ -110,7 +110,7 @@ repoServer:
     - name: helmfile
       command:
         - /var/run/argocd/argocd-cmp-server
-      image: ghcr.io/helmfile/helmfile:v0.169.1
+      image: ghcr.io/helmfile/helmfile:v1.2.3
       securityContext:
         runAsNonRoot: true
         runAsUser: 999
