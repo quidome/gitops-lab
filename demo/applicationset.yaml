@@ -27,7 +27,7 @@ spec:
         path: '{{ .path.path }}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{ index (splitList "/" path) (sub (len (splitList "/" path)) 1) }}'
+        namespace: '{{ index (splitList "/" .path.path) (sub (len (splitList "/" .path.path)) 1) }}'
       syncPolicy:
         retry:
           limit: 5
