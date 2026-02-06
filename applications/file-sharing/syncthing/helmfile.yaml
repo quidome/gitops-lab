@@ -9,3 +9,5 @@ releases:
     version: 4.0.0
     values:
       - values.yaml
+  - name: syncthing-resources
+    chart: ./resources
