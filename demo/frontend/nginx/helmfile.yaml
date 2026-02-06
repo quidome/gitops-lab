@@ -8,12 +8,4 @@ releases:
     chart: bitnami/nginx
     version: 18.1.0
     values:
-      replicaCount: 1
-      image:
-        repository: docker.io/nginx
-        tag: latest
-      service:
-        type: ClusterIP
-        port: 80
-      ingress:
-        enabled: false
+      - values.yaml
