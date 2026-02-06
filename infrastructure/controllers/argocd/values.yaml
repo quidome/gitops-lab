@@ -71,7 +71,7 @@ repoServer:
       value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   initContainers:
     - name: install-helmfile
-      image: alpine:3.19
+      image: alpine:3.23
       command:
         - sh
         - -c
