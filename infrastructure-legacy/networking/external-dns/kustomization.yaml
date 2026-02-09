@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  - external-dns-pihole.yaml
+  - external-secret.yaml
 
 helmCharts:
   - name: external-dns
