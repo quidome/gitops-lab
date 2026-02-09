@@ -12,6 +12,7 @@ Core of the setup:
 * ArgoCD
 * cert-manager
 * democratic-csi
+* OpenBAO + External Secrets Operator
 
 ### Inpiration
 
@@ -20,7 +21,83 @@ Core of the setup:
 
 ## setup
 
-### Sealed secrets
+### OpenBAO (Secret Management)
+
+OpenBAO is used for secret management, with External Secrets Operator (ESO) syncing secrets to Kubernetes.
+
+#### Unseal OpenBAO (after pod restart)
+
+OpenBAO starts sealed. You need 3 of 5 unseal keys:
+
+```sh
+kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key-1>
+kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key-2>
+kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key-3>
+```
+
+Check status:
+
+```sh
+kubectl exec -n security openbao-0 -- bao status
+```
+
+#### Add a secret
+
+```sh
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv put kv/<path> <key>=<value>'
+```
+
+Example:
+
+```sh
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="hvs.xxx" && bao kv put kv/myapp password=supersecret api-key=abc123'
+```
+
+#### Read a secret
+
+```sh
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv get kv/<path>'
+```
+
+#### List secrets
+
+```sh
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv list kv/'
+```
+
+#### Use secret in an application
+
+Create an ExternalSecret in your app namespace:
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: myapp-secrets
+  namespace: myapp
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: openbao
+    kind: ClusterSecretStore
+  target:
+    name: myapp-secrets
+  data:
+    - secretKey: password
+      remoteRef:
+        key: myapp
+        property: password
+    - secretKey: api-key
+      remoteRef:
+        key: myapp
+        property: api-key
+```
+
+ESO creates a Kubernetes Secret `myapp-secrets` that your pods can use.
+
+### Sealed secrets (legacy)
+
+> **Note**: Sealed secrets is being replaced by OpenBAO + ESO.
 
 To store a yaml document in a secret, create document.yaml first, like:
 
