@@ -28,8 +28,8 @@ spec:
             - /data/tls.key
         - group: apps
           kind: StatefulSet
-          jsonPointers:
-            - /spec/volumeClaimTemplates
+          jqPathExpressions:
+            - .spec.volumeClaimTemplates[]?
       source:
         plugin:
           name: helmfile
