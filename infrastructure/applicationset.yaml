@@ -26,6 +26,10 @@ spec:
             - /data/ca.key
             - /data/tls.crt
             - /data/tls.key
+        - group: apps
+          kind: StatefulSet
+          jsonPointers:
+            - /spec/volumeClaimTemplates
       source:
         plugin:
           name: helmfile
