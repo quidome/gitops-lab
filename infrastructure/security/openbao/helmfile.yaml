@@ -1,0 +1,12 @@
+---
+repositories:
+  - name: openbao
+    url: https://openbao.github.io/openbao-helm
+
+releases:
+  - name: openbao
+    namespace: security
+    chart: openbao/openbao
+    version: 0.4.0
+    values:
+      - values.yaml
