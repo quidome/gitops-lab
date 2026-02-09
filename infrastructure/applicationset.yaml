@@ -5,18 +5,16 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-2"
 spec:
+  goTemplate: true
   generators:
     - git:
         repoURL: git@github.com:quidome/gitops-lab.git
-        revision: HEAD
+        revision: main
         directories:
-          - path: infrastructure-legacy/networking/*
-          - path: infrastructure-legacy/storage/*
-          - path: infrastructure-legacy/controllers/*
-          - path: infrastructure-legacy/monitoring/*
+          - path: infrastructure/*/*
   template:
     metadata:
-      name: "{{path.basename}}"
+      name: "{{ .path.basename }}"
       labels:
         type: infrastructure
     spec:
@@ -30,13 +28,14 @@ spec:
             - /data/tls.key
       source:
         plugin:
-          name: kustomize-build-with-helm
+          name: helmfile
         repoURL: git@github.com:quidome/gitops-lab.git
-        targetRevision: HEAD
-        path: "{{path}}"
+        targetRevision: main
+        path: "{{ .path.path }}"
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{path.basename}}"
+        # Extract namespace from path: infrastructure/<realm>/<component> -> <component>
+        namespace: "{{ .path.basename }}"
       syncPolicy:
         retry:
           limit: 5
