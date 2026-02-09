@@ -95,6 +95,65 @@ spec:
 
 ESO creates a Kubernetes Secret `myapp-secrets` that your pods can use.
 
+#### Bootstrap ESO connection to OpenBAO (one-time setup)
+
+After initializing OpenBAO, set up AppRole auth for ESO:
+
+```sh
+kubectl exec -it -n security openbao-0 -- sh
+```
+
+Inside the pod:
+
+```sh
+export BAO_TOKEN="<root-token>"
+
+# Enable KV v2 secrets engine
+bao secrets enable -path=kv kv-v2
+
+# Enable AppRole auth
+bao auth enable approle
+
+# Create policy for ESO (read-only)
+bao policy write eso-policy - <<EOF
+path "kv/data/*" {
+  capabilities = ["read"]
+}
+path "kv/metadata/*" {
+  capabilities = ["read", "list"]
+}
+EOF
+
+# Create AppRole
+bao write auth/approle/role/eso \
+  token_policies="eso-policy" \
+  token_ttl=1h \
+  token_max_ttl=4h
+
+# Get credentials (save these!)
+bao read auth/approle/role/eso/role-id
+bao write -f auth/approle/role/eso/secret-id
+```
+
+Create the bootstrap secret (only manual secret needed):
+
+```sh
+kubectl create secret generic openbao-approle \
+  --namespace security \
+  --from-literal=role-id=<role-id> \
+  --from-literal=secret-id=<secret-id>
+```
+
+The ClusterSecretStore is deployed via GitOps and references this secret.
+
+#### Verify ESO connection
+
+```sh
+kubectl get clustersecretstore openbao
+```
+
+Should show `Ready: True`.
+
 ### Sealed secrets (legacy)
 
 > **Note**: Sealed secrets is being replaced by OpenBAO + ESO.
