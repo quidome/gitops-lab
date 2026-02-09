@@ -1,0 +1,66 @@
+driver:
+  existingConfigSecret: "truenas-iscsi-driver-config"
+  config:
+    driver: freenas-api-iscsi
+    httpConnection:
+      protocol: https
+      apiKey: TRUENAS_API_KEY
+      host: TRUENAS_ADDRESS
+      port: 443
+      allowInsecure: true
+    zfs:
+      datasetParentName: datapool/k8s/iscsi/volumes
+      detachedSnapshotsDatasetParentName: datapool/k8s/iscsi/snapshots
+      zvolCompression:
+      zvolDedup:
+      zvolEnableReservation: false
+      zvolBlockSize:
+    iscsi:
+      targetPortal: "PORTAL_IP_ADDRESS:3260"
+      targetPortals: []
+      interface:
+      namePrefix: csi-
+      nameSuffix: "-lab"
+      targetGroups:
+        - targetGroupPortalGroup: 1
+          targetGroupInitiatorGroup: 1
+          targetGroupAuthType: None
+          targetGroupAuthGroup:
+      extentInsecureTpc: true
+      extentXenCompat: false
+      extentDisablePhysicalBlocksize: true
+      extentBlocksize: 512
+      extentRpm: "5400"
+      extentAvailThreshold: 0
+
+csiDriver:
+  # should be globally unique for a given cluster
+  name: "org.democratic-csi.iscsi"
+
+storageClasses:
+  - name: truenas-iscsi
+    defaultClass: true
+    reclaimPolicy: Retain
+    volumeBindingMode: Immediate
+    allowVolumeExpansion: true
+    parameters:
+      fsType: ext4
+      detachedVolumesFromSnapshots: "false"
+    mountOptions: []
+    secrets:
+      provisioner-secret:
+      controller-publish-secret:
+      node-stage-secret:
+      node-publish-secret:
+      controller-expand-secret:
+
+node:
+  hostPID: true
+  driver:
+    extraEnv:
+      - name: ISCSIADM_HOST_STRATEGY
+        value: nsenter
+      - name: ISCSIADM_HOST_PATH
+        value: /run/current-system/sw/bin/iscsiadm
+    iscsiDirHostPath: /run/current-system/sw/bin/iscsiadm
+    iscsiDirHostPathType: ""

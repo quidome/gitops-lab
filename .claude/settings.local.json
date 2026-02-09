@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(git -C /home/quidome/dev/github.com/quidome/gitops-lab log --oneline)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
