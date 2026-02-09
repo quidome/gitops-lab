@@ -32,19 +32,23 @@ statefulset:
         path: /dev/ttyACM0
         type: ""
 extraResources:
-  - apiVersion: bitnami.com/v1alpha1
-    kind: SealedSecret
+  - apiVersion: external-secrets.io/v1beta1
+    kind: ExternalSecret
     metadata:
       name: zigbee2mqtt
       namespace: zigbee2mqtt
     spec:
-      encryptedData:
-        secret.yaml: AgBGKdGlZc5UXdAqKlEJByUS7A/MSeY1aaPD5MePf38OzuqZWFsMYcLu5AFS5CCuYULz7jpjMu2IxHaJN9kNoHaa1vuvsoaQ9e+BN+YaBWuB4mikSZsTmGtjEACuagAP4i0VnG1XOSatxf1v8PwWXiOJXmftGC5XYuDEYR7LDoJvNShhuRSH4OkOOxIPgaWmRxi00qj9TkM6H0Pyr+CCoQmQD2wrXdvL++lGpoWZl0d0zUt2Ce/GRM64sEegCwfTk/QbROUqjzmrILcaJGdsvEda8ZVyzehOBk1BbGx95LK9lq/xEz1BX33wHaLqsek68Zrofnpfx9V6RwG4YRyZFuoznEf469pjE9vrODMvN9inhgIVmVqd8sOVr96xiN71M9+2TXF9Xq5dNsPZWFRlggGTIHZ0BRlpUddE8MKS5iuQ//QkYYdulwn2ciXwIeC3OHsFcDpifJDP6wlHFZerxx9pDSmF7c7CHdwRBk2twzfhoGx0fZmyqyCldULvxGGcvJ+LNGfHXABnS2KPcB5AYBR+vVWYyyx/IMay25HmQb/tdQmMxJ2VYVzx1KbPplxwgnRTamJD7D6t/cWk3h/rEXR0wX3jNHLROdYHh49atiQqJlc7zURnoiROACFMwYsmbvSy3yOCQ8tYT5OUIMhrWKtvRWheIEJuUfJhsghu/YwkSc8K42MMo2L2AL4laY68Y6TnFgpcH+5HsEXv5gZcUZMS2sIGNjB//dGBgGLxfNg1Edt71TYPsDuTKQu1HlAlz0ODG7N/nd4nzLimUgPwqnn2nTqfaWLCsefQX+0vPrI2NLltS2CfTv2MiVdJZC7gfZYuAkV6xXmkLxbsLzdrfaVFZeYeVKfai5BAyK1kTN3KWrO63dnvMqHi
-      template:
-        metadata:
-          name: zigbee2mqtt
-          namespace: zigbee2mqtt
-        type: Opaque
+      refreshInterval: 1h
+      secretStoreRef:
+        name: openbao
+        kind: ClusterSecretStore
+      target:
+        name: zigbee2mqtt
+      data:
+        - secretKey: secret.yaml
+          remoteRef:
+            key: zigbee2mqtt
+            property: secret.yaml
   - apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
