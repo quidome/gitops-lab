@@ -154,6 +154,55 @@ kubectl get clustersecretstore openbao
 
 Should show `Ready: True`.
 
+#### Migrate SealedSecret to OpenBAO
+
+Example: migrating `external-dns-pihole` SealedSecret.
+
+**Before (SealedSecret):**
+
+```yaml
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: external-dns-pihole
+  namespace: external-dns
+spec:
+  encryptedData:
+    EXTERNAL_DNS_PIHOLE_PASSWORD: AgCOHDSjpEyy...  # encrypted blob
+```
+
+**Step 1: Add secret to OpenBAO**
+
+```sh
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv put kv/external-dns pihole-password=<actual-password>'
+```
+
+**Step 2: Replace SealedSecret with ExternalSecret**
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: external-dns-pihole
+  namespace: external-dns
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: openbao
+    kind: ClusterSecretStore
+  target:
+    name: external-dns-pihole
+  data:
+    - secretKey: EXTERNAL_DNS_PIHOLE_PASSWORD
+      remoteRef:
+        key: external-dns
+        property: pihole-password
+```
+
+**Step 3: Delete the SealedSecret file from the repo**
+
+The ExternalSecret creates a Kubernetes Secret with the same name, so the app continues to work unchanged.
+
 ### Sealed secrets (legacy)
 
 > **Note**: Sealed secrets is being replaced by OpenBAO + ESO.
