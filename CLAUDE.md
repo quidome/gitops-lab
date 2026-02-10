@@ -108,7 +108,7 @@ kubectl kustomize --enable-helm infrastructure-legacy/<category>/<component>
 
 ## Key Conventions
 
-- **Namespace per component**: Each component gets its own namespace defined in `ns.yaml`
+- **Namespace per realm**: New Helmfile components use the realm name as namespace (e.g., `security`, `hardware`), created automatically via `CreateNamespace=true`. Legacy components define namespaces in `ns.yaml`
 - **Sync-wave annotations**: Control deployment order via `argocd.argoproj.io/sync-wave`
 - **Resource limits**: All components should define CPU/memory requests and limits
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
