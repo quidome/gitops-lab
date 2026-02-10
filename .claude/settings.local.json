@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(cat:*)",
-      "Bash(git -C /home/quidome/dev/github.com/quidome/gitops-lab log --oneline)"
+      "Bash(git -C /home/quidome/dev/github.com/quidome/gitops-lab log --oneline)",
+      "WebFetch(domain:kubernetes-sigs.github.io)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []

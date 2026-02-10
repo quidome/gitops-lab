@@ -9,7 +9,7 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 ## Architecture
 
 ### Directory Structure
-- **infrastructure/** - New Helmfile-based infrastructure (security/openbao, security/external-secrets, observability/metrics-server)
+- **infrastructure/** - New Helmfile-based infrastructure (security/openbao, security/external-secrets, observability/metrics-server, hardware/node-feature-discovery)
 - **infrastructure-legacy/** - Legacy infrastructure using Kustomize-with-Helm plugin (ArgoCD, Cilium, cert-manager, etc.)
 - **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing)
 - **applications-legacy/** - Legacy apps using Kustomize-with-Helm plugin (zigbee2mqtt)
@@ -123,17 +123,17 @@ Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based
 - `security/openbao` — Secret management (OpenBAO)
 - `security/external-secrets` — External Secrets Operator
 - `observability/metrics-server` — Metrics server
+- `hardware/node-feature-discovery` — Hardware detection
 
 **Remaining in `infrastructure-legacy/` (Kustomize+Helm):**
 - `controllers/argocd` — GitOps controller
-- `controllers/cert-manager` — Certificate management
+- `controllers/cert-manager` — Certificate management (secrets migrated to OpenBAO)
 - `controllers/sealed-secrets` — Legacy secret encryption
-- `controllers/node-feature-discovery` — Hardware detection
 - `networking/cilium` — CNI and kube-proxy replacement
-- `networking/external-dns` — DNS automation
+- `networking/external-dns` — DNS automation (secrets migrated to OpenBAO)
 - `networking/gateway` — Gateway API resources
 - `networking/pihole` — DNS ad-blocking
-- `storage/democratic-csi` — iSCSI and NFS storage drivers
+- `storage/democratic-csi` — iSCSI and NFS storage drivers (secrets migrated to OpenBAO)
 
 ### Target Structure
 ```
@@ -154,5 +154,5 @@ infrastructure/
 ├── observability/       # Metrics, logging, tracing
 │   └── metrics-server/    ✓ migrated
 └── hardware/            # Hardware detection
-    └── node-feature-discovery/
+    └── node-feature-discovery/  ✓ migrated
 ```
