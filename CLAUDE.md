@@ -4,27 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Uses ArgoCD for continuous deployment with Kustomize and Helm for templating.
+GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Uses ArgoCD for continuous deployment with Helmfile (new) and Kustomize+Helm (legacy) for templating.
 
 ## Architecture
 
 ### Directory Structure
-- **infrastructure/** - Core cluster components (ArgoCD, Cilium, cert-manager, storage)
-- **applications/** - Active user applications deployed via Helmfile
-- **applications-legacy/** - Deprecated apps using Kustomize-with-Helm plugin
+- **infrastructure/** - New Helmfile-based infrastructure (security/openbao, security/external-secrets, observability/metrics-server)
+- **infrastructure-legacy/** - Legacy infrastructure using Kustomize-with-Helm plugin (ArgoCD, Cilium, cert-manager, etc.)
+- **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing)
+- **applications-legacy/** - Legacy apps using Kustomize-with-Helm plugin (zigbee2mqtt)
 - **manual/** - Work-in-progress configurations not yet automated
 
 ### Technology Stack
 - **Kubernetes**: k3s on NixOS
 - **Networking**: Cilium (kube-proxy replacement), Gateway API, External DNS, Pi-hole
 - **GitOps**: ArgoCD with ApplicationSets
-- **Templating**: Kustomize + Helm (via `kustomize-build-with-helm` plugin)
+- **Templating**: Helmfile (new components) and Kustomize + Helm via `kustomize-build-with-helm` plugin (legacy)
 - **Storage**: Democratic-CSI with TrueNAS (iSCSI and NFS backends)
-- **Secrets**: Sealed Secrets for git-safe encryption
+- **Secrets**: OpenBao with external-secrets and Sealed Secrets for git-safe encryption (legacy)
 - **Certificates**: cert-manager with Cloudflare DNS-01
 
-### Component Pattern
-Each infrastructure component follows this structure:
+### Component Patterns
+
+**New (Helmfile-based) — `infrastructure/` and `applications/`:**
+```
+realm/component/
+├── helmfile.yaml        # Helm releases and repositories
+└── values.yaml          # Helm value overrides
+```
+
+**Legacy (Kustomize-based) — `infrastructure-legacy/` and `applications-legacy/`:**
 ```
 component/
 ├── kustomization.yaml   # Orchestrates Helm charts and resources
@@ -34,8 +43,8 @@ component/
 ```
 
 ### GitOps Deployment
-- Infrastructure uses ApplicationSet with Git directory generator
-- Applications use Helmfile plugin with path-based namespace extraction
+- New infrastructure/applications use ApplicationSet with Helmfile plugin (`infrastructure/*/*`, `applications/*/*`)
+- Legacy infrastructure/applications use ApplicationSet with `kustomize-build-with-helm` plugin
 - All ApplicationSets implement retry logic and server-side apply
 
 ## Common Commands
@@ -45,16 +54,31 @@ component/
 # Cilium
 helm repo add cilium https://helm.cilium.io && helm repo update
 helm install cilium cilium/cilium -n kube-system \
-  -f infrastructure/networking/cilium/values.yaml \
+  -f infrastructure-legacy/networking/cilium/values.yaml \
   --version 1.17.6 --set operator.replicas=1
 
 # ArgoCD
 kubectl create namespace argocd
-kubectl kustomize --enable-helm infrastructure/controllers/argocd | kubectl apply -f -
-kubectl apply -f infrastructure/controllers/argocd/projects.yaml
+kubectl kustomize --enable-helm infrastructure-legacy/controllers/argocd | kubectl apply -f -
+kubectl apply -f infrastructure-legacy/controllers/argocd/managed-apps.yaml
 ```
 
-### Sealed Secrets Workflow
+### OpenBAO Workflow
+```bash
+# Add a secret
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv put kv/<path> <key>=<value>'
+
+# Read a secret
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv get kv/<path>'
+
+# List secrets
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv list kv/'
+
+# Unseal after pod restart (3 of 5 keys required)
+kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key>
+```
+
+### Sealed Secrets Workflow (legacy)
 ```bash
 # Create secret from file
 kubectl create secret generic myNewSecret --from-file=secret.yaml=document.yaml -o yaml > secret.yaml
@@ -77,9 +101,9 @@ python list_namespace_resources.py <namespace> [--json]
 ./remove-namespace-finalizers.sh <namespace>
 ```
 
-### Validate Kustomize Build
+### Validate Kustomize Build (legacy components)
 ```bash
-kubectl kustomize --enable-helm infrastructure/<component>
+kubectl kustomize --enable-helm infrastructure-legacy/<category>/<component>
 ```
 
 ## Key Conventions
@@ -89,26 +113,27 @@ kubectl kustomize --enable-helm infrastructure/<component>
 - **Resource limits**: All components should define CPU/memory requests and limits
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
 
-## Planned: Next-Gen Infrastructure
+## Infrastructure Migration (In Progress)
 
-Migration to Helmfile-based infrastructure with domain-based realms.
+Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms. Phases 1-2 are complete; incremental component migration is ongoing.
 
-### Migration Approach (Safe Copy-Then-Delete)
+### Migration Status
 
-**Phase 1: Copy and redirect**
-1. Copy `infrastructure/` → `infrastructure-legacy/`
-2. Update `infrastructure/applicationset.yaml` to point to `infrastructure-legacy/*/`
-3. Commit and push, wait for ArgoCD to sync and stabilize
-4. Verify all apps healthy in ArgoCD UI
+**Migrated to `infrastructure/` (Helmfile):**
+- `security/openbao` — Secret management (OpenBAO)
+- `security/external-secrets` — External Secrets Operator
+- `observability/metrics-server` — Metrics server
 
-**Phase 2: Replace with new structure**
-5. Delete old contents from `infrastructure/` (keep only applicationset.yaml)
-6. Build new Helmfile-based components in `infrastructure/<realm>/<component>/`
-7. Create new ApplicationSet for Helmfile-based infrastructure
-
-**Phase 3: Cleanup**
-8. Migrate components incrementally from legacy to new
-9. Remove `infrastructure-legacy/` when all components migrated
+**Remaining in `infrastructure-legacy/` (Kustomize+Helm):**
+- `controllers/argocd` — GitOps controller
+- `controllers/cert-manager` — Certificate management
+- `controllers/sealed-secrets` — Legacy secret encryption
+- `controllers/node-feature-discovery` — Hardware detection
+- `networking/cilium` — CNI and kube-proxy replacement
+- `networking/external-dns` — DNS automation
+- `networking/gateway` — Gateway API resources
+- `networking/pihole` — DNS ad-blocking
+- `storage/democratic-csi` — iSCSI and NFS storage drivers
 
 ### Target Structure
 ```
@@ -117,8 +142,8 @@ infrastructure/
 │   └── argocd/
 ├── security/            # Secrets, certs, access control
 │   ├── cert-manager/
-│   ├── sealed-secrets/
-│   └── vault/           # Planned addition
+│   ├── external-secrets/  ✓ migrated
+│   └── openbao/           ✓ migrated
 ├── networking/          # CNI, DNS, ingress
 │   ├── cilium/
 │   ├── external-dns/
@@ -127,12 +152,7 @@ infrastructure/
 ├── storage/             # CSI drivers, storage classes
 │   └── democratic-csi/
 ├── observability/       # Metrics, logging, tracing
-│   └── metrics-server/
+│   └── metrics-server/    ✓ migrated
 └── hardware/            # Hardware detection
     └── node-feature-discovery/
 ```
-
-### Key Changes
-- **Templating**: Migrate from Kustomize+Helm to Helmfile (align with gitops-apps)
-- **Realms**: Domain-based organization instead of function-based
-- **Component pattern**: `realm/component/helmfile.yaml` + `values.yaml`
