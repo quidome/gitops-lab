@@ -7,7 +7,7 @@ releases:
   - name: openbao
     namespace: security
     chart: openbao/openbao
-    version: 0.4.0
+    version: 0.25.3
     values:
       - values.yaml
   - name: openbao-config
