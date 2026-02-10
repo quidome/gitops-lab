@@ -1,0 +1,5 @@
+apiVersion: v2
+name: nfd-crds
+description: Node Feature Discovery CRDs
+type: application
+version: 0.1.0

@@ -1,0 +1,19 @@
+---
+repositories:
+  - name: nfd
+    url: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+
+releases:
+  - name: nfd-crds
+    namespace: hardware
+    chart: ./crds
+  - name: node-feature-discovery
+    namespace: hardware
+    chart: nfd/node-feature-discovery
+    version: v0.18.3
+    values:
+      - topologyUpdater:
+          enable: false
+  - name: nfd-rules
+    namespace: hardware
+    chart: ./rules
