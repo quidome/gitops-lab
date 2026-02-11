@@ -70,7 +70,7 @@ kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && 
 Create an ExternalSecret in your app namespace:
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: myapp-secrets
@@ -180,7 +180,7 @@ kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && 
 **Step 2: Replace SealedSecret with ExternalSecret**
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: external-dns-pihole
