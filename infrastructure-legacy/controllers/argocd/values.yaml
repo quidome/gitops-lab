@@ -90,7 +90,7 @@ repoServer:
         - mountPath: /tmp
           name: helmfile-cmp-tmp
     - name: helmfile-plugin
-      image: travisghansen/argo-cd-helmfile:latest
+      image: travisghansen/argo-cd-helmfile:v0.3.13
       command: [/var/run/argocd/argocd-cmp-server]
       securityContext:
         runAsNonRoot: true

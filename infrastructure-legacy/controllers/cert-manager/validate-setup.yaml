@@ -13,7 +13,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: validate-cert-manager
-          image: bitnami/kubectl:latest
+          image: bitnami/kubectl:1.34
           command:
             - /bin/sh
             - -c
