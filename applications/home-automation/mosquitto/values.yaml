@@ -19,18 +19,8 @@ config: |
   listener 1883
   allow_anonymous false
   password_file /mosquitto/config/passwordfile
-
-livenessProbe:
-  tcpSocket:
-    port: 1883
-  initialDelaySeconds: 5
-  periodSeconds: 10
-
-readinessProbe:
-  tcpSocket:
-    port: 1883
-  initialDelaySeconds: 5
-  periodSeconds: 10
+  listener 9090
+  protocol websockets
 
 extraVolumeMounts:
   - name: auth
