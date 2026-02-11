@@ -297,8 +297,8 @@ I installed all the required binaries on my workstation and install from there.
 ```sh
 # Argo CD Bootstrap
 kubectl create namespace argocd
-kubectl kustomize --enable-helm infrastructure/controllers/argocd | kubectl apply -f -
-kubectl apply -f infrastructure/controllers/argocd/projects.yaml
+kubectl kustomize --enable-helm infrastructure-legacy/controllers/argocd | kubectl apply -f -
+kubectl apply -f infrastructure-legacy/controllers/argocd/managed-apps.yaml
 
 # Obtain argocd web interface initial password
 kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d

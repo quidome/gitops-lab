@@ -4,7 +4,7 @@ metadata:
   name: cert-quidome
   namespace: gateway
   annotations:
-    argocd.argoproj.io/sync-wave: "2" # Deploy after ClusterIssuer (wave 1)
+    argocd.argoproj.io/sync-wave: "6" # Deploy after ClusterIssuer (wave 5)
     argocd.argoproj.io/sync-options: Validate=true
     argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
