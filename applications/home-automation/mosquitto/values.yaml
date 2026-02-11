@@ -1,0 +1,28 @@
+persistence:
+  enabled: true
+  storageClass: truenas-nfs
+  size: 256Mi
+
+service:
+  type: LoadBalancer
+  loadBalancerIP: 172.16.40.51
+  ports:
+    mqtt:
+      port: 1883
+    websocket:
+      enabled: false
+
+authentication:
+  passwordEntries: []
+  passwordFilePath: /mosquitto/config/passwordfile
+
+extraVolumeMounts:
+  - name: auth
+    mountPath: /mosquitto/config/passwordfile
+    subPath: passwordfile
+    readOnly: true
+
+extraVolumes:
+  - name: auth
+    secret:
+      secretName: mosquitto-auth

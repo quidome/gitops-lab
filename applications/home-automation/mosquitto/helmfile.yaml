@@ -1,0 +1,13 @@
+repositories:
+  - name: k8sonlab
+    url: https://charts.ar80.eu
+
+releases:
+  - name: mosquitto
+    namespace: home-automation
+    chart: k8sonlab/mosquitto
+    version: "2.6.1"
+    values:
+      - values.yaml
+  - name: mosquitto-resources
+    chart: ./resources
