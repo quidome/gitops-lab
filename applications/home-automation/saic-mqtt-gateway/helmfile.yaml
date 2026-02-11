@@ -1,0 +1,13 @@
+repositories:
+  - name: bjw-s
+    url: https://bjw-s-labs.github.io/helm-charts
+
+releases:
+  - name: saic-mqtt-gateway
+    namespace: home-automation
+    chart: bjw-s/app-template
+    version: "3.6.0"
+    values:
+      - values.yaml
+  - name: saic-mqtt-gateway-resources
+    chart: ./resources
