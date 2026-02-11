@@ -22,7 +22,7 @@ spec:
         {{- end }}
     spec:
       enableServiceLinks: false
-      serviceAccountName: {{ include "saic-mqtt-gateway.serviceAccountName" . }}
+      serviceAccountName: default
       automountServiceAccountToken: true
       hostIPC: false
       hostNetwork: false
