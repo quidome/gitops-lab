@@ -20,6 +20,18 @@ config: |
   allow_anonymous false
   password_file /mosquitto/config/passwordfile
 
+livenessProbe:
+  tcpSocket:
+    port: 1883
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  tcpSocket:
+    port: 1883
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
 extraVolumeMounts:
   - name: auth
     mountPath: /mosquitto/config/passwordfile
