@@ -306,4 +306,38 @@ kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.pas
 
 ### cert-manager
 
-### democratic-cli
+### democratic-csi
+
+## Applications
+
+### Home Automation
+
+#### Mosquitto (MQTT Broker)
+
+Deployed via Helmfile using the k8sonlab chart. Exposed on LoadBalancer IP `172.16.40.51:1883`.
+
+**Generate password hash:**
+```sh
+docker run --rm eclipse-mosquitto mosquitto_passwd -c -b /dev/stdout <username> <password>
+```
+
+**Store passwordfile in OpenBao:**
+```sh
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<token>" && bao kv put kv/home-automation/mosquitto passwordfile="user1:\$7\$101\$...
+user2:\$7\$101\$..."'
+```
+
+#### SAIC MQTT Gateway
+
+Custom Helm chart for the SAIC iSmart MQTT gateway. Connects to Mosquitto and ABRP.
+
+**Store secrets in OpenBao:**
+```sh
+kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<token>" && bao kv put kv/home-automation/saic-mqtt-gateway \
+  SAIC_USER="<user>" \
+  SAIC_PASSWORD="<password>" \
+  MQTT_USER="saic" \
+  MQTT_PASSWORD="<mqtt-password>" \
+  ABRP_API_KEY="<api-key>" \
+  ABRP_USER_TOKEN="<token>"'
+```

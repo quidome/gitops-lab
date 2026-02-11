@@ -11,7 +11,7 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 ### Directory Structure
 - **infrastructure/** - New Helmfile-based infrastructure (security/openbao, security/external-secrets, observability/metrics-server, hardware/node-feature-discovery)
 - **infrastructure-legacy/** - Legacy infrastructure using Kustomize-with-Helm plugin (ArgoCD, Cilium, cert-manager, etc.)
-- **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing)
+- **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing, home-automation/mosquitto, home-automation/saic-mqtt-gateway)
 - **applications-legacy/** - Legacy apps using Kustomize-with-Helm plugin (zigbee2mqtt)
 - **manual/** - Work-in-progress configurations not yet automated
 
@@ -30,7 +30,18 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 ```
 realm/component/
 ├── helmfile.yaml        # Helm releases and repositories
-└── values.yaml          # Helm value overrides
+├── values.yaml          # Helm value overrides
+└── resources/           # Extra manifests (ExternalSecrets, HTTPRoutes, etc.)
+```
+
+**Custom Helm charts (when more control is needed):**
+```
+realm/component/
+├── helmfile.yaml.gotmpl # Helmfile with templating
+└── helm-chart/          # Local Helm chart
+    ├── Chart.yaml
+    ├── values.yaml
+    └── templates/
 ```
 
 **Legacy (Kustomize-based) — `infrastructure-legacy/` and `applications-legacy/`:**
@@ -155,4 +166,23 @@ infrastructure/
 │   └── metrics-server/    ✓ migrated
 └── hardware/            # Hardware detection
     └── node-feature-discovery/  ✓ migrated
+
+applications/
+├── file-sharing/
+│   └── syncthing/         ✓ deployed
+└── home-automation/
+    ├── mosquitto/         ✓ deployed (MQTT broker)
+    └── saic-mqtt-gateway/ ✓ deployed (custom helm chart)
 ```
+
+### OpenBao Secret Naming Convention
+
+Secrets are organized by realm (matching namespace):
+```
+kv/<realm>/<application>/<property>
+```
+
+Examples:
+- `kv/home-automation/mosquitto/passwordfile` — Mosquitto auth file
+- `kv/home-automation/saic-mqtt-gateway/SAIC_USER` — SAIC gateway credentials
+- `kv/networking/external-dns/pihole-password` — External DNS credentials
