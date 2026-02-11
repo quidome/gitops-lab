@@ -1,0 +1,26 @@
+replicaCount: 1
+
+image:
+  repository: saicismartapi/saic-python-mqtt-gateway
+  pullPolicy: IfNotPresent
+  tag: "0.9.8"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+securityContext: {}
+
+env:
+  - name: MQTT_URI
+    value: tcp://mosquitto.home-automation.svc.cluster.local:1883
+
+envFrom:
+  - secretRef:
+      name: saic-mqtt-gateway
