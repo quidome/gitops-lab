@@ -15,12 +15,50 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-securityContext: {}
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
 
 env:
   - name: MQTT_URI
     value: tcp://mosquitto.home-automation.svc.cluster.local:1883
 
-envFrom:
-  - secretRef:
-      name: saic-mqtt-gateway
+envFrom: []
+  # Populated by deployment template to reference the ExternalSecret
+
+# Probes - this application doesn't expose HTTP endpoints
+# Using exec probe to check if the process is running
+livenessProbe:
+  exec:
+    command:
+      - pgrep
+      - -f
+      - python
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  exec:
+    command:
+      - pgrep
+      - -f
+      - python
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3

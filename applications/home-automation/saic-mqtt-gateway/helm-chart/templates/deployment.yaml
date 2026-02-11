@@ -22,8 +22,8 @@ spec:
         {{- end }}
     spec:
       enableServiceLinks: false
-      serviceAccountName: default
-      automountServiceAccountToken: true
+      serviceAccountName: {{ include "saic-mqtt-gateway.serviceAccountName" . }}
+      automountServiceAccountToken: false
       hostIPC: false
       hostNetwork: false
       hostPID: false
@@ -40,7 +40,21 @@ spec:
           env:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.envFrom }}
           envFrom:
+            - secretRef:
+                name: {{ include "saic-mqtt-gateway.fullname" . }}
+            {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
