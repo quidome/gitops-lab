@@ -6,7 +6,7 @@ releases:
   - name: saic-mqtt-gateway
     namespace: home-automation
     chart: bjw-s/app-template
-    version: "3.6.0"
+    version: "4.6.2"
     values:
       - values.yaml
   - name: saic-mqtt-gateway-resources
