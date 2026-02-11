@@ -4,7 +4,7 @@ zigbee2mqtt:
     network_key: "!secret network_key"
   timezone: Europe/Amsterdam
   mqtt:
-    server: mqtt://srv02.lan.balti.casa:1883
+    server: mqtt://mosquitto.home-automation:1883
     user: "!secret username"
     password: "!secret password"
   serial:
