@@ -12,9 +12,13 @@ service:
     websocket:
       enabled: false
 
-authentication:
-  passwordEntries: []
-  passwordFilePath: /mosquitto/config/passwordfile
+config: |
+  persistence true
+  persistence_location /mosquitto/data/
+  log_dest stdout
+  listener 1883
+  allow_anonymous false
+  password_file /mosquitto/config/passwordfile
 
 extraVolumeMounts:
   - name: auth
