@@ -27,7 +27,6 @@ spec:
       hostIPC: false
       hostNetwork: false
       hostPID: false
-      hostUsers: true
       dnsPolicy: ClusterFirst
       containers:
         - name: {{ .Chart.Name }}
