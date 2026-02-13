@@ -1,0 +1,25 @@
+fullnameOverride: vault
+namespace: security
+
+# Vault service connection
+service:
+  name: vault
+  port: 8200
+
+# KV secrets engine
+kv:
+  path: kv
+  version: v2
+
+# AppRole authentication
+appRole:
+  path: approle
+  secretName: vault-approle
+
+# HTTPRoute for UI access
+httpRoute:
+  enabled: true
+  hostname: vault.quido.me
+  gateway:
+    name: gateway-internal
+    namespace: gateway
