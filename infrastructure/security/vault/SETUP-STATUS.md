@@ -11,44 +11,48 @@
 - Root token and unseal keys saved securely
 - Combined config chart created with templated ClusterSecretStore and HTTPRoute
 - Documentation created in README.md
-
-⏸️ **In Progress:**
-- AppRole authentication configuration
-- ClusterSecretStore deployment
+- AppRole authentication configured with `external-secrets` policy
+- ClusterSecretStore deployed and validated
+- KV v2 secrets engine enabled at `kv/`
+- Test ExternalSecret (`test-vault`) syncing successfully
 
 ❌ **Not Started:**
-- Enable KV v2 secrets engine
 - Migrate applications from OpenBao to Vault
 
 ## Next Steps to Complete Setup
+
+### 0. Set Vault Token
+
+Run this once per terminal session — the token is used by all commands below:
+
+```bash
+read -s -p "Enter Vault root token: " VTOKEN && echo
+```
 
 ### 1. Configure AppRole Authentication
 
 ```bash
 # Enable AppRole auth method
-kubectl exec -n security vault-0 -- vault auth enable approle
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VTOKEN}" vault auth enable approle
 
 # Create policy for external-secrets (read-only access to kv/*)
-kubectl exec -n security vault-0 -- sh -c 'cat <<EOF | vault policy write external-secrets -
+kubectl exec -i -n security vault-0 -- env VAULT_TOKEN="${VTOKEN}" vault policy write external-secrets - <<'EOF'
 path "kv/data/*" {
   capabilities = ["read"]
 }
 path "kv/metadata/*" {
   capabilities = ["list", "read"]
 }
-EOF'
+EOF
 
 # Create AppRole with the policy
-kubectl exec -n security vault-0 -- vault write auth/approle/role/external-secrets \
-  token_policies="external-secrets" \
-  token_ttl=1h \
-  token_max_ttl=4h
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VTOKEN}" vault write auth/approle/role/external-secrets token_policies=external-secrets token_ttl=1h token_max_ttl=4h
 
 # Get the role-id (SAVE THIS!)
-kubectl exec -n security vault-0 -- vault read auth/approle/role/external-secrets/role-id
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VTOKEN}" vault read auth/approle/role/external-secrets/role-id
 
 # Generate a secret-id (SAVE THIS!)
-kubectl exec -n security vault-0 -- vault write -f auth/approle/role/external-secrets/secret-id
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VTOKEN}" vault write -f auth/approle/role/external-secrets/secret-id
 ```
 
 ### 2. Create Kubernetes Secret
@@ -83,7 +87,7 @@ In the Vault UI (http://vault.quido.me):
 
 Or via CLI:
 ```bash
-kubectl exec -n security vault-0 -- vault secrets enable -path=kv -version=2 kv
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VTOKEN}" vault secrets enable -path=kv -version=2 kv
 ```
 
 ### 5. Test with a Secret
