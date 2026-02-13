@@ -1,3 +1,13 @@
+environments:
+  default:
+    values:
+      - secrets:
+          SAIC_USER: {{ fetchSecretValue "ref+vault://kv/home-automation/saic-mqtt-gateway#SAIC_USER" }}
+          SAIC_PASSWORD: {{ fetchSecretValue "ref+vault://kv/home-automation/saic-mqtt-gateway#SAIC_PASSWORD" }}
+          MQTT_USER: {{ fetchSecretValue "ref+vault://kv/home-automation/saic-mqtt-gateway#MQTT_USER" }}
+          MQTT_PASSWORD: {{ fetchSecretValue "ref+vault://kv/home-automation/saic-mqtt-gateway#MQTT_PASSWORD" }}
+          ABRP_USER_TOKEN: {{ fetchSecretValue "ref+vault://kv/home-automation/saic-mqtt-gateway#ABRP_USER_TOKEN" }}
+
 ---
 releases:
   - name: saic-mqtt-gateway
@@ -5,3 +15,4 @@ releases:
     chart: ./helm-chart
     values:
       - fullnameOverride: saic-mqtt-gateway
+      - secrets: {{ .Values.secrets | toYaml | nindent 10 }}
