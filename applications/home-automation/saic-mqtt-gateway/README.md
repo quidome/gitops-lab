@@ -6,7 +6,9 @@ MQTT gateway for SAIC iSmart API integration, enabling vehicle data publishing t
 
 ### Secrets Management
 
-All secrets are stored in OpenBao at: `kv/home-automation/saic-mqtt-gateway`
+Secrets are stored in Vault at: `kv/home-automation/saic-mqtt-gateway`
+
+**Method:** Helmfile + Vals (deploy-time secret injection)
 
 ### Required Secrets
 
@@ -34,10 +36,17 @@ VIN=token
 
 **Example:**
 ```bash
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && \
-  bao kv put kv/home-automation/saic-mqtt-gateway \
-    ABRP_USER_TOKEN="LSJXXXX12345=a1b2c3d4-e5f6-7890-abcd-ef1234567890"'
+export ROOT_TOKEN="<your-root-token>"
+
+kubectl exec -n security vault-0 -- sh -c "
+export VAULT_TOKEN=\"$ROOT_TOKEN\"
+
+vault kv patch kv/home-automation/saic-mqtt-gateway \
+  ABRP_USER_TOKEN='LSJXXXX12345=a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+"
 ```
+
+Or use the Vault UI at http://vault.quido.me to edit the `ABRP_USER_TOKEN` key.
 
 For multiple vehicles:
 ```
@@ -53,19 +62,45 @@ Deployed via Helmfile with custom Helm chart:
 - Namespace: `home-automation`
 - MQTT broker: `tcp://mosquitto.home-automation.svc.cluster.local:1883`
 
-### Adding Secrets
+### Adding/Updating Secrets
 
+**Via Vault UI** (recommended):
+1. Navigate to http://vault.quido.me
+2. Login with your token
+3. Go to `kv/home-automation/saic-mqtt-gateway`
+4. Add or edit keys: `SAIC_USER`, `SAIC_PASSWORD`, `MQTT_USER`, `MQTT_PASSWORD`, `ABRP_USER_TOKEN`
+
+**Via CLI:**
 ```bash
-# Add or update secrets in OpenBao
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && \
-  bao kv put kv/home-automation/saic-mqtt-gateway \
-    SAIC_USER="your-email@example.com" \
-    SAIC_PASSWORD="your-password" \
-    ABRP_USER_TOKEN="LSJXXXX=your-token"'
+export ROOT_TOKEN="<your-root-token>"
+
+# Add or update secrets in Vault
+kubectl exec -n security vault-0 -- sh -c "
+export VAULT_TOKEN=\"$ROOT_TOKEN\"
+
+vault kv put kv/home-automation/saic-mqtt-gateway \
+  SAIC_USER='your-email@example.com' \
+  SAIC_PASSWORD='your-password' \
+  MQTT_USER='saic' \
+  MQTT_PASSWORD='your-mqtt-password' \
+  ABRP_USER_TOKEN='LSJXXXX=your-token'
+"
 
 # Verify secrets
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && \
-  bao kv get kv/home-automation/saic-mqtt-gateway'
+kubectl exec -n security vault-0 -- sh -c "
+export VAULT_TOKEN=\"$ROOT_TOKEN\"
+vault kv get kv/home-automation/saic-mqtt-gateway
+"
 ```
 
-The ExternalSecret will automatically sync changes within 1 hour (or force refresh by deleting the pod).
+**To apply changes:**
+```bash
+# Trigger ArgoCD sync (fetches new values from Vault)
+argocd app sync home-automation-saic-mqtt-gateway
+
+# Or manually
+cd applications/home-automation/saic-mqtt-gateway
+helmfile apply
+```
+
+Changes take effect on next deployment (Vals fetches at deploy-time, not runtime).
