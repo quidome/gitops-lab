@@ -1,4 +1,0 @@
-apiVersion: v2
-name: vals-test
-description: Test chart for Vault + Vals integration
-version: 0.1.0
