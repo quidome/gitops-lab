@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-vals-test
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/quidome/gitops-lab.git
+    targetRevision: main
+    path: infrastructure/security/vault/examples
+    plugin:
+      name: helmfile
+      env:
+        - name: HELMFILE_TEMPLATE_FLAGS
+          value: "-f test-vals.yaml.gotmpl"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
