@@ -10,6 +10,9 @@ releases:
     version: 0.31.0
     values:
       - values.yaml
+  - name: vault-config
+    namespace: security
+    chart: ./config
   - name: vault-resources
     namespace: security
     chart: ./resources
