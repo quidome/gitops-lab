@@ -175,7 +175,44 @@ applications/
     └── saic-mqtt-gateway/ ✓ deployed (custom helm chart)
 ```
 
-### Secret Naming Convention
+### Secret Management
+
+**Current approach: Hybrid**
+- **Vault + Vals** - Deploy-time secret injection for app-specific secrets
+- **OpenBao + External Secrets** - Runtime sync for shared infrastructure secrets
+
+#### Secret Injection Methods
+
+**Vals (Deploy-time - Helmfile):**
+```yaml
+# helmfile.yaml.gotmpl
+environments:
+  default:
+    values:
+      - secrets:
+          KEY: {{ fetchSecretValue "ref+vault://kv/realm/app#KEY" }}
+```
+- Used by: `saic-mqtt-gateway`
+- Secrets fetched during ArgoCD sync
+- To refresh: `argocd app sync <app-name>`
+
+**External Secrets (Runtime - Operator):**
+```yaml
+# resources/external-secret.yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+spec:
+  secretStoreRef:
+    name: openbao  # or vault
+    kind: ClusterSecretStore
+```
+- Used by: Infrastructure and shared app secrets
+- Auto-syncs every 1 hour
+- To refresh: Wait or delete pod
+
+See `infrastructure/security/vault/VALS-SETUP.md` for Vals configuration.
+
+#### Secret Naming Convention
 
 Secrets are stored as one path per application with key-value pairs inside:
 ```
@@ -185,16 +222,16 @@ kv/<realm>/<application>
 - **Path segments** use lowercase-kebab-case, matching the realm (namespace) and application name
 - **Keys** match their target usage: uppercase for env vars (e.g. `SAIC_USER`), lowercase-kebab for other values (e.g. `passwordfile`, `api-token`)
 
-Vault paths (migration target):
-| Vault Path | Keys | Description |
-|---|---|---|
-| `kv/home-automation/mosquitto` | `passwordfile` | Mosquitto auth file |
-| `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | SAIC gateway env vars |
-| `kv/networking/external-dns` | `pihole-password` | External DNS credentials |
-| `kv/security/cert-manager` | `api-token`, `email` | Cloudflare DNS-01 credentials |
-| `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | TrueNAS iSCSI driver config |
-| `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | TrueNAS NFS driver config |
+**Vault paths:**
+| Vault Path | Keys | Method | Application |
+|---|---|---|---|
+| `kv/home-automation/mosquitto` | `passwordfile` | External Secrets | mosquitto |
+| `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | **Vals** | saic-mqtt-gateway |
+| `kv/networking/external-dns` | `pihole-password` | External Secrets | external-dns |
+| `kv/security/cert-manager` | `api-token`, `email` | External Secrets | cert-manager |
+| `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | External Secrets | democratic-csi |
+| `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | External Secrets | democratic-csi |
 
-OpenBao legacy paths (to be decommissioned):
-- `home-automation/mosquitto`, `home-automation/saic-mqtt-gateway`
-- `external-dns`, `cert-manager`, `democratic-csi-iscsi`, `democratic-csi-nfs`
+**OpenBao paths (legacy - to be decommissioned):**
+- `home-automation/mosquitto` → migrate to Vault
+- `external-dns`, `cert-manager`, `democratic-csi-*` → migrate to Vault
