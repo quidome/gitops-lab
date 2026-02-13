@@ -175,14 +175,26 @@ applications/
     └── saic-mqtt-gateway/ ✓ deployed (custom helm chart)
 ```
 
-### OpenBao Secret Naming Convention
+### Secret Naming Convention
 
-Secrets are organized by realm (matching namespace):
+Secrets are stored as one path per application with key-value pairs inside:
 ```
-kv/<realm>/<application>/<property>
+kv/<realm>/<application>
 ```
 
-Examples:
-- `kv/home-automation/mosquitto/passwordfile` — Mosquitto auth file
-- `kv/home-automation/saic-mqtt-gateway/SAIC_USER` — SAIC gateway credentials
-- `kv/networking/external-dns/pihole-password` — External DNS credentials
+- **Path segments** use lowercase-kebab-case, matching the realm (namespace) and application name
+- **Keys** match their target usage: uppercase for env vars (e.g. `SAIC_USER`), lowercase-kebab for other values (e.g. `passwordfile`, `api-token`)
+
+Vault paths (migration target):
+| Vault Path | Keys | Description |
+|---|---|---|
+| `kv/home-automation/mosquitto` | `passwordfile` | Mosquitto auth file |
+| `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | SAIC gateway env vars |
+| `kv/networking/external-dns` | `pihole-password` | External DNS credentials |
+| `kv/security/cert-manager` | `api-token`, `email` | Cloudflare DNS-01 credentials |
+| `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | TrueNAS iSCSI driver config |
+| `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | TrueNAS NFS driver config |
+
+OpenBao legacy paths (to be decommissioned):
+- `home-automation/mosquitto`, `home-automation/saic-mqtt-gateway`
+- `external-dns`, `cert-manager`, `democratic-csi-iscsi`, `democratic-csi-nfs`
