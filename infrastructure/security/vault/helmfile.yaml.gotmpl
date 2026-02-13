@@ -1,0 +1,15 @@
+repositories:
+  - name: hashicorp
+    url: https://helm.releases.hashicorp.com
+
+---
+releases:
+  - name: vault
+    namespace: security
+    chart: hashicorp/vault
+    version: 0.31.0
+    values:
+      - values.yaml
+  - name: vault-resources
+    namespace: security
+    chart: ./resources

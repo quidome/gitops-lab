@@ -1,0 +1,47 @@
+fullnameOverride: vault
+
+server:
+  # Standalone mode for home lab
+  standalone:
+    enabled: true
+    config: |
+      disable_mlock = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+
+      storage "file" {
+        path = "/vault/data"
+      }
+
+      ui = true
+
+  dataStorage:
+    enabled: true
+    size: 1Gi
+    storageClass: truenas-iscsi
+
+  # Resource limits for home lab
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 500m
+
+  # Service configuration for UI access
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 8200
+
+ui:
+  enabled: true
+  serviceType: ClusterIP
+
+injector:
+  enabled: false
