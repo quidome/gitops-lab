@@ -9,12 +9,13 @@ releases:
     version: 0.15.1
     values:
       - values-iscsi.yaml
+      - driver:
+          config: {{ fetchSecretValue "ref+vault://kv/democratic-csi/iscsi#driver-config-file.yaml" | nindent 12 }}
   - name: truenas-nfs
     namespace: democratic-csi
     chart: democratic-csi/democratic-csi
     version: 0.15.1
     values:
       - values-nfs.yaml
-  - name: democratic-csi-resources
-    namespace: democratic-csi
-    chart: ./resources
+      - driver:
+          config: {{ fetchSecretValue "ref+vault://kv/democratic-csi/nfs#driver-config-file.yaml" | nindent 12 }}
