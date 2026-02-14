@@ -294,7 +294,7 @@ metadata:
 spec:
   parentRefs:
     - name: gateway-internal
-      namespace: gateway
+      namespace: networking
       group: gateway.networking.k8s.io
       kind: Gateway
   hostnames:

@@ -1,4 +1,4 @@
 releases:
   - name: gateway
-    namespace: gateway
+    namespace: networking
     chart: ./resources

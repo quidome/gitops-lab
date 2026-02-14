@@ -22,4 +22,4 @@ httpRoute:
   hostname: vault.quido.me
   gateway:
     name: gateway-internal
-    namespace: gateway
+    namespace: networking
