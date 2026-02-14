@@ -1,3 +1,5 @@
+fullnameOverride: hass
+
 # Home Assistant configuration
 # Chart: https://github.com/pajikos/home-assistant-helm-chart
 

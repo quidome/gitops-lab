@@ -257,14 +257,91 @@ When invoked:
 5. Use actual file Write tool to create the directory and files
 6. Provide clear next steps for user
 
+## Templates
+
+Use these exact templates when generating files.
+
+### values.yaml (always start with fullnameOverride)
+```yaml
+fullnameOverride: <component>
+
+# ... rest of configuration
+```
+
+### helmfile.yaml (with resources)
+```yaml
+repositories:
+  - name: <repo-name>
+    url: <repo-url>
+
+releases:
+  - name: <component>
+    namespace: <realm>
+    chart: <repo-name>/<chart-name>
+    version: "<version>"
+    values:
+      - values.yaml
+  - name: <component>-resources
+    chart: ./resources
+```
+
+### resources/http-route.yaml (no namespace - Helmfile sets it)
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: <component>
+spec:
+  parentRefs:
+    - name: gateway-internal
+      namespace: gateway
+      group: gateway.networking.k8s.io
+      kind: Gateway
+  hostnames:
+    - <component>.quido.me
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: <component>
+          port: <port>
+          weight: 1
+          group: ""
+          kind: Service
+```
+
+### resources/external-secret.yaml (no namespace - Helmfile sets it)
+```yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: <component>
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: openbao
+    kind: ClusterSecretStore
+  target:
+    name: <secret-name>
+  data:
+    - secretKey: <key>
+      remoteRef:
+        key: <realm>/<component>
+        property: <property>
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+```
+
 ## Best Practices to Follow
 
+- ✅ Always set `fullnameOverride: <component>` as first line in values.yaml
+- ✅ Never include `namespace` in resource metadata (Helmfile handles it)
 - ✅ Pin chart versions (never use `latest`)
 - ✅ Include resource requests and limits
 - ✅ Use realm name as namespace
-- ✅ Reference existing patterns from migrated components
 - ✅ Use ExternalSecret for secrets (not SealedSecret)
 - ✅ Use Gateway API HTTPRoute for ingress (not Ingress resource)
-- ✅ Add security contexts with RuntimeDefault seccomp
 - ✅ Configure appropriate storage classes (truenas-iscsi for block, truenas-nfs for file)
-- ✅ Document all manual steps clearly
