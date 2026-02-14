@@ -1,0 +1,14 @@
+repositories:
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+
+releases:
+  - name: argocd
+    namespace: gitops
+    chart: argo/argo-cd
+    version: 9.4.1
+    values:
+      - values.yaml
+  - name: argocd-resources
+    namespace: gitops
+    chart: ./resources
