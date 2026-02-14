@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cilium-resources
+description: Cilium additional resources (IP Pool, L2 Policy, HTTPRoute)
+type: application
+version: 0.1.0
