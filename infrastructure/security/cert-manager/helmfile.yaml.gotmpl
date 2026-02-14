@@ -12,3 +12,7 @@ releases:
   - name: cert-manager-resources
     namespace: cert-manager
     chart: ./resources
+    values:
+      - cloudflare:
+          apiToken: {{ fetchSecretValue "ref+vault://kv/security/cert-manager#api-token" | quote }}
+          email: {{ fetchSecretValue "ref+vault://kv/security/cert-manager#email" | quote }}
