@@ -1,0 +1,66 @@
+# Home Assistant configuration
+# Chart: https://github.com/pajikos/home-assistant-helm-chart
+
+# Use StatefulSet for stable pod identity and persistence
+controller:
+  type: StatefulSet
+
+image:
+  repository: ghcr.io/home-assistant/home-assistant
+  pullPolicy: IfNotPresent
+  # tag defaults to chart appVersion
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8123
+
+# Persistence for Home Assistant config/data
+persistence:
+  enabled: true
+  storageClass: truenas-nfs
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+# Resource limits for home lab
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Security context
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+
+podSecurityContext:
+  runAsNonRoot: false  # HA needs root for some integrations
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# Probes
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+# Environment variables
+env:
+  - name: TZ
+    value: "Europe/Amsterdam"
