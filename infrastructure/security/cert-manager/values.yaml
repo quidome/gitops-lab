@@ -19,13 +19,13 @@ extraArgs:
   - "--dns01-check-retry-period=10s"
   - "--max-concurrent-challenges=60"
   - "--enable-certificate-owner-ref=true"
-# Security context for improved container security - This section is well-configured
+# Security context for improved container security
 securityContext:
   runAsNonRoot: true
   runAsUser: 65534
   seccompProfile:
     type: RuntimeDefault
-# Resource limits for production workloads - This section is well-configured
+# Resource limits for production workloads
 resources:
   limits:
     cpu: 200m
@@ -59,15 +59,3 @@ cainjector:
     requests:
       cpu: 20m
       memory: 128Mi
-# Prometheus monitoring - This section is well-configured
-# prometheus:
-#   enabled: true
-#   servicemonitor:
-#     enabled: true
-#     prometheusInstance: default
-#     targetPort: 9402
-#     path: /metrics
-#     interval: 60s
-#     scrapeTimeout: 30s
-#     labels:
-#       release: kube-prometheus-stack
