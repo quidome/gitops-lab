@@ -33,6 +33,12 @@ cgroup:
 ipam:
   mode: kubernetes
 
+serviceAccounts:
+  cilium:
+    name: cilium
+  operator:
+    name: cilium-operator
+
 operator:
   rollOutPods: true
   replicas: 1
@@ -76,6 +82,10 @@ loadBalancer:
 
 gatewayAPI:
   enabled: true
+  secretsNamespace:
+    create: true
+    name: cilium-secrets
+    sync: true
 envoy:
   securityContext:
     capabilities:
