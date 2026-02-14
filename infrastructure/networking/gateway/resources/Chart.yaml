@@ -1,0 +1,5 @@
+apiVersion: v2
+name: gateway-resources
+description: Gateway API resources (GatewayClass, Gateway, Certificate)
+type: application
+version: 0.1.0

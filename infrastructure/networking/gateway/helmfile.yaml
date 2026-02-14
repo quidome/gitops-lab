@@ -1,0 +1,4 @@
+releases:
+  - name: gateway
+    namespace: gateway
+    chart: ./resources

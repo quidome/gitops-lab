@@ -2,9 +2,8 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: cert-quidome
-  namespace: gateway
   annotations:
-    argocd.argoproj.io/sync-wave: "6" # Deploy after ClusterIssuer (wave 5)
+    argocd.argoproj.io/sync-wave: "6"
     argocd.argoproj.io/sync-options: Validate=true
     argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
@@ -16,12 +15,11 @@ spec:
     kind: ClusterIssuer
     name: cloudflare-cluster-issuer
   secretName: cert-quidome
-  # Best practices from cert-manager documentation
   privateKey:
     algorithm: RSA
     size: 2048
-    rotationPolicy: Always # Recommended for security - rotates private key with each renewal
-  revisionHistoryLimit: 1 # Keeps only 1 old CertificateRequest to reduce clutter
+    rotationPolicy: Always
+  revisionHistoryLimit: 1
   usages:
     - digital signature
     - key encipherment

@@ -1,12 +1,11 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: gateway-external
-  namespace: gateway
+  name: gateway-internal
 spec:
   addresses:
     - type: IPAddress
-      value: 172.16.40.51
+      value: 172.16.40.50
   gatewayClassName: cilium
   listeners:
     - name: http
@@ -24,7 +23,7 @@ spec:
         certificateRefs:
           - name: cert-quidome
             kind: Secret
-            group: "" # required
+            group: ""
       allowedRoutes:
         namespaces:
           from: All
