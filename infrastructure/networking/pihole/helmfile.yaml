@@ -1,0 +1,14 @@
+repositories:
+  - name: pihole
+    url: https://mojo2600.github.io/pihole-kubernetes
+
+releases:
+  - name: pihole
+    namespace: networking
+    chart: pihole/pihole
+    version: 2.35.0
+    values:
+      - values.yaml
+  - name: pihole-resources
+    namespace: networking
+    chart: ./resources

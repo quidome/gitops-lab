@@ -1,9 +1,8 @@
----
 DNS1: 172.16.40.1
 DNS2:
 persistentVolumeClaim:
   enabled: true
-  storageClass: truenas-nfs
+  existingClaim: pihole
 serviceDns:
   loadBalancerIP: 172.16.40.53
   type: LoadBalancer

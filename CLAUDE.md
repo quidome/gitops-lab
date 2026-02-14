@@ -10,7 +10,6 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 
 ### Directory Structure
 - **infrastructure/** - Helmfile-based infrastructure (gitops, security, networking, storage, observability, hardware realms)
-- **infrastructure-legacy/** - Legacy infrastructure using Kustomize-with-Helm plugin (sealed-secrets, pihole)
 - **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing, home-automation/mosquitto, home-automation/saic-mqtt-gateway, home-automation/hass)
 - **manual/** - Work-in-progress configurations not yet automated
 
@@ -123,9 +122,9 @@ kubectl kustomize --enable-helm infrastructure-legacy/<category>/<component>
 - **Resource limits**: All components should define CPU/memory requests and limits
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
 
-## Infrastructure Migration (Nearly Complete)
+## Infrastructure Migration (Complete)
 
-Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms. Only 1 legacy component remains.
+Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms is complete. All components now use Helmfile.
 
 ### Migration Status
 
@@ -141,8 +140,6 @@ Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based
 - `observability/metrics-server` — Metrics server
 - `hardware/node-feature-discovery` — Hardware detection
 
-**Remaining in `infrastructure-legacy/` (Kustomize+Helm):**
-- `networking/pihole` — DNS ad-blocking
 
 ### Current Structure
 ```
@@ -158,7 +155,8 @@ infrastructure/
 │   └── cilium/            ✓ migrated
 ├── networking/          # DNS, ingress
 │   ├── external-dns/      ✓ migrated
-│   └── gateway/           ✓ migrated
+│   ├── gateway/           ✓ migrated
+│   └── pihole/            ✓ migrated
 ├── democratic-csi/      # CSI drivers, storage classes
 │   └── democratic-csi/    ✓ migrated
 ├── observability/       # Metrics, logging, tracing
