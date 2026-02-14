@@ -1,0 +1,14 @@
+repositories:
+  - name: external-dns
+    url: https://kubernetes-sigs.github.io/external-dns
+
+releases:
+  - name: external-dns
+    namespace: networking
+    chart: external-dns/external-dns
+    version: 1.20.0
+    values:
+      - values.yaml
+      - env:
+          - name: EXTERNAL_DNS_PIHOLE_PASSWORD
+            value: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}

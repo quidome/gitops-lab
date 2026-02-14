@@ -9,10 +9,9 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 ## Architecture
 
 ### Directory Structure
-- **infrastructure/** - New Helmfile-based infrastructure (security/openbao, security/external-secrets, observability/metrics-server, hardware/node-feature-discovery)
-- **infrastructure-legacy/** - Legacy infrastructure using Kustomize-with-Helm plugin (ArgoCD, Cilium, cert-manager, etc.)
-- **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing, home-automation/mosquitto, home-automation/saic-mqtt-gateway)
-- **applications-legacy/** - Legacy apps using Kustomize-with-Helm plugin (zigbee2mqtt)
+- **infrastructure/** - Helmfile-based infrastructure (gitops, security, networking, storage, observability, hardware realms)
+- **infrastructure-legacy/** - Legacy infrastructure using Kustomize-with-Helm plugin (sealed-secrets, pihole)
+- **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing, home-automation/mosquitto, home-automation/saic-mqtt-gateway, home-automation/hass)
 - **manual/** - Work-in-progress configurations not yet automated
 
 ### Technology Stack
@@ -65,13 +64,13 @@ component/
 # Cilium
 helm repo add cilium https://helm.cilium.io && helm repo update
 helm install cilium cilium/cilium -n kube-system \
-  -f infrastructure-legacy/networking/cilium/values.yaml \
+  -f infrastructure/kube-system/cilium/values.yaml \
   --version 1.17.6 --set operator.replicas=1
 
 # ArgoCD
 kubectl create namespace argocd
-kubectl kustomize --enable-helm infrastructure-legacy/controllers/argocd | kubectl apply -f -
-kubectl apply -f infrastructure-legacy/controllers/argocd/managed-apps.yaml
+helmfile -f infrastructure/gitops/argocd/helmfile.yaml apply
+kubectl apply -f infrastructure/applicationset.yaml
 ```
 
 ### OpenBAO Workflow
@@ -124,44 +123,44 @@ kubectl kustomize --enable-helm infrastructure-legacy/<category>/<component>
 - **Resource limits**: All components should define CPU/memory requests and limits
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
 
-## Infrastructure Migration (In Progress)
+## Infrastructure Migration (Nearly Complete)
 
-Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms. Phases 1-2 are complete; incremental component migration is ongoing.
+Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms. Only 1 legacy component remains.
 
 ### Migration Status
 
 **Migrated to `infrastructure/` (Helmfile):**
+- `gitops/argocd` — GitOps controller
 - `security/openbao` — Secret management (OpenBAO)
 - `security/external-secrets` — External Secrets Operator
+- `security/cert-manager` — Certificate management
+- `security/vault` — HashiCorp Vault for Vals integration
+- `kube-system/cilium` — CNI and kube-proxy replacement
+- `networking/gateway` — Gateway API resources
+- `democratic-csi/democratic-csi` — iSCSI and NFS storage drivers
 - `observability/metrics-server` — Metrics server
 - `hardware/node-feature-discovery` — Hardware detection
 
 **Remaining in `infrastructure-legacy/` (Kustomize+Helm):**
-- `controllers/argocd` — GitOps controller
-- `controllers/cert-manager` — Certificate management (secrets migrated to OpenBAO)
-- `controllers/sealed-secrets` — Legacy secret encryption
-- `networking/cilium` — CNI and kube-proxy replacement
-- `networking/external-dns` — DNS automation (secrets migrated to OpenBAO)
-- `networking/gateway` — Gateway API resources
 - `networking/pihole` — DNS ad-blocking
-- `storage/democratic-csi` — iSCSI and NFS storage drivers (secrets migrated to OpenBAO)
 
-### Target Structure
+### Current Structure
 ```
 infrastructure/
 ├── gitops/              # Deployment automation
-│   └── argocd/
+│   └── argocd/            ✓ migrated
 ├── security/            # Secrets, certs, access control
-│   ├── cert-manager/
+│   ├── cert-manager/      ✓ migrated
 │   ├── external-secrets/  ✓ migrated
-│   └── openbao/           ✓ migrated
-├── networking/          # CNI, DNS, ingress
-│   ├── cilium/
-│   ├── external-dns/
-│   ├── gateway/
-│   └── pihole/
-├── storage/             # CSI drivers, storage classes
-│   └── democratic-csi/
+│   ├── openbao/           ✓ migrated
+│   └── vault/             ✓ migrated
+├── kube-system/         # Core cluster components
+│   └── cilium/            ✓ migrated
+├── networking/          # DNS, ingress
+│   ├── external-dns/      ✓ migrated
+│   └── gateway/           ✓ migrated
+├── democratic-csi/      # CSI drivers, storage classes
+│   └── democratic-csi/    ✓ migrated
 ├── observability/       # Metrics, logging, tracing
 │   └── metrics-server/    ✓ migrated
 └── hardware/            # Hardware detection
@@ -171,6 +170,7 @@ applications/
 ├── file-sharing/
 │   └── syncthing/         ✓ deployed
 └── home-automation/
+    ├── hass/              ✓ deployed (Home Assistant)
     ├── mosquitto/         ✓ deployed (MQTT broker)
     └── saic-mqtt-gateway/ ✓ deployed (custom helm chart)
 ```
@@ -227,11 +227,10 @@ kv/<realm>/<application>
 |---|---|---|---|
 | `kv/home-automation/mosquitto` | `passwordfile` | External Secrets | mosquitto |
 | `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | **Vals** | saic-mqtt-gateway |
-| `kv/networking/external-dns` | `pihole-password` | External Secrets | external-dns |
+| `kv/networking/external-dns` | `EXTERNAL_DNS_PIHOLE_PASSWORD` | **Vals** | external-dns |
 | `kv/security/cert-manager` | `api-token`, `email` | External Secrets | cert-manager |
 | `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | External Secrets | democratic-csi |
 | `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | External Secrets | democratic-csi |
 
 **OpenBao paths (legacy - to be decommissioned):**
 - `home-automation/mosquitto` → migrate to Vault
-- `external-dns`, `cert-manager`, `democratic-csi-*` → migrate to Vault

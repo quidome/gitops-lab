@@ -11,9 +11,6 @@ spec:
         revision: HEAD
         directories:
           - path: infrastructure-legacy/networking/*
-          - path: infrastructure-legacy/storage/*
-          - path: infrastructure-legacy/controllers/*
-          - path: infrastructure-legacy/monitoring/*
   template:
     metadata:
       name: "{{path.basename}}"
