@@ -28,7 +28,6 @@ driver:
       shareMapallGroup: ""
 
 csiDriver:
-  # should be globally unique for a given cluster
   name: "org.democratic-csi.nfs"
 
 storageClasses:
@@ -42,6 +41,3 @@ storageClasses:
     mountOptions:
       - noatime
       - nfsvers=4
-
-# volumeSnapshotClasses:
-#   - name: truenas-nfs

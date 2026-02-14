@@ -1,0 +1,20 @@
+repositories:
+  - name: democratic-csi
+    url: https://democratic-csi.github.io/charts/
+
+releases:
+  - name: truenas-iscsi
+    namespace: democratic-csi
+    chart: democratic-csi/democratic-csi
+    version: 0.15.1
+    values:
+      - values-iscsi.yaml
+  - name: truenas-nfs
+    namespace: democratic-csi
+    chart: democratic-csi/democratic-csi
+    version: 0.15.1
+    values:
+      - values-nfs.yaml
+  - name: democratic-csi-resources
+    namespace: democratic-csi
+    chart: ./resources

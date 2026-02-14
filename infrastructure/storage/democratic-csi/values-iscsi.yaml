@@ -34,7 +34,6 @@ driver:
       extentAvailThreshold: 0
 
 csiDriver:
-  # should be globally unique for a given cluster
   name: "org.democratic-csi.iscsi"
 
 storageClasses:

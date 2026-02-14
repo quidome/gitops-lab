@@ -1,0 +1,5 @@
+apiVersion: v2
+name: democratic-csi-resources
+description: Democratic-CSI additional resources (ExternalSecrets)
+type: application
+version: 0.1.0
