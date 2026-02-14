@@ -91,6 +91,14 @@ repoServer:
     - name: helmfile-plugin
       image: travisghansen/argo-cd-helmfile:v0.3.13
       command: [/var/run/argocd/argocd-cmp-server]
+      env:
+        - name: VAULT_ADDR
+          value: "http://vault.security:8200"
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-token
+              key: token
       securityContext:
         runAsNonRoot: true
         runAsUser: 999
