@@ -1,0 +1,5 @@
+apiVersion: v2
+name: zigbee2mqtt-resources
+description: Zigbee2MQTT additional resources (secrets, HTTPRoute)
+type: application
+version: 0.1.0

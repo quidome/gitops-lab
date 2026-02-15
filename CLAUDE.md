@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Uses ArgoCD for continuous deployment with Helmfile (new) and Kustomize+Helm (legacy) for templating.
+GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Uses ArgoCD for continuous deployment with Helmfile for templating.
 
 ## Architecture
 
 ### Directory Structure
 - **infrastructure/** - Helmfile-based infrastructure (gitops, security, networking, storage, observability, hardware realms)
-- **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing, home-automation/mosquitto, home-automation/saic-mqtt-gateway, home-automation/hass)
+- **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing, home-automation/mosquitto, home-automation/saic-mqtt-gateway, home-automation/hass, home-automation/zigbee2mqtt)
 - **manual/** - Work-in-progress configurations not yet automated
 
 ### Technology Stack
@@ -42,18 +42,8 @@ realm/component/
     └── templates/
 ```
 
-**Legacy (Kustomize-based) — `applications-legacy/`:**
-```
-component/
-├── kustomization.yaml   # Orchestrates Helm charts and resources
-├── ns.yaml              # Namespace definition
-├── values.yaml          # Helm value overrides
-└── charts/              # Vendored Helm charts (when used)
-```
-
 ### GitOps Deployment
 - Infrastructure and applications use ApplicationSet with Helmfile plugin (`infrastructure/*/*`, `applications/*/*`)
-- One legacy application remains (`applications-legacy/zigbee2mqtt`)
 - All ApplicationSets implement retry logic and server-side apply
 
 ## Common Commands
@@ -83,31 +73,14 @@ python list_namespace_resources.py <namespace> [--json]
 
 ## Key Conventions
 
-- **Namespace per realm**: New Helmfile components use the realm name as namespace (e.g., `security`, `hardware`), created automatically via `CreateNamespace=true`. Legacy components define namespaces in `ns.yaml`
+- **Namespace per realm**: Components use the realm name as namespace (e.g., `security`, `hardware`, `home-automation`), created automatically via `CreateNamespace=true`
 - **Sync-wave annotations**: Control deployment order via `argocd.argoproj.io/sync-wave`
 - **Resource limits**: All components should define CPU/memory requests and limits
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
 
-## Infrastructure Migration (Complete)
+## Migration (Complete)
 
-Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms is complete. All components now use Helmfile.
-
-### Migration Status
-
-**Migrated to `infrastructure/` (Helmfile):**
-- `gitops/argocd` — GitOps controller
-- `security/openbao` — Secret management (OpenBAO)
-- `security/external-secrets` — External Secrets Operator
-- `security/cert-manager` — Certificate management
-- `security/vault` — HashiCorp Vault for Vals integration
-- `kube-system/cilium` — CNI and kube-proxy replacement
-- `networking/gateway` — Gateway API resources
-- `networking/external-dns` — DNS automation
-- `networking/pihole` — DNS ad-blocking
-- `democratic-csi/democratic-csi` — iSCSI and NFS storage drivers
-- `observability/metrics-server` — Metrics server
-- `hardware/node-feature-discovery` — Hardware detection
-
+Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms is complete. All infrastructure and applications now use Helmfile.
 
 ### Current Structure
 ```
@@ -138,7 +111,8 @@ applications/
 └── home-automation/
     ├── hass/              ✓ deployed (Home Assistant)
     ├── mosquitto/         ✓ deployed (MQTT broker)
-    └── saic-mqtt-gateway/ ✓ deployed (custom helm chart)
+    ├── saic-mqtt-gateway/ ✓ deployed (custom helm chart)
+    └── zigbee2mqtt/       ✓ deployed (Zigbee coordinator)
 ```
 
 ### Secret Management
@@ -179,4 +153,5 @@ kv/<realm>/<application>
 | `kv/security/cert-manager` | `api-token`, `email` | cert-manager |
 | `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | democratic-csi |
 | `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | democratic-csi |
+| `kv/home-automation/zigbee2mqtt` | `secret.yaml` | zigbee2mqtt |
 

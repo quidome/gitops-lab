@@ -1,0 +1,33 @@
+zigbee2mqtt:
+  advanced:
+    channel: 25
+    network_key: "!secret network_key"
+  timezone: Europe/Amsterdam
+  mqtt:
+    server: mqtt://mosquitto.home-automation:1883
+    user: "!secret username"
+    password: "!secret password"
+  serial:
+    port: /dev/ttyACM0
+    adapter: deconz
+service:
+  type: ClusterIP
+statefulset:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  nodeSelector:
+    feature.node.kubernetes.io/usb-conbee2.present: "true"
+  secrets:
+    name: zigbee2mqtt-secrets
+  storage:
+    enabled: true
+    storageClassName: truenas-nfs
+  volumeMounts:
+    - name: ttyacm
+      mountPath: /dev/ttyACM0
+  volumes:
+    - name: ttyacm
+      hostPath:
+        path: /dev/ttyACM0
+        type: ""

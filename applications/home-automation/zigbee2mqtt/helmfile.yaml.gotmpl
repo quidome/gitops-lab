@@ -1,0 +1,16 @@
+repositories:
+  - name: zigbee2mqtt
+    url: https://charts.zigbee2mqtt.io
+
+releases:
+  - name: zigbee2mqtt
+    namespace: home-automation
+    chart: zigbee2mqtt/zigbee2mqtt
+    version: "2.8.0"
+    values:
+      - values.yaml
+  - name: zigbee2mqtt-resources
+    namespace: home-automation
+    chart: ./resources
+    values:
+      - secretYaml: {{ fetchSecretValue "ref+vault://kv/home-automation/zigbee2mqtt#secret.yaml" | quote }}
