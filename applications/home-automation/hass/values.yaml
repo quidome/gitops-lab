@@ -63,6 +63,13 @@ readinessProbe:
   initialDelaySeconds: 10
   periodSeconds: 5
 
+# Home Assistant configuration injection
+configuration:
+  enabled: true
+  forceInit: true
+  trusted_proxies:
+    - 10.42.0.0/16
+
 # Environment variables
 env:
   - name: TZ
