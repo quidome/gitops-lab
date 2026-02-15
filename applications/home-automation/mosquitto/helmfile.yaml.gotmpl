@@ -10,4 +10,7 @@ releases:
     values:
       - values.yaml
   - name: mosquitto-resources
+    namespace: home-automation
     chart: ./resources
+    values:
+      - passwordfile: {{ fetchSecretValue "ref+vault://kv/home-automation/mosquitto#passwordfile" | quote }}

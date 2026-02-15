@@ -1,0 +1,5 @@
+apiVersion: v2
+name: mosquitto-resources
+description: Mosquitto additional resources (auth secret)
+type: application
+version: 0.1.0

@@ -223,12 +223,10 @@ kv/<realm>/<application>
 **Vault paths:**
 | Vault Path | Keys | Method | Application |
 |---|---|---|---|
-| `kv/home-automation/mosquitto` | `passwordfile` | External Secrets | mosquitto |
+| `kv/home-automation/mosquitto` | `passwordfile` | **Vals** | mosquitto |
 | `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | **Vals** | saic-mqtt-gateway |
 | `kv/networking/external-dns` | `EXTERNAL_DNS_PIHOLE_PASSWORD` | **Vals** | external-dns |
 | `kv/security/cert-manager` | `api-token`, `email` | External Secrets | cert-manager |
 | `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | External Secrets | democratic-csi |
 | `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | External Secrets | democratic-csi |
 
-**OpenBao paths (legacy - to be decommissioned):**
-- `home-automation/mosquitto` → migrate to Vault
