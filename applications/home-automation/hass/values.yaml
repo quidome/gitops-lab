@@ -44,6 +44,7 @@ securityContext:
 podSecurityContext:
   runAsNonRoot: false  # HA needs root for some integrations
   fsGroup: 1000
+  fsGroupChangePolicy: "OnRootMismatch"
   seccompProfile:
     type: RuntimeDefault
 
