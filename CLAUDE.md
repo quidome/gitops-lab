@@ -17,9 +17,9 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 - **Kubernetes**: k3s on NixOS
 - **Networking**: Cilium (kube-proxy replacement), Gateway API, External DNS, Pi-hole
 - **GitOps**: ArgoCD with ApplicationSets
-- **Templating**: Helmfile (new components) and Kustomize + Helm via `kustomize-build-with-helm` plugin (legacy)
+- **Templating**: Helmfile with Vals for secret injection
 - **Storage**: Democratic-CSI with TrueNAS (iSCSI and NFS backends)
-- **Secrets**: OpenBao with external-secrets and Sealed Secrets for git-safe encryption (legacy)
+- **Secrets**: Vault with Vals (deploy-time injection)
 - **Certificates**: cert-manager with Cloudflare DNS-01
 
 ### Component Patterns
@@ -42,7 +42,7 @@ realm/component/
     └── templates/
 ```
 
-**Legacy (Kustomize-based) — `infrastructure-legacy/` and `applications-legacy/`:**
+**Legacy (Kustomize-based) — `applications-legacy/`:**
 ```
 component/
 ├── kustomization.yaml   # Orchestrates Helm charts and resources
@@ -52,8 +52,8 @@ component/
 ```
 
 ### GitOps Deployment
-- New infrastructure/applications use ApplicationSet with Helmfile plugin (`infrastructure/*/*`, `applications/*/*`)
-- Legacy infrastructure/applications use ApplicationSet with `kustomize-build-with-helm` plugin
+- Infrastructure and applications use ApplicationSet with Helmfile plugin (`infrastructure/*/*`, `applications/*/*`)
+- One legacy application remains (`applications-legacy/zigbee2mqtt`)
 - All ApplicationSets implement retry logic and server-side apply
 
 ## Common Commands
@@ -72,35 +72,6 @@ helmfile -f infrastructure/gitops/argocd/helmfile.yaml apply
 kubectl apply -f infrastructure/applicationset.yaml
 ```
 
-### OpenBAO Workflow
-```bash
-# Add a secret
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv put kv/<path> <key>=<value>'
-
-# Read a secret
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv get kv/<path>'
-
-# List secrets
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv list kv/'
-
-# Unseal after pod restart (3 of 5 keys required)
-kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key>
-```
-
-### Sealed Secrets Workflow (legacy)
-```bash
-# Create secret from file
-kubectl create secret generic myNewSecret --from-file=secret.yaml=document.yaml -o yaml > secret.yaml
-
-# Seal it
-cat secret.yaml | kubeseal --controller-namespace kube-system --controller-name sealed-secrets -o yaml
-
-# Re-seal existing secret (strips cluster metadata)
-kubectl get secrets <name> -o yaml | \
-  yq eval-all 'del(.metadata.annotations, .metadata.labels, .metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid)' | \
-  kubeseal --controller-namespace kube-system --controller-name sealed-secrets -o yaml
-```
-
 ### Utility Scripts
 ```bash
 # List all resources in a namespace
@@ -108,11 +79,6 @@ python list_namespace_resources.py <namespace> [--json]
 
 # Remove stuck namespace finalizers
 ./remove-namespace-finalizers.sh <namespace>
-```
-
-### Validate Kustomize Build (legacy components)
-```bash
-kubectl kustomize --enable-helm infrastructure-legacy/<category>/<component>
 ```
 
 ## Key Conventions
@@ -136,6 +102,8 @@ Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based
 - `security/vault` — HashiCorp Vault for Vals integration
 - `kube-system/cilium` — CNI and kube-proxy replacement
 - `networking/gateway` — Gateway API resources
+- `networking/external-dns` — DNS automation
+- `networking/pihole` — DNS ad-blocking
 - `democratic-csi/democratic-csi` — iSCSI and NFS storage drivers
 - `observability/metrics-server` — Metrics server
 - `hardware/node-feature-discovery` — Hardware detection
@@ -175,38 +143,20 @@ applications/
 
 ### Secret Management
 
-**Current approach: Hybrid**
-- **Vault + Vals** - Deploy-time secret injection for app-specific secrets
-- **OpenBao + External Secrets** - Runtime sync for shared infrastructure secrets
-
-#### Secret Injection Methods
-
-**Vals (Deploy-time - Helmfile):**
-```yaml
-# helmfile.yaml.gotmpl
-environments:
-  default:
-    values:
-      - secrets:
-          KEY: {{ fetchSecretValue "ref+vault://kv/realm/app#KEY" }}
-```
-- Used by: `saic-mqtt-gateway`
+**Current approach: Vault + Vals**
+- All secrets injected at deploy-time via Vals
 - Secrets fetched during ArgoCD sync
 - To refresh: `argocd app sync <app-name>`
 
-**External Secrets (Runtime - Operator):**
+#### Secret Injection with Vals
+
 ```yaml
-# resources/external-secret.yaml
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-spec:
-  secretStoreRef:
-    name: openbao  # or vault
-    kind: ClusterSecretStore
+# helmfile.yaml.gotmpl
+releases:
+  - name: my-app
+    values:
+      - secretValue: {{ fetchSecretValue "ref+vault://kv/realm/app#KEY" | quote }}
 ```
-- Used by: Infrastructure and shared app secrets
-- Auto-syncs every 1 hour
-- To refresh: Wait or delete pod
 
 See `infrastructure/security/vault/VALS-SETUP.md` for Vals configuration.
 
@@ -221,12 +171,12 @@ kv/<realm>/<application>
 - **Keys** match their target usage: uppercase for env vars (e.g. `SAIC_USER`), lowercase-kebab for other values (e.g. `passwordfile`, `api-token`)
 
 **Vault paths:**
-| Vault Path | Keys | Method | Application |
-|---|---|---|---|
-| `kv/home-automation/mosquitto` | `passwordfile` | **Vals** | mosquitto |
-| `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | **Vals** | saic-mqtt-gateway |
-| `kv/networking/external-dns` | `EXTERNAL_DNS_PIHOLE_PASSWORD` | **Vals** | external-dns |
-| `kv/security/cert-manager` | `api-token`, `email` | External Secrets | cert-manager |
-| `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | External Secrets | democratic-csi |
-| `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | External Secrets | democratic-csi |
+| Vault Path | Keys | Application |
+|---|---|---|
+| `kv/home-automation/mosquitto` | `passwordfile` | mosquitto |
+| `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | saic-mqtt-gateway |
+| `kv/networking/external-dns` | `EXTERNAL_DNS_PIHOLE_PASSWORD` | external-dns |
+| `kv/security/cert-manager` | `api-token`, `email` | cert-manager |
+| `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | democratic-csi |
+| `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | democratic-csi |
 
