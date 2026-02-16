@@ -39,7 +39,7 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: false
-  allowPrivilegeEscalation: false
+  allowPrivilegeEscalation: true  # Required for USB device access
 
 podSecurityContext:
   runAsNonRoot: false  # HA needs root for some integrations
