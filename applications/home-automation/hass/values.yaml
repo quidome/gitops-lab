@@ -101,3 +101,14 @@ affinity:
 env:
   - name: TZ
     value: "Europe/Amsterdam"
+
+# Mount P1 meter USB device
+additionalVolumes:
+  - name: p1-meter
+    hostPath:
+      path: /dev/ttyUSB0
+      type: CharDevice
+
+additionalMounts:
+  - name: p1-meter
+    mountPath: /dev/ttyUSB0
