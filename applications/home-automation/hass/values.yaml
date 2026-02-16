@@ -85,6 +85,18 @@ configuration:
     script: !include scripts.yaml
     scene: !include scenes.yaml
 
+# Prefer node with P1 meter USB adapter
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: feature.node.kubernetes.io/usb-p1-meter.present
+              operator: In
+              values:
+                - "true"
+
 # Environment variables
 env:
   - name: TZ
