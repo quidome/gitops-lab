@@ -20,9 +20,9 @@ service:
 # Persistence for Home Assistant config/data
 persistence:
   enabled: true
-  storageClass: truenas-nfs
+  storageClass: truenas-iscsi
   accessMode: ReadWriteOnce
-  size: 10Gi
+  size: 5Gi
 
 # Resource limits for home lab
 resources:
