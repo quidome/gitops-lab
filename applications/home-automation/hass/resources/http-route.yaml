@@ -3,21 +3,21 @@ kind: HTTPRoute
 metadata:
   name: hass
 spec:
-  parentRefs:
-    - name: gateway-internal
-      namespace: networking
-      group: gateway.networking.k8s.io
-      kind: Gateway
   hostnames:
-    - hass.quido.me
+  - hass.quido.me
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: gateway-internal
+    namespace: networking
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: hass
-          port: 8123
-          weight: 1
-          group: ""
-          kind: Service
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: hass
+      port: 8123
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
