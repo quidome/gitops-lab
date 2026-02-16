@@ -19,6 +19,11 @@ spec:
         type: applications
     spec:
       project: default
+      ignoreDifferences:
+        - group: apps
+          kind: StatefulSet
+          jqPathExpressions:
+            - .spec.volumeClaimTemplates[]?
       source:
         plugin:
           name: helmfile
@@ -40,3 +45,4 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+          - RespectIgnoreDifferences=true
