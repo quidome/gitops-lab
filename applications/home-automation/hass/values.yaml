@@ -35,11 +35,8 @@ resources:
 
 # Security context
 securityContext:
-  capabilities:
-    drop:
-      - ALL
+  privileged: true  # Required for USB device access
   readOnlyRootFilesystem: false
-  allowPrivilegeEscalation: true  # Required for USB device access
 
 podSecurityContext:
   runAsNonRoot: false  # HA needs root for some integrations
