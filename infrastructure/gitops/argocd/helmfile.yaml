@@ -6,7 +6,7 @@ releases:
   - name: argocd
     namespace: gitops
     chart: argo/argo-cd
-    version: 9.4.1
+    version: 9.4.2
     values:
       - values.yaml
   - name: argocd-resources
