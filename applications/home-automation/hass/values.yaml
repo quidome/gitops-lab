@@ -69,6 +69,21 @@ configuration:
   forceInit: true
   trusted_proxies:
     - 10.42.0.0/16
+  # Override templateConfig to include http block unconditionally
+  # (default template only renders it when ingress is enabled)
+  templateConfig: |-
+    default_config:
+    http:
+      use_x_forwarded_for: true
+      trusted_proxies:
+        {{- range .Values.configuration.trusted_proxies }}
+        - {{ . }}
+        {{- end }}
+    frontend:
+      themes: !include_dir_merge_named themes
+    automation: !include automations.yaml
+    script: !include scripts.yaml
+    scene: !include scenes.yaml
 
 # Environment variables
 env:
