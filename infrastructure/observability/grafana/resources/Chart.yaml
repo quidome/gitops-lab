@@ -1,0 +1,4 @@
+apiVersion: v2
+name: grafana-resources
+description: Additional resources for Grafana (HTTPRoute)
+version: 0.1.0
