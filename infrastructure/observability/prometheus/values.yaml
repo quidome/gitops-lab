@@ -1,0 +1,41 @@
+server:
+  # Persistent storage
+  persistentVolume:
+    enabled: true
+    size: 15Gi
+    storageClass: "truenas-nfs"
+
+  # Resource limits
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 500Mi
+
+  # Retention configuration
+  retention: "30d"
+
+  # Global scrape configuration
+  global:
+    scrape_interval: 60s
+    scrape_timeout: 10s
+    evaluation_interval: 60s
+
+  # Service type (internal only)
+  service:
+    type: ClusterIP
+
+# Disable components deployed separately
+alertmanager:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: false
+
+pushgateway:
+  enabled: false
