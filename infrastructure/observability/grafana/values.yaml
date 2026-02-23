@@ -62,10 +62,6 @@ dashboards:
       gnetId: 6417
       revision: 1
       datasource: Prometheus
-    k8s-dashboard:
-      gnetId: 15661
-      revision: 2
-      datasource: Prometheus
 
 # Grafana configuration
 grafana.ini:
