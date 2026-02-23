@@ -31,11 +31,11 @@ server:
 alertmanager:
   enabled: false
 
-nodeExporter:
+prometheus-node-exporter:
   enabled: false
 
-kubeStateMetrics:
+kube-state-metrics:
   enabled: false
 
-pushgateway:
+prometheus-pushgateway:
   enabled: false
