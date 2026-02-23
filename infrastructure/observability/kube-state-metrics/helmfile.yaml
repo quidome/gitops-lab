@@ -6,7 +6,7 @@ releases:
   - name: kube-state-metrics
     namespace: observability
     chart: prometheus-community/kube-state-metrics
-    version: 5.25.1
+    version: 7.1.0
     createNamespace: true
     values:
       - values.yaml
