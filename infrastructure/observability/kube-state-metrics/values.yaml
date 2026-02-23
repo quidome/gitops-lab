@@ -1,0 +1,21 @@
+# Single replica (no HA needed)
+replicas: 1
+
+# Resource limits
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+# Prometheus scrape annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+
+# Service for Prometheus to discover
+service:
+  type: ClusterIP
+  port: 8080
