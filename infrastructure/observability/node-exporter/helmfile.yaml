@@ -6,7 +6,7 @@ releases:
   - name: prometheus-node-exporter
     namespace: observability
     chart: prometheus-community/prometheus-node-exporter
-    version: 4.39.0
+    version: 4.51.1
     createNamespace: true
     values:
       - values.yaml
