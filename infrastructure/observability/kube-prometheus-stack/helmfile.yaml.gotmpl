@@ -1,0 +1,30 @@
+repositories:
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+
+environments:
+  default:
+    values:
+      - secrets:
+          grafanaAdminPassword: {{ fetchSecretValue "ref+vault://kv/observability/grafana#admin-password" }}
+
+releases:
+  # Main kube-prometheus-stack
+  - name: kube-prometheus-stack
+    namespace: observability
+    chart: prometheus-community/kube-prometheus-stack
+    version: 82.2.1
+    createNamespace: true
+    wait: true
+    timeout: 600  # 10 minutes (CRD installation can take time)
+    values:
+      - values.yaml
+      - grafana:
+          adminPassword: {{ .Values.secrets.grafanaAdminPassword | quote }}
+
+  # HTTPRoute for Grafana external access
+  - name: grafana-resources
+    namespace: observability
+    chart: ./resources
+    needs:
+      - observability/kube-prometheus-stack  # Deploy after main stack

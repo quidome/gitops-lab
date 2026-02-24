@@ -1,0 +1,266 @@
+# ============================================================================
+# Global Configuration
+# ============================================================================
+
+defaultRules:
+  create: true  # Include default PrometheusRules (alerts)
+
+# ============================================================================
+# Prometheus Configuration
+# ============================================================================
+
+prometheus:
+  enabled: true
+
+  prometheusSpec:
+    # Retention and storage
+    retention: 30d
+    retentionSize: "14GB"  # ~90% of 15Gi PVC
+
+    # CRITICAL: Use iSCSI block storage to prevent WAL corruption
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: truenas-iscsi
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 15Gi
+
+    # Resource limits
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1Gi
+      limits:
+        cpu: 500m
+        memory: 2Gi
+
+    # Scrape configuration
+    scrapeInterval: 60s
+    scrapeTimeout: 10s
+    evaluationInterval: 60s
+
+    # ServiceMonitor discovery (cluster-wide, all namespaces)
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector: {}  # Match all ServiceMonitors
+    serviceMonitorNamespaceSelector: {}  # Watch all namespaces
+
+    podMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelector: {}
+    podMonitorNamespaceSelector: {}
+
+    # PrometheusRule discovery
+    ruleSelectorNilUsesHelmValues: false
+    ruleSelector: {}
+    ruleNamespaceSelector: {}
+
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      fsGroup: 2000
+
+    # Probe configuration (adjust for slow storage)
+    readinessProbeInitialDelaySeconds: 30
+    livenessProbeInitialDelaySeconds: 60
+
+# ============================================================================
+# AlertManager Configuration
+# ============================================================================
+
+alertmanager:
+  enabled: true
+
+  alertmanagerSpec:
+    # Storage (minimal, alerts are ephemeral)
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: truenas-iscsi
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi
+
+    # Resource limits
+    resources:
+      requests:
+        cpu: 10m
+        memory: 50Mi
+      limits:
+        cpu: 50m
+        memory: 100Mi
+
+    # Probes
+    readinessProbeInitialDelaySeconds: 10
+    livenessProbeInitialDelaySeconds: 30
+
+    # No notification receivers configured yet (follow-up work)
+    configSecret: ""  # Empty = use default config (no notifications)
+
+# ============================================================================
+# Grafana Configuration
+# ============================================================================
+
+grafana:
+  enabled: true
+
+  # Admin password injected via Vals in helmfile.yaml.gotmpl
+  adminUser: admin
+
+  # Persistence
+  persistence:
+    enabled: true
+    storageClassName: truenas-iscsi
+    accessModes: ["ReadWriteOnce"]
+    size: 5Gi
+
+  # Resource limits
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+    limits:
+      cpu: 200m
+      memory: 300Mi
+
+  # Grafana configuration
+  grafana.ini:
+    server:
+      root_url: https://grafana.quido.me
+      serve_from_sub_path: false
+
+    security:
+      admin_user: admin
+
+    auth:
+      disable_login_form: false
+
+    users:
+      allow_sign_up: false
+
+  # Probes (Grafana can be slow to start with dashboard imports)
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 10
+
+  # Dashboard providers (for sidecar)
+  sidecar:
+    dashboards:
+      enabled: true
+      defaultFolderName: "General"
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+    datasources:
+      enabled: true
+      defaultDatasourceEnabled: true
+      # Chart auto-creates Prometheus datasource
+
+  # Dashboard imports from Grafana.com
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  dashboards:
+    default:
+      # Kubernetes cluster overview
+      kubernetes-cluster:
+        gnetId: 315
+        revision: 3
+        datasource: Prometheus
+
+      # Node exporter full
+      node-exporter:
+        gnetId: 1860
+        revision: 31
+        datasource: Prometheus
+
+      # Kubernetes pods
+      kubernetes-pods:
+        gnetId: 6417
+        revision: 1
+        datasource: Prometheus
+
+# ============================================================================
+# Prometheus Operator Configuration
+# ============================================================================
+
+prometheusOperator:
+  enabled: true
+
+  # Resource limits for Operator pod
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 200Mi
+
+  # CRD management
+  manageCrds: true  # Operator manages CRD lifecycle
+
+# ============================================================================
+# Exporters Configuration
+# ============================================================================
+
+# Node Exporter (collects node metrics)
+nodeExporter:
+  enabled: true
+
+  # Resource limits per DaemonSet pod
+  resources:
+    requests:
+      cpu: 50m
+      memory: 30Mi
+    limits:
+      cpu: 100m
+      memory: 50Mi
+
+# Kube State Metrics (K8s object metrics)
+kubeStateMetrics:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 128Mi
+
+# ============================================================================
+# Disabled Components
+# ============================================================================
+
+kubeProxy:
+  enabled: false  # Cilium replaces kube-proxy
+
+kubeEtcd:
+  enabled: false  # Not exposed in k3s
+
+kubeScheduler:
+  enabled: true
+
+kubeControllerManager:
+  enabled: true
+
+coreDns:
+  enabled: true
