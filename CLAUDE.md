@@ -9,11 +9,13 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 ## Architecture
 
 ### Directory Structure
+
 - **infrastructure/** - Helmfile-based infrastructure (gitops, security, networking, storage, observability, hardware realms)
 - **applications/** - Active user applications deployed via Helmfile (file-sharing/syncthing, home-automation/mosquitto, home-automation/saic-mqtt-gateway, home-automation/hass, home-automation/zigbee2mqtt)
 - **manual/** - Work-in-progress configurations not yet automated
 
 ### Technology Stack
+
 - **Kubernetes**: k3s on NixOS
 - **Networking**: Cilium (kube-proxy replacement), Gateway API, External DNS, Pi-hole
 - **GitOps**: ArgoCD with ApplicationSets
@@ -25,6 +27,7 @@ GitOps-managed home lab Kubernetes infrastructure running on k3s with NixOS. Use
 ### Component Patterns
 
 **New (Helmfile-based) — `infrastructure/` and `applications/`:**
+
 ```
 realm/component/
 ├── helmfile.yaml        # Helm releases and repositories
@@ -33,6 +36,7 @@ realm/component/
 ```
 
 **Custom Helm charts (when more control is needed):**
+
 ```
 realm/component/
 ├── helmfile.yaml.gotmpl # Helmfile with templating
@@ -42,13 +46,35 @@ realm/component/
     └── templates/
 ```
 
+**Local minimal charts for simple exporters:**
+For simple exporters (Deployment + Service + ServiceMonitor), prefer local minimal Helm charts over third-party dependencies:
+
+- Full control over configuration and labels
+- No external chart dependencies to maintain
+- Consistent with GitOps maturity principles
+- Example: `infrastructure/observability/proxmox-exporter/`
+
+Use local charts when:
+
+- Exporter has simple deployment requirements (single Deployment + Service)
+- Third-party charts lack features or have uncertain maintenance
+- Full control needed for GitOps workflows (Vals injection, custom labels)
+
+Use upstream charts when:
+
+- Complex applications with many resources
+- Well-maintained charts with active community
+- Chart provides significant value (CRDs, operators, complex templating)
+
 ### GitOps Deployment
+
 - Infrastructure and applications use ApplicationSet with Helmfile plugin (`infrastructure/*/*`, `applications/*/*`)
 - All ApplicationSets implement retry logic and server-side apply
 
 ## Common Commands
 
 ### Bootstrap (from workstation)
+
 ```bash
 # Cilium
 helm repo add cilium https://helm.cilium.io && helm repo update
@@ -63,6 +89,7 @@ kubectl apply -f infrastructure/applicationset.yaml
 ```
 
 ### Utility Scripts
+
 ```bash
 # List all resources in a namespace
 python list_namespace_resources.py <namespace> [--json]
@@ -83,6 +110,7 @@ python list_namespace_resources.py <namespace> [--json]
 Migration from Kustomize+Helm to Helmfile-based infrastructure with domain-based realms is complete. All infrastructure and applications now use Helmfile.
 
 ### Current Structure
+
 ```
 infrastructure/
 ├── gitops/              # Deployment automation
@@ -118,6 +146,7 @@ applications/
 ### Secret Management
 
 **Current approach: Vault + Vals**
+
 - All secrets injected at deploy-time via Vals
 - Secrets fetched during ArgoCD sync
 - To refresh: `argocd app sync <app-name>`
@@ -129,7 +158,8 @@ applications/
 releases:
   - name: my-app
     values:
-      - secretValue: {{ fetchSecretValue "ref+vault://kv/realm/app#KEY" | quote }}
+      - secretValue:
+          { { fetchSecretValue "ref+vault://kv/realm/app#KEY" | quote } }
 ```
 
 See `infrastructure/security/vault/VALS-SETUP.md` for Vals configuration.
@@ -137,6 +167,7 @@ See `infrastructure/security/vault/VALS-SETUP.md` for Vals configuration.
 #### Secret Naming Convention
 
 Secrets are stored as one path per application with key-value pairs inside:
+
 ```
 kv/<realm>/<application>
 ```
@@ -154,4 +185,3 @@ kv/<realm>/<application>
 | `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | democratic-csi |
 | `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | democratic-csi |
 | `kv/home-automation/zigbee2mqtt` | `secret.yaml` | zigbee2mqtt |
-
