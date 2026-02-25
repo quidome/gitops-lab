@@ -33,4 +33,11 @@ releases:
           labels: {}
 
         dashboard:
-          enabled: false  # Enable in Phase 4
+          enabled: true
+          gnetId: 10347
+          revision: 1
+          datasource: Prometheus
+          labels:
+            grafana_dashboard: "1"
+          annotations:
+            grafana_folder: "Infrastructure"
