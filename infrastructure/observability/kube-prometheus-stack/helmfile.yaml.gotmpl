@@ -14,7 +14,7 @@ releases:
     values:
       - values.yaml
       - grafana:
-          adminPassword: {{ fetchSecretValue "ref+vault://kv/observability/grafana#admin-password" | quote }}
+          adminPassword: {{ fetchSecretValue "ref+vault://kv/observability/grafana#admin-password" }}
 
   # HTTPRoute for Grafana external access
   - name: grafana-resources
