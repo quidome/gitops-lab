@@ -61,13 +61,12 @@ dashboard:
   annotations:
     grafana_folder: "Infrastructure"
 
-# Security context
+# Security context (pod-level)
 securityContext:
   runAsNonRoot: true
   runAsUser: 65534  # nobody user
   runAsGroup: 65534
   fsGroup: 65534
-  readOnlyRootFilesystem: true
 
 # Pod annotations
 podAnnotations: {}
