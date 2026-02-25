@@ -108,7 +108,7 @@ grafana:
 
   # Admin password injected via Vals in helmfile.yaml.gotmpl
   adminUser: admin
-
+  adminPassword: {{ .Values.grafana_admin_password }}
   # Persistence
   persistence:
     enabled: true
