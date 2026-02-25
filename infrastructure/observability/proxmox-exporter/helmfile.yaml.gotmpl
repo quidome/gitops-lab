@@ -13,7 +13,7 @@ releases:
           pullPolicy: IfNotPresent
 
         proxmox:
-          endpoint: https://pve2.lan.balti.casa:8006
+          host: pve2.lan.balti.casa
           tokenId: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_TOKEN_ID" | quote }}
           secret: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_SECRET" | quote }}
           verifyTls: false  # Internal host with self-signed cert
@@ -27,7 +27,10 @@ releases:
             memory: 128Mi
 
         serviceMonitor:
-          enabled: false  # Enable in Phase 3
+          enabled: true
+          interval: 60s
+          scrapeTimeout: 10s
+          labels: {}
 
         dashboard:
           enabled: false  # Enable in Phase 4

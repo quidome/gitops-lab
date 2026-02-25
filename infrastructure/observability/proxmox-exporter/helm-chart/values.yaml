@@ -6,7 +6,7 @@ image:
 
 # Proxmox connection configuration
 proxmox:
-  endpoint: ""  # Required: https://proxmox.example.com:8006
+  host: ""      # Required: proxmox.example.com (hostname/IP for scrape target)
   tokenId: ""   # Required: monitoring@pve!prometheus
   secret: ""    # Required: UUID token
   verifyTls: true  # Set false for self-signed certs
