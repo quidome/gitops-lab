@@ -114,6 +114,12 @@ python list_namespace_resources.py <namespace> [--json]
       limits:
         memory: 256Mi
     ```
+- **Deployment strategy**: Components using ReadWriteOnce (RWO) PVCs must use `Recreate` strategy
+  - RWO volumes (truenas-iscsi) can only attach to one pod at a time
+  - Recreate strategy terminates old pods before creating new ones
+  - Prevents "FailedAttachVolume" errors during updates
+  - StatefulSets handle this automatically (preferred for stateful apps)
+  - Deployments need explicit `strategy: {type: Recreate}`
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
 
 ## Migration (Complete)

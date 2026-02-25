@@ -113,6 +113,10 @@ grafana:
     accessModes: ["ReadWriteOnce"]
     size: 5Gi
 
+  # Deployment strategy for RWO PVC
+  deploymentStrategy:
+    type: Recreate
+
   # Resource limits
   resources:
     requests:

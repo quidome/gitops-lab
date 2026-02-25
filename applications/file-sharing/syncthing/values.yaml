@@ -1,3 +1,6 @@
+strategy:
+  type: Recreate
+
 persistence:
   data:
     enabled: true
