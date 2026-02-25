@@ -1,0 +1,33 @@
+repositories: []  # No external repos for local chart
+
+releases:
+  - name: proxmox-exporter
+    namespace: observability
+    chart: ./helm-chart
+    wait: true
+    timeout: 300
+    values:
+      - image:
+          repository: prompve/prometheus-pve-exporter
+          tag: "3.2.0"
+          pullPolicy: IfNotPresent
+
+        proxmox:
+          endpoint: https://pve2.lan.balti.casa:8006
+          tokenId: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_TOKEN_ID" | quote }}
+          secret: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_SECRET" | quote }}
+          verifyTls: false  # Internal host with self-signed cert
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+
+        serviceMonitor:
+          enabled: false  # Enable in Phase 3
+
+        dashboard:
+          enabled: false  # Enable in Phase 4

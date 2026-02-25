@@ -1,0 +1,78 @@
+# Image configuration
+image:
+  repository: prompve/prometheus-pve-exporter
+  tag: "3.2.0"
+  pullPolicy: IfNotPresent
+
+# Proxmox connection configuration
+proxmox:
+  endpoint: ""  # Required: https://proxmox.example.com:8006
+  tokenId: ""   # Required: monitoring@pve!prometheus
+  secret: ""    # Required: UUID token
+  verifyTls: true  # Set false for self-signed certs
+
+# Resource limits
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+# Probes
+livenessProbe:
+  httpGet:
+    path: /
+    port: 9221
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 5
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 9221
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 9221
+  targetPort: 9221
+
+# ServiceMonitor configuration
+serviceMonitor:
+  enabled: false
+  interval: 60s
+  scrapeTimeout: 10s
+  labels: {}
+
+# Dashboard configuration
+dashboard:
+  enabled: false
+  gnetId: 10347
+  revision: 1
+  datasource: Prometheus
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Infrastructure"
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534  # nobody user
+  runAsGroup: 65534
+  fsGroup: 65534
+  readOnlyRootFilesystem: true
+
+# Pod annotations
+podAnnotations: {}
+
+# Node selector, affinity, tolerations
+nodeSelector: {}
+affinity: {}
+tolerations: []
