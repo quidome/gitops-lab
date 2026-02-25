@@ -23,6 +23,7 @@ spec:
       - {{ .Values.proxmox.host }}
     relabelings:
     - sourceLabels: [__address__]
+      action: replace
       targetLabel: instance
       replacement: {{ .Values.proxmox.host | quote }}
 {{- end }}
