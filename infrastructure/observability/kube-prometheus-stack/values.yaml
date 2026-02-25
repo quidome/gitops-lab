@@ -154,6 +154,7 @@ grafana:
   sidecar:
     dashboards:
       enabled: true
+      defaultFolderName: "General"
       label: grafana_dashboard
       labelValue: "1"
       searchNamespace: ALL
@@ -163,6 +164,19 @@ grafana:
       # Chart auto-creates Prometheus datasource
 
   # Dashboard imports from Grafana.com
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
   dashboards:
     default:
       # Kubernetes cluster overview
