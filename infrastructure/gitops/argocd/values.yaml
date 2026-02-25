@@ -20,36 +20,32 @@ controller:
   resources:
     requests:
       cpu: 100m
-      memory: 700Mi
+      memory: 2Gi
     limits:
-      cpu: 4000m
       memory: 2Gi
 
 dex:
   resources:
     requests:
       cpu: 20m
-      memory: 64Mi
+      memory: 256Mi
     limits:
-      cpu: 1000m
       memory: 256Mi
 
 redis:
   resources:
     requests:
       cpu: 100m
-      memory: 64Mi
+      memory: 128Mi
     limits:
-      cpu: 2000m
       memory: 128Mi
 
 server:
   resources:
     requests:
       cpu: 50m
-      memory: 64Mi
+      memory: 256Mi
     limits:
-      cpu: 4000m
       memory: 256Mi
 
 repoServer:
@@ -62,9 +58,8 @@ repoServer:
   resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 1024Mi
     limits:
-      cpu: 4000m
       memory: 1024Mi
   extraContainers:
     - name: kustomize-build-with-helm
@@ -114,9 +109,8 @@ applicationSet:
   resources:
     requests:
       cpu: 50m
-      memory: 64Mi
+      memory: 512Mi
     limits:
-      cpu: 1000m
       memory: 512Mi
 
 notifications:
@@ -124,7 +118,6 @@ notifications:
   resources:
     requests:
       cpu: 100m
-      memory: 64Mi
+      memory: 128Mi
     limits:
-      cpu: 1000m
       memory: 128Mi

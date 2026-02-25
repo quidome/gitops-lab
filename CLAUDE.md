@@ -102,7 +102,18 @@ python list_namespace_resources.py <namespace> [--json]
 
 - **Namespace per realm**: Components use the realm name as namespace (e.g., `security`, `hardware`, `home-automation`), created automatically via `CreateNamespace=true`
 - **Sync-wave annotations**: Control deployment order via `argocd.argoproj.io/sync-wave`
-- **Resource limits**: All components should define CPU/memory requests and limits
+- **Resource configuration**: All components must define resources following this pattern:
+  - **CPU**: Only requests, no limits (allows bursting)
+  - **Memory**: Requests and limits must be equal (prevents OOM issues)
+  - Example:
+    ```yaml
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 256Mi
+    ```
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
 
 ## Migration (Complete)

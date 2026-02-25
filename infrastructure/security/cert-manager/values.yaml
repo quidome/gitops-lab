@@ -27,12 +27,11 @@ securityContext:
     type: RuntimeDefault
 # Resource limits for production workloads
 resources:
-  limits:
-    cpu: 200m
-    memory: 256Mi
   requests:
     cpu: 20m
-    memory: 128Mi
+    memory: 256Mi
+  limits:
+    memory: 256Mi
 webhook:
   securityContext:
     runAsNonRoot: true
@@ -40,12 +39,11 @@ webhook:
     seccompProfile:
       type: RuntimeDefault
   resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
     requests:
       cpu: 10m
-      memory: 64Mi
+      memory: 128Mi
+    limits:
+      memory: 128Mi
 cainjector:
   securityContext:
     runAsNonRoot: true
@@ -53,9 +51,8 @@ cainjector:
     seccompProfile:
       type: RuntimeDefault
   resources:
-    limits:
-      cpu: 200m
-      memory: 256Mi
     requests:
       cpu: 20m
-      memory: 128Mi
+      memory: 256Mi
+    limits:
+      memory: 256Mi
