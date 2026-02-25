@@ -6,7 +6,7 @@ releases:
   - name: syncthing
     namespace: file-sharing
     chart: k8s-home-lab/syncthing
-    version: 4.0.0
+    version: 5.0.0
     values:
       - values.yaml
   - name: syncthing-resources
