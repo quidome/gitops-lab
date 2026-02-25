@@ -7,8 +7,9 @@ image:
 # Proxmox connection configuration
 proxmox:
   host: ""      # Required: proxmox.example.com (hostname/IP for scrape target)
-  tokenId: ""   # Required: monitoring@pve!prometheus
-  secret: ""    # Required: UUID token
+  user: ""      # Required: monitoring@pve (username portion)
+  tokenName: "" # Required: prometheus (token name portion)
+  tokenValue: "" # Required: UUID token value
   verifyTls: true  # Set false for self-signed certs
 
 # Resource limits

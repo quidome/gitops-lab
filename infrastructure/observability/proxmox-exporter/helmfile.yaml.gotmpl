@@ -14,8 +14,9 @@ releases:
 
         proxmox:
           host: pve2.lan.balti.casa
-          tokenId: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_TOKEN_ID" | quote }}
-          secret: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_SECRET" | quote }}
+          user: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_USER" | quote }}
+          tokenName: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_TOKEN_NAME" | quote }}
+          tokenValue: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_TOKEN_VALUE" | quote }}
           verifyTls: false  # Internal host with self-signed cert
 
         resources:

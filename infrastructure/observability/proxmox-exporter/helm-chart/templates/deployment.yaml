@@ -27,11 +27,11 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: PVE_USER
-          value: {{ .Values.proxmox.tokenId | quote }}
+          value: {{ .Values.proxmox.user | quote }}
         - name: PVE_TOKEN_NAME
-          value: {{ .Values.proxmox.tokenId | quote }}
+          value: {{ .Values.proxmox.tokenName | quote }}
         - name: PVE_TOKEN_VALUE
-          value: {{ .Values.proxmox.secret | quote }}
+          value: {{ .Values.proxmox.tokenValue | quote }}
         - name: PVE_VERIFY_SSL
           value: {{ .Values.proxmox.verifyTls | quote }}
         ports:
