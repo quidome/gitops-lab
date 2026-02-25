@@ -154,7 +154,7 @@ grafana:
   sidecar:
     dashboards:
       enabled: true
-      defaultFolderName: "General"
+      folder: /tmp/dashboards
       label: grafana_dashboard
       labelValue: "1"
       searchNamespace: ALL
