@@ -3,4 +3,4 @@ name: proxmox-exporter
 description: Prometheus exporter for Proxmox VE metrics
 type: application
 version: 1.0.0
-appVersion: "3.2.0"
+appVersion: "3.8.1"
