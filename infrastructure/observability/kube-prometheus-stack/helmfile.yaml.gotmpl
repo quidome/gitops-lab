@@ -13,8 +13,7 @@ releases:
     timeout: 600  # 10 minutes (CRD installation can take time)
     values:
       - values.yaml
-      - grafana:
-          adminPassword: {{ fetchSecretValue "ref+vault://kv/observability/grafana#admin-password" }}
+      - secrets.yaml.gotmpl
 
   # HTTPRoute for Grafana external access
   - name: grafana-resources
