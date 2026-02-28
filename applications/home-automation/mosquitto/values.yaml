@@ -8,6 +8,7 @@ persistence:
 
 service:
   type: ClusterIP
+  externalTrafficPolicy: null
   ports:
     mqtt:
       port: 1883
