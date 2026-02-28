@@ -5,6 +5,7 @@ persistence:
   enabled: true
   storageClass: truenas-nfs
   size: 256Mi
+  existingClaim: pvc-ef220cd3-127e-48d7-82ef-edc0de71c597
 
 service:
   type: LoadBalancer
