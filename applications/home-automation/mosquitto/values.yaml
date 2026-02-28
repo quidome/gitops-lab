@@ -7,8 +7,7 @@ persistence:
   size: 256Mi
 
 service:
-  type: LoadBalancer
-  loadBalancerIP: 172.16.40.51
+  type: ClusterIP
   ports:
     mqtt:
       port: 1883
