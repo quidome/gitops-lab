@@ -2,6 +2,7 @@ provider: pihole
 extraArgs:
   - --pihole-server=http://172.16.40.1
   - --gateway-name=gateway-internal
+  - --gateway-name=gateway-external
   - --pihole-api-version=6
 policy: sync
 sources: ["gateway-httproute"]
