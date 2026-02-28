@@ -71,6 +71,11 @@ Use upstream charts when:
 - Infrastructure and applications use ApplicationSet with Helmfile plugin (`infrastructure/*/*`, `applications/*/*`)
 - All ApplicationSets implement retry logic and server-side apply
 
+**ArgoCD Configuration:**
+- ArgoCD is installed in the `gitops` namespace (not `argocd`)
+- No argocd CLI binary is installed - use `kubectl` for all ArgoCD interactions
+  - Example: `kubectl get application <app-name> -n gitops` instead of `argocd app get <app-name>`
+
 ## Common Commands
 
 ### Bootstrap (from workstation)
@@ -83,7 +88,7 @@ helm install cilium cilium/cilium -n kube-system \
   --version 1.17.6 --set operator.replicas=1
 
 # ArgoCD
-kubectl create namespace argocd
+kubectl create namespace gitops
 helmfile -f infrastructure/gitops/argocd/helmfile.yaml apply
 kubectl apply -f infrastructure/applicationset.yaml
 ```
@@ -166,7 +171,7 @@ applications/
 
 - All secrets injected at deploy-time via Vals
 - Secrets fetched during ArgoCD sync
-- To refresh: `argocd app sync <app-name>`
+- To refresh: `kubectl patch application <app-name> -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'`
 
 #### Secret Injection with Vals
 
