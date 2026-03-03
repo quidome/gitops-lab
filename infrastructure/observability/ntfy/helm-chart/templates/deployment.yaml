@@ -32,12 +32,15 @@ spec:
             - -c
             - |
               if [ ! -f /var/lib/ntfy/user.db ]; then
-                ntfy user add --auth-file /var/lib/ntfy/user.db admin
-                ntfy token add --auth-file /var/lib/ntfy/user.db --token {{ .Values.auth.token }} admin
-                ntfy access --auth-file /var/lib/ntfy/user.db everyone '*' deny
-                ntfy access --auth-file /var/lib/ntfy/user.db admin '*' read-write
+                ntfy --config /etc/ntfy/server.yml user add admin
+                ntfy --config /etc/ntfy/server.yml token add --token {{ .Values.auth.token }} admin
+                ntfy --config /etc/ntfy/server.yml access everyone '*' deny
+                ntfy --config /etc/ntfy/server.yml access admin '*' read-write
               fi
           volumeMounts:
+            - name: config
+              mountPath: /etc/ntfy
+              readOnly: true
             - name: data
               mountPath: /var/lib/ntfy
           securityContext:
