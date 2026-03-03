@@ -32,10 +32,10 @@ spec:
             - -c
             - |
               if [ ! -f /var/lib/ntfy/user.db ]; then
-                ntfy --config /etc/ntfy/server.yml user add admin
-                ntfy --config /etc/ntfy/server.yml token add --token {{ .Values.auth.token }} admin
-                ntfy --config /etc/ntfy/server.yml access everyone '*' deny
-                ntfy --config /etc/ntfy/server.yml access admin '*' read-write
+                ntfy user add admin
+                ntfy token add --token {{ .Values.auth.token }} admin
+                ntfy access everyone '*' deny
+                ntfy access admin '*' read-write
               fi
           volumeMounts:
             - name: config
