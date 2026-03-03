@@ -1,0 +1,59 @@
+image:
+  repository: binwiederhier/ntfy
+  tag: "v2.11.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 128Mi
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+persistence:
+  enabled: true
+  storageClassName: truenas-iscsi
+  accessModes: ["ReadWriteOnce"]
+  size: 1Gi
+
+server:
+  baseUrl: ""
+  authFile: /var/lib/ntfy/user.db
+  cacheFile: /var/lib/ntfy/cache.db
+  authDefaultAccess: "deny-all"
+
+auth:
+  token: ""
+  topic: ""
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+livenessProbe:
+  httpGet:
+    path: /v1/health
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+
+readinessProbe:
+  httpGet:
+    path: /v1/health
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+podAnnotations: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []

@@ -1,0 +1,20 @@
+repositories: []  # Local chart, no external repos
+
+releases:
+  - name: ntfy
+    namespace: observability
+    chart: ./helm-chart
+    wait: true
+    timeout: 300
+    values:
+      - server:
+          baseUrl: "https://ntfy.quido.me"
+        auth:
+          token: {{ fetchSecretValue "ref+vault://kv/observability/ntfy#auth-token" | quote }}
+          topic: homelab-alerts
+
+  - name: ntfy-resources
+    namespace: observability
+    chart: ./resources
+    needs:
+      - observability/ntfy

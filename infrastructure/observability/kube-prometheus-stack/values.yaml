@@ -94,8 +94,39 @@ alertmanager:
     readinessProbeInitialDelaySeconds: 10
     livenessProbeInitialDelaySeconds: 30
 
-    # No notification receivers configured yet (follow-up work)
-    configSecret: ""  # Empty = use default config (no notifications)
+  # Alertmanager configuration (receivers defined in secrets.yaml.gotmpl for token injection)
+  config:
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: "null"
+      group_by: [alertname, namespace]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - receiver: ntfy
+          matchers:
+            - severity=critical
+          mute_time_intervals:
+            - quiet-hours
+          continue: false
+
+    receivers:
+      - name: "null"
+      - name: ntfy
+        webhook_configs:
+          - url: "http://ntfy.observability.svc.cluster.local/homelab-alerts"
+            send_resolved: true
+
+    time_intervals:
+      - name: quiet-hours
+        time_intervals:
+          - times:
+              - start_time: "23:00"
+                end_time: "08:00"
+            location: Europe/Amsterdam
 
 # ============================================================================
 # Grafana Configuration
