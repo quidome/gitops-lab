@@ -8,7 +8,7 @@ metadata:
     component: observability
 spec:
   parentRefs:
-    - name: gateway-external
+    - name: gateway-internal
       namespace: networking
       group: gateway.networking.k8s.io
       kind: Gateway
