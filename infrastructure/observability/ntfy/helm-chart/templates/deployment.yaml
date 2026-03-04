@@ -32,14 +32,19 @@ spec:
             - -c
             - |
               if [ ! -f /var/lib/ntfy/user.db ]; then
+                ntfy serve --config /etc/ntfy/server.yml &
+                PID=$!
+                sleep 2
+                kill $PID
+                wait $PID 2>/dev/null
                 NTFY_PASSWORD={{ .Values.auth.password | quote }} ntfy user add --role=admin admin
                 ntfy access everyone '*' deny
                 ntfy access admin '*' read-write
               fi
-          env:
-            - name: NTFY_AUTH_FILE
-              value: /var/lib/ntfy/user.db
           volumeMounts:
+            - name: config
+              mountPath: /etc/ntfy
+              readOnly: true
             - name: data
               mountPath: /var/lib/ntfy
           securityContext:
