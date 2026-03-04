@@ -32,15 +32,14 @@ spec:
             - -c
             - |
               if [ ! -f /var/lib/ntfy/user.db ]; then
-                ntfy user add admin
-                ntfy token add --token {{ .Values.auth.token }} admin
+                NTFY_PASSWORD={{ .Values.auth.password | quote }} ntfy user add --role=admin admin
                 ntfy access everyone '*' deny
                 ntfy access admin '*' read-write
               fi
+          env:
+            - name: NTFY_AUTH_FILE
+              value: /var/lib/ntfy/user.db
           volumeMounts:
-            - name: config
-              mountPath: /etc/ntfy
-              readOnly: true
             - name: data
               mountPath: /var/lib/ntfy
           securityContext:

@@ -10,7 +10,7 @@ releases:
       - server:
           baseUrl: "https://ntfy.quido.me"
         auth:
-          token: {{ fetchSecretValue "ref+vault://kv/observability/ntfy#auth-token" | quote }}
+          password: {{ fetchSecretValue "ref+vault://kv/observability/ntfy#admin-password" | quote }}
           topic: homelab-alerts
 
   - name: ntfy-resources

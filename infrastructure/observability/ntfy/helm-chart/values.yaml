@@ -28,7 +28,7 @@ server:
   authDefaultAccess: "deny-all"
 
 auth:
-  token: ""
+  password: ""
   topic: ""
 
 securityContext:
