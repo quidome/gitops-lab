@@ -109,8 +109,6 @@ alertmanager:
         - receiver: ntfy
           matchers:
             - severity=critical
-          mute_time_intervals:
-            - quiet-hours
           continue: false
 
     receivers:
@@ -119,18 +117,6 @@ alertmanager:
         webhook_configs:
           - url: "http://ntfy.observability.svc.cluster.local/alerts"
             send_resolved: true
-
-    time_intervals:
-      - name: quiet-hours
-        time_intervals:
-          - times:
-              - start_time: "23:00"
-                end_time: "24:00"
-            location: Europe/Amsterdam
-          - times:
-              - start_time: "00:00"
-                end_time: "08:00"
-            location: Europe/Amsterdam
 
 # ============================================================================
 # Grafana Configuration
