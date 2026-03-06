@@ -1,0 +1,5 @@
+apiVersion: v2
+name: karma
+description: Karma alerts dashboard for AlertManager
+version: 0.1.0
+appVersion: "0.120"

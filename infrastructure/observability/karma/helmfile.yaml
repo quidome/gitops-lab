@@ -1,0 +1,11 @@
+releases:
+  - name: karma
+    namespace: observability
+    createNamespace: true
+    chart: ./helm-chart
+
+  - name: karma-resources
+    namespace: observability
+    chart: ./resources
+    needs:
+      - observability/karma
