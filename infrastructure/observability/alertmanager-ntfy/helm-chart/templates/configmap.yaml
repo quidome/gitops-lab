@@ -4,21 +4,36 @@ metadata:
   name: {{ .Release.Name }}-config
 data:
   config.scfg: |
-    base-url {{ .Values.config.ntfyBaseUrl }}
     http-address {{ .Values.config.listenAddr }}
+    alert-mode single
 
-    alertmanager {
-      silence-duration 24h
-      user ""
-      password ""
+    labels {
+      order "severity"
+
+      severity "critical" {
+        priority 5
+        tags "rotating_light"
+      }
+
+      severity "warning" {
+        priority 4
+        tags "warning"
+      }
+
+      severity "info" {
+        priority 2
+      }
+    }
+
+    resolved {
+      tags "white_check_mark,resolved"
+      priority 2
     }
 
     ntfy {
-      topic {{ .Values.config.defaultTopic }}
-      priority-low-labels { severity = informational }
-      priority-high-labels { severity = warning }
-      priority-urgent-labels { severity = critical }
-      icon-low https://raw.githubusercontent.com/prometheus/prometheus/main/web/ui/static/img/prometheus_logo.svg
-      icon-high https://raw.githubusercontent.com/prometheus/prometheus/main/web/ui/static/img/prometheus_logo.svg
-      icon-urgent https://raw.githubusercontent.com/prometheus/prometheus/main/web/ui/static/img/prometheus_logo.svg
+      topic {{ .Values.config.ntfyBaseUrl }}/{{ .Values.config.defaultTopic }}
+    }
+
+    alertmanager {
+      silence-duration 24h
     }
