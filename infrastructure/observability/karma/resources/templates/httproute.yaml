@@ -21,3 +21,6 @@ spec:
       backendRefs:
         - name: karma
           port: 80
+          kind: Service
+          group: ""
+          weight: 1
