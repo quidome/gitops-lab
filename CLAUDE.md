@@ -126,6 +126,16 @@ python list_namespace_resources.py <namespace> [--json]
   - StatefulSets handle this automatically (preferred for stateful apps)
   - Deployments need explicit `strategy: {type: Recreate}`
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
+- **HTTPRoute configuration**: When creating HTTPRoutes, always check existing examples (e.g., `infrastructure/observability/kube-prometheus-stack/resources/templates/http-route.yaml`) and include explicit defaults to prevent ArgoCD drift:
+  ```yaml
+  backendRefs:
+    - name: service-name
+      port: 80
+      kind: Service
+      group: ""
+      weight: 1
+  ```
+  Gateway API controllers normalize these fields with defaults; omitting them causes ArgoCD to detect drift between desired and live state.
 
 ## Migration (Complete)
 
