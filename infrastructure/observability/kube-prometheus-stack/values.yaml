@@ -115,7 +115,7 @@ alertmanager:
       - name: "null"
       - name: ntfy
         webhook_configs:
-          - url: "http://alertmanager-ntfy.observability.svc.cluster.local/hook"
+          - url: "http://alertmanager-ntfy.observability.svc.cluster.local"
             send_resolved: true
 
 # ============================================================================

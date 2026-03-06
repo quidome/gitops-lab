@@ -19,34 +19,22 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       containers:
-        - name: alertmanager-ntfy
+        - name: ntfy-alertmanager
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - --config
-            - /etc/alertmanager-ntfy/config.yaml
+            - /etc/ntfy-alertmanager/config.scfg
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /etc/alertmanager-ntfy
+              mountPath: /etc/ntfy-alertmanager
               readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
       volumes:
         - name: config
           configMap:

@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/alexbakker/alertmanager-ntfy
+  repository: xenrox/ntfy-alertmanager
   tag: latest
   pullPolicy: Always
 
@@ -13,36 +13,12 @@ resources:
 service:
   type: ClusterIP
   port: 80
-  targetPort: 8000
+  targetPort: 8080
 
 config:
-  # HTTP server settings
-  http:
-    addr: ":8000"
-
-  # ntfy destination
-  ntfy:
-    baseurl: "http://ntfy.observability.svc.cluster.local"
-    topic: "alerts"
-
-  # Notification formatting
-  notification:
-    # Priority based on severity
-    priority: |
-      alerts.Firing | length > 0 ? "high" : "default"
-    # Tags/emojis
-    tags:
-      - tag: "fire"
-        condition: 'alerts.Firing | length > 0'
-      - tag: "white_check_mark"
-        condition: 'alerts.Resolved | length > 0'
-
-  # Message templates
-  templates:
-    title: |
-      {{ if gt (len .Alerts.Firing) 0 }}🔥 FIRING: {{ (index .Alerts.Firing 0).Labels.alertname }}{{ if gt (len .Alerts.Firing) 1 }} (+{{ sub (len .Alerts.Firing) 1 }} more){{ end }}{{ else }}✅ RESOLVED: {{ (index .Alerts.Resolved 0).Labels.alertname }}{{ end }}
-    description: |
-      {{ range .Alerts.Firing }}{{ .Annotations.summary | default .Annotations.description | default "No description" }}
-      Severity: {{ .Labels.severity }}
-      {{ end }}{{ range .Alerts.Resolved }}{{ .Annotations.summary | default .Annotations.description | default "No description" }} (resolved)
-      {{ end }}
+  # ntfy base URL
+  ntfyBaseUrl: "http://ntfy.observability.svc.cluster.local"
+  # Default topic for alerts
+  defaultTopic: "alerts"
+  # Listen address
+  listenAddr: ":8080"
