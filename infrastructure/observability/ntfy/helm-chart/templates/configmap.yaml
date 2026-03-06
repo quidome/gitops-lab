@@ -13,3 +13,4 @@ data:
     auth-file: {{ .Values.server.authFile | quote }}
     auth-default-access: {{ .Values.server.authDefaultAccess | quote }}
     behind-proxy: true
+    upstream-base-url: "https://ntfy.sh"
