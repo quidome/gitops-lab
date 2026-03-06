@@ -43,7 +43,7 @@ spec:
               ntfy access everyone 'alerts' write-only
               ntfy access admin '*' read-write
               kill $PID
-              wait $PID 2>/dev/null
+              wait $PID 2>/dev/null || true
           volumeMounts:
             - name: config
               mountPath: /etc/ntfy
