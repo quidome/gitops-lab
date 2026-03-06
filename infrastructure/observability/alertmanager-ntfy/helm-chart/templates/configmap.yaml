@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  config.yaml: |
+    http:
+      addr: {{ .Values.config.http.addr | quote }}
+    ntfy:
+      baseurl: {{ .Values.config.ntfy.baseurl | quote }}
+    notification:
+      topic: {{ .Values.config.ntfy.topic | quote }}
+      priority: {{ .Values.config.notification.priority | quote }}
+      {{- if .Values.config.notification.tags }}
+      tags:
+        {{- range .Values.config.notification.tags }}
+        - tag: {{ .tag | quote }}
+          condition: {{ .condition | quote }}
+        {{- end }}
+      {{- end }}
+    templates:
+      title: {{ .Values.config.templates.title | quote }}
+      description: {{ .Values.config.templates.description | quote }}

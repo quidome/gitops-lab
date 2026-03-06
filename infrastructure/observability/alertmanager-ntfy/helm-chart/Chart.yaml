@@ -1,0 +1,5 @@
+apiVersion: v2
+name: alertmanager-ntfy
+description: Bridge between Alertmanager and ntfy for formatted notifications
+version: 0.1.0
+appVersion: "latest"
