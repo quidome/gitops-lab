@@ -31,16 +31,19 @@ spec:
             - sh
             - -c
             - |
-              if [ ! -f /var/lib/ntfy/user.db ]; then
-                ntfy serve --config /etc/ntfy/server.yml &
-                PID=$!
-                sleep 2
-                kill $PID
-                wait $PID 2>/dev/null
+              ntfy serve --config /etc/ntfy/server.yml &
+              PID=$!
+              sleep 2
+              # Create admin user if not exists
+              if ! ntfy user list 2>/dev/null | grep -q "^user admin"; then
                 NTFY_PASSWORD={{ .Values.auth.password | quote }} ntfy user add --role=admin admin
-                ntfy access everyone '*' deny
-                ntfy access admin '*' read-write
               fi
+              # Always apply access rules (idempotent)
+              ntfy access everyone '*' deny
+              ntfy access everyone 'alerts' write-only
+              ntfy access admin '*' read-write
+              kill $PID
+              wait $PID 2>/dev/null
           volumeMounts:
             - name: config
               mountPath: /etc/ntfy

@@ -117,7 +117,7 @@ alertmanager:
       - name: "null"
       - name: ntfy
         webhook_configs:
-          - url: "http://ntfy.observability.svc.cluster.local/homelab-alerts"
+          - url: "http://ntfy.observability.svc.cluster.local/alerts"
             send_resolved: true
 
     time_intervals:
