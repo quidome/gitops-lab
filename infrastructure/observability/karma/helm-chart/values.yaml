@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/prymitive/karma
-  tag: v0.120
+  tag: v0.126
   pullPolicy: IfNotPresent
 
 config:
