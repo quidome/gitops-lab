@@ -1,0 +1,31 @@
+image:
+  repository: jacobalberty/unifi
+  tag: v8.6.9
+  pullPolicy: IfNotPresent
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 10Gi
+  accessMode: ReadWriteOnce
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    memory: 1Gi
+
+service:
+  web:
+    type: ClusterIP
+    port: 8443
+  device:
+    type: LoadBalancer
+    informPort: 8080
+    stunPort: 3478
+    discoveryPort: 10001
+
+env:
+  TZ: "Europe/Amsterdam"
+  UNIFI_STDOUT: "true"

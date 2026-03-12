@@ -1,0 +1,10 @@
+releases:
+  - name: unifi-controller
+    namespace: network-management
+    chart: ./helm-chart
+    values:
+      - values.yaml
+
+  - name: unifi-controller-resources
+    namespace: network-management
+    chart: ./resources

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "unifi-controller.fullname" . }}-device
+  labels:
+    {{- include "unifi-controller.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.device.type }}
+  ports:
+    - name: inform
+      port: {{ .Values.service.device.informPort }}
+      targetPort: inform
+      protocol: TCP
+    - name: stun
+      port: {{ .Values.service.device.stunPort }}
+      targetPort: stun
+      protocol: UDP
+    - name: discovery
+      port: {{ .Values.service.device.discoveryPort }}
+      targetPort: discovery
+      protocol: UDP
+  selector:
+    {{- include "unifi-controller.selectorLabels" . | nindent 4 }}

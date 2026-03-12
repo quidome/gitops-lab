@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "unifi-controller.fullname" . }}-web
+  labels:
+    {{- include "unifi-controller.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.web.type }}
+  ports:
+    - name: https
+      port: {{ .Values.service.web.port }}
+      targetPort: web
+      protocol: TCP
+  selector:
+    {{- include "unifi-controller.selectorLabels" . | nindent 4 }}

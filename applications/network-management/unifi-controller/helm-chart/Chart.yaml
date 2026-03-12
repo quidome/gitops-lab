@@ -1,0 +1,6 @@
+apiVersion: v2
+name: unifi-controller
+description: UniFi Network Application for managing Ubiquiti access points
+type: application
+version: 0.1.0
+appVersion: "8.6.9"

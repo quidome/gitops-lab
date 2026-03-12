@@ -1,0 +1,5 @@
+apiVersion: v2
+name: unifi-controller-resources
+description: UniFi Controller additional resources (HTTPRoute)
+type: application
+version: 0.1.0
