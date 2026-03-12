@@ -3,4 +3,4 @@ name: unifi-controller
 description: UniFi Network Application for managing Ubiquiti access points
 type: application
 version: 0.1.0
-appVersion: "9.5.21"
+appVersion: "10.0.162"
