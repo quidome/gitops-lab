@@ -7,6 +7,10 @@ metadata:
 spec:
   type: {{ .Values.service.device.type }}
   ports:
+    - name: web
+      port: 8443
+      targetPort: web
+      protocol: TCP
     - name: inform
       port: {{ .Values.service.device.informPort }}
       targetPort: inform

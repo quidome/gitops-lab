@@ -4,7 +4,3 @@ releases:
     chart: ./helm-chart
     values:
       - values.yaml
-
-  - name: unifi-controller-resources
-    namespace: network-management
-    chart: ./resources
