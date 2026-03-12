@@ -32,6 +32,11 @@ server:
     limits:
       memory: 256Mi
 
+  # Increase readiness probe timeout (default 3s is too short)
+  readinessProbe:
+    enabled: true
+    timeoutSeconds: 10
+
   # Service configuration for UI access
   service:
     enabled: true
