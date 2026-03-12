@@ -1,5 +1,6 @@
 image:
   repository: jacobalberty/unifi
+  # renovate: datasource=docker depName=jacobalberty/unifi
   tag: v8.6.9
   pullPolicy: IfNotPresent
 
