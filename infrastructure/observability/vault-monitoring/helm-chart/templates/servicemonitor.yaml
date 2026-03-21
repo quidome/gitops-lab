@@ -1,0 +1,24 @@
+{{- if .Values.alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "vault-monitoring.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "vault-monitoring.labels" . | nindent 4 }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.vault.namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+  endpoints:
+    - port: http
+      path: {{ .Values.vault.metricsPath }}
+      params:
+        format:
+          - {{ .Values.vault.metricsFormat }}
+      interval: {{ .Values.scrapeInterval }}
+      scrapeTimeout: {{ .Values.scrapeTimeout }}
+{{- end }}

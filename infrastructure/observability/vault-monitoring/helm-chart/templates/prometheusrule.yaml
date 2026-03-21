@@ -1,0 +1,78 @@
+{{- if .Values.alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "vault-monitoring.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "vault-monitoring.labels" . | nindent 4 }}
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: vault-health
+      interval: 30s
+      rules:
+        {{- if .Values.alerts.sealed.enabled }}
+        - alert: VaultSealed
+          expr: vault_core_unsealed{namespace="{{ .Values.vault.namespace }}"} == 0
+          for: 1m
+          labels:
+            severity: {{ .Values.alerts.sealed.severity }}
+          annotations:
+            summary: "Vault is sealed"
+            description: "Vault in namespace {{ .Values.vault.namespace }} is sealed. Manual unseal required with 3 unseal keys."
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/infrastructure/security/vault/README.md#2-unseal-vault"
+        {{- end }}
+
+        {{- if .Values.alerts.highMemory.enabled }}
+        - alert: VaultHighMemory
+          expr: |
+            (
+              container_memory_working_set_bytes{namespace="{{ .Values.vault.namespace }}", pod=~"vault-.*"}
+              /
+              container_spec_memory_limit_bytes{namespace="{{ .Values.vault.namespace }}", pod=~"vault-.*"}
+            ) > {{ .Values.alerts.highMemory.threshold }}
+          for: 5m
+          labels:
+            severity: {{ .Values.alerts.highMemory.severity }}
+          annotations:
+            summary: "Vault memory usage above {{ mul (int (.Values.alerts.highMemory.threshold | float64 | mulf 100)) 1 }}%"
+            description: "Vault pod {{`{{ $labels.pod }}`}} memory usage is {{`{{ $value | humanizePercentage }}`}}. Consider increasing memory limits."
+        {{- end }}
+
+    - name: vault-downstream-impact
+      interval: 30s
+      rules:
+        {{- if .Values.alerts.externalSecretFailure.enabled }}
+        - alert: ExternalSecretSyncFailure
+          expr: |
+            kube_externalsecret_status_condition{condition="Ready", status="False"} == 1
+          for: {{ .Values.alerts.externalSecretFailure.waitDuration }}
+          labels:
+            severity: {{ .Values.alerts.externalSecretFailure.severity }}
+          annotations:
+            summary: "ExternalSecret sync failure"
+            description: "ExternalSecret {{`{{ $labels.namespace }}`}}/{{`{{ $labels.name }}`}} is failing to sync. Check Vault connectivity and authentication."
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/infrastructure/security/vault/README.md#when-the-approle-token-expires"
+        {{- end }}
+
+        {{- if .Values.alerts.tokenExpiration.enabled }}
+        {{- $tokenCreatedEpoch := .Values.alerts.tokenExpiration.valsTokenCreatedAt | toDate "2006-01-02" | unixEpoch }}
+        - alert: VaultTokenExpiringSoon
+          # Time-based calculation: (current_time - token_creation_time) > (365 days - warning_days)
+          # Note: This requires updating valsTokenCreatedAt when rotating the token
+          expr: |
+            (
+              time() - {{ $tokenCreatedEpoch }}
+            ) > (
+              (365 * 24 * 3600) - ({{ .Values.alerts.tokenExpiration.warningDays }} * 24 * 3600)
+            )
+          labels:
+            severity: {{ .Values.alerts.tokenExpiration.severity }}
+          annotations:
+            summary: "Vault vals-reader token expiring soon"
+            description: "Vals-reader token will expire in approximately {{ .Values.alerts.tokenExpiration.warningDays }} days. Rotation required to prevent ArgoCD sync failures."
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/infrastructure/security/vault/README.md#when-the-vals-reader-token-expires"
+        {{- end }}
+{{- end }}

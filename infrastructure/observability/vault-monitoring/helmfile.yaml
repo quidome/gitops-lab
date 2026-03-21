@@ -1,0 +1,44 @@
+repositories: []  # No external repos for local chart
+
+releases:
+  - name: vault-monitoring
+    namespace: observability
+    chart: ./helm-chart
+    wait: true
+    timeout: 300
+    values:
+      - vault:
+          namespace: security
+          serviceName: vault
+          servicePort: 8200
+          metricsPath: /v1/sys/metrics
+          metricsFormat: prometheus
+
+        scrapeInterval: 15s
+        scrapeTimeout: 10s
+
+        alerts:
+          enabled: true
+          sealed:
+            enabled: true
+            severity: critical
+          highMemory:
+            enabled: true
+            severity: warning
+            threshold: 0.90
+          externalSecretFailure:
+            enabled: true
+            severity: warning
+            waitDuration: 5m
+          tokenExpiration:
+            enabled: true
+            severity: warning
+            valsTokenCreatedAt: "2026-03-01"  # TODO: Update with actual vals token creation date
+            warningDays: 7
+
+        dashboards:
+          enabled: true
+          labels:
+            grafana_dashboard: "1"
+          annotations:
+            grafana_folder: "Infrastructure"

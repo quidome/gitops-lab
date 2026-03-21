@@ -1,0 +1,48 @@
+# Vault target configuration
+vault:
+  namespace: security
+  serviceName: vault
+  servicePort: 8200
+  metricsPath: /v1/sys/metrics
+  metricsFormat: prometheus
+
+# Scrape configuration
+scrapeInterval: 15s
+scrapeTimeout: 10s
+
+# Alert configuration
+alerts:
+  enabled: true
+
+  # Vault sealed alert
+  sealed:
+    enabled: true
+    severity: critical
+
+  # Resource alerts
+  highMemory:
+    enabled: true
+    severity: warning
+    threshold: 0.90  # 90% of limit
+
+  # ExternalSecrets sync failures
+  externalSecretFailure:
+    enabled: true
+    severity: warning
+    waitDuration: 5m
+
+  # Token expiration (time-based)
+  tokenExpiration:
+    enabled: true
+    severity: warning
+    # Document token creation date for manual calculation
+    valsTokenCreatedAt: "2026-03-01"  # TODO: Update with actual token creation date
+    warningDays: 7
+
+# Dashboard configuration
+dashboards:
+  enabled: true
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Infrastructure"

@@ -1,0 +1,19 @@
+{{- if .Values.dashboards.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vault-monitoring.fullname" . }}-blast-radius
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "vault-monitoring.labels" . | nindent 4 }}
+    {{- with .Values.dashboards.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.dashboards.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  vault-blast-radius.json: |-
+    {{- .Files.Get "dashboards/vault-blast-radius.json" | nindent 4 }}
+{{- end }}

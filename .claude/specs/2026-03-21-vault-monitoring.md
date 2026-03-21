@@ -1020,15 +1020,15 @@ cd infrastructure/observability/vault-monitoring
 ## Implementation Checklist
 
 **Phase 0: Prerequisites & Validation Setup**
-- [ ] Verify kube-prometheus-stack healthy
-- [ ] Verify Vault deployed and unsealed
-- [ ] Check Grafana sidecar configuration
-- [ ] Check kube-state-metrics ExternalSecret CRD support
+- [x] Verify kube-prometheus-stack healthy
+- [x] Verify Vault deployed and unsealed
+- [x] Check Grafana sidecar configuration
+- [x] Check kube-state-metrics ExternalSecret CRD support
 - [ ] Document vals token creation date
-- [ ] Create validate.sh script
+- [x] Create validate.sh script
 
 **Phase 1: Enable Vault Telemetry**
-- [ ] Update infrastructure/security/vault/values.yaml (add telemetry block)
+- [x] Update infrastructure/security/vault/values.yaml (add telemetry block)
 - [ ] Commit and push to Git
 - [ ] ArgoCD syncs Vault application
 - [ ] Vault pod restarts
@@ -1037,17 +1037,17 @@ cd infrastructure/observability/vault-monitoring
 - [ ] Verify vault_core_unsealed metric = 1
 
 **Phase 2: Deploy Monitoring Chart**
-- [ ] Create directory structure: infrastructure/observability/vault-monitoring/
-- [ ] Write Chart.yaml
-- [ ] Write values.yaml
-- [ ] Write helmfile.yaml
+- [x] Create directory structure: infrastructure/observability/vault-monitoring/
+- [x] Write Chart.yaml
+- [x] Write values.yaml
+- [x] Write helmfile.yaml
 - [ ] Update valsTokenCreatedAt with actual date
-- [ ] Write templates/_helpers.tpl
-- [ ] Write templates/servicemonitor.yaml
-- [ ] Write templates/prometheusrule.yaml
-- [ ] Write templates/grafana-dashboard-health.yaml
-- [ ] Write templates/grafana-dashboard-blast-radius.yaml
-- [ ] Create placeholder dashboard JSON files
+- [x] Write templates/_helpers.tpl
+- [x] Write templates/servicemonitor.yaml
+- [x] Write templates/prometheusrule.yaml
+- [x] Write templates/grafana-dashboard-health.yaml
+- [x] Write templates/grafana-dashboard-blast-radius.yaml
+- [x] Create placeholder dashboard JSON files
 - [ ] Commit and push to Git
 - [ ] ArgoCD discovers and syncs vault-monitoring
 - [ ] Run validation script (checks 1-9)
