@@ -40,6 +40,233 @@ kubectl exec -n security vault-0 -- vault status
 
 Look for `Sealed: false`
 
+## Token & User Management
+
+### Understanding Vault Tokens
+
+Vault uses different tokens for different purposes. Here's what you need to know:
+
+| Token Type | Purpose | Lifespan | Who Uses It |
+|------------|---------|----------|-------------|
+| **Root Token** | Emergency admin access | Forever | You (store securely!) |
+| **Admin User** | Daily UI/CLI access | Session-based | You (login with username/password) |
+| **Vals Reader** | ArgoCD secret fetching | 1 year (auto-renews) | ArgoCD/Helmfile |
+| **AppRole** | External Secrets sync | 1-4 hours (auto-renews) | External Secrets Operator |
+
+**Best Practice:** Use the root token ONLY for emergency recovery and creating other tokens. Use an admin user account for daily operations.
+
+### Creating an Admin User (Recommended)
+
+Instead of using the root token daily, create a user account:
+
+#### 1. Enable Userpass Authentication
+
+```bash
+# Set root token
+export VAULT_TOKEN="<your-root-token>"
+
+# Enable userpass auth in Vault
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault auth enable userpass
+```
+
+Or in the Vault UI (http://vault.quido.me):
+1. Go to **Access** → **Enable new method**
+2. Select **Username & Password**
+3. Leave path as `userpass`
+4. Click **Enable Method**
+
+#### 2. Create Admin Policy
+
+```bash
+# Create policy with read/write access to secrets
+kubectl exec -i -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault policy write admin - <<'EOF'
+# Full access to KV secrets
+path "kv/data/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+path "kv/metadata/*" {
+  capabilities = ["list", "read", "delete"]
+}
+
+# Ability to list auth methods and policies
+path "sys/auth" {
+  capabilities = ["read"]
+}
+path "sys/policies/acl" {
+  capabilities = ["list"]
+}
+EOF
+```
+
+Or in the Vault UI:
+1. Go to **Policies** → **Create ACL policy**
+2. Name: `admin`
+3. Paste the policy above
+4. Click **Create policy**
+
+#### 3. Create Your User Account
+
+```bash
+# Create user with admin policy
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault write auth/userpass/users/<your-username> \
+  password="<your-password>" \
+  policies="admin"
+```
+
+Or in the Vault UI (after enabling userpass):
+1. Go to **Access** → **userpass** → **Create user**
+2. Username: (your choice)
+3. Password: (your choice)
+4. Policies: Select `admin`
+5. Click **Save**
+
+#### 4. Login with Your User Account
+
+In the Vault UI:
+1. Sign out from root token
+2. Method: **Username**
+3. Enter your username and password
+4. Click **Sign In**
+
+Now you can manage secrets without using the root token!
+
+### Token Rotation & Refresh
+
+#### When the Vals Reader Token Expires
+
+**Symptoms:**
+- ArgoCD sync fails with "permission denied" or "invalid token"
+- Applications using Helmfile with `fetchSecretValue` fail to deploy
+
+**Solution:**
+
+```bash
+# 1. Create new vals-reader token
+export VAULT_TOKEN="<your-root-token-or-admin-token>"
+
+NEW_TOKEN=$(kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault token create -policy=vals-reader -period=8760h -display-name="vals-reader" \
+  -format=json | jq -r '.auth.client_token')
+
+# 2. Update ArgoCD secret
+kubectl create secret generic vault-token -n gitops \
+  --from-literal=token="$NEW_TOKEN" \
+  --dry-run=client -o yaml | kubectl apply -f -
+
+# 3. Restart ArgoCD repo-server
+kubectl rollout restart deployment argocd-repo-server -n gitops
+kubectl rollout status deployment argocd-repo-server -n gitops
+
+echo "New vals-reader token: $NEW_TOKEN"
+```
+
+**Note:** The vals-reader policy must exist first. If it doesn't, see `VALS-SETUP.md` for complete setup.
+
+#### When the AppRole Token Expires
+
+**Symptoms:**
+- External Secrets show "SecretSyncedError" status
+- External Secrets operator logs show authentication errors
+
+**Solution:**
+
+AppRole tokens auto-renew, but if the secret-id expires, regenerate it:
+
+```bash
+export VAULT_TOKEN="<your-root-token-or-admin-token>"
+
+# Generate new secret-id
+SECRET_ID=$(kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault write -f auth/approle/role/external-secrets/secret-id \
+  -format=json | jq -r '.data.secret_id')
+
+# Get existing role-id
+ROLE_ID=$(kubectl get secret vault-approle -n security -o jsonpath='{.data.role-id}' | base64 -d)
+
+# Update the secret
+kubectl create secret generic vault-approle -n security \
+  --from-literal=role-id="$ROLE_ID" \
+  --from-literal=secret-id="$SECRET_ID" \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+### Recovery Scenarios
+
+#### Lost Access to Vault (Token Expired/Invalid)
+
+**Option 1: Use AppRole (if still valid)**
+
+```bash
+# Get AppRole credentials
+ROLE_ID=$(kubectl get secret vault-approle -n security -o jsonpath='{.data.role-id}' | base64 -d)
+SECRET_ID=$(kubectl get secret vault-approle -n security -o jsonpath='{.data.secret-id}' | base64 -d)
+
+# Login with AppRole
+kubectl exec -n security vault-0 -- vault write auth/approle/login \
+  role_id="$ROLE_ID" secret_id="$SECRET_ID"
+```
+
+Use the returned `client_token` to access Vault UI or create new tokens.
+
+**Option 2: Generate New Root Token (if you have unseal keys)**
+
+```bash
+# Start root token generation
+kubectl exec -n security vault-0 -- vault operator generate-root -init
+# Save the OTP and nonce!
+
+# Provide 3 unseal keys
+kubectl exec -n security vault-0 -- vault operator generate-root -nonce=<nonce>
+# Repeat 3 times with different unseal keys
+
+# Decode the root token
+kubectl exec -n security vault-0 -- vault operator generate-root \
+  -decode=<encoded-token> -otp=<otp>
+```
+
+**Option 3: Reset Vault (LAST RESORT - loses all secrets)**
+
+```bash
+kubectl delete pvc data-vault-0 -n security
+kubectl delete pod vault-0 -n security
+# Wait for pod to restart
+kubectl exec -n security vault-0 -- vault operator init
+```
+
+#### Vault is Sealed After Pod Restart
+
+**Check status:**
+```bash
+kubectl exec -n security vault-0 -- vault status
+```
+
+If `Sealed: true`, unseal with 3 of your 5 unseal keys:
+
+```bash
+kubectl exec -n security vault-0 -- vault operator unseal <key-1>
+kubectl exec -n security vault-0 -- vault operator unseal <key-2>
+kubectl exec -n security vault-0 -- vault operator unseal <key-3>
+```
+
+**Note:** Vault always seals on pod restart. This is expected behavior without auto-unseal configuration.
+
+### Security Best Practices
+
+✅ **DO:**
+- Store root token and unseal keys securely offline
+- Use admin user account for daily operations
+- Rotate vals-reader token annually
+- Keep AppRole credentials restricted to `security` namespace
+
+❌ **DON'T:**
+- Use root token for daily operations
+- Store tokens in Git repositories
+- Share tokens between environments
+- Disable authentication for convenience
+
 ## AppRole Setup for External Secrets
 
 ### 1. Configure AppRole Authentication
