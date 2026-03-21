@@ -1029,12 +1029,12 @@ cd infrastructure/observability/vault-monitoring
 
 **Phase 1: Enable Vault Telemetry**
 - [x] Update infrastructure/security/vault/values.yaml (add telemetry block)
-- [ ] Commit and push to Git
-- [ ] ArgoCD syncs Vault application
-- [ ] Vault pod restarts
-- [ ] Unseal Vault (manual - 3 unseal keys)
-- [ ] Verify metrics endpoint responding
-- [ ] Verify vault_core_unsealed metric = 1
+- [x] Commit and push to Git
+- [x] ArgoCD syncs Vault application
+- [x] Vault pod restarts
+- [x] Unseal Vault (manual - 3 unseal keys)
+- [x] Verify metrics endpoint responding
+- [x] Verify vault_core_unsealed metric = 1
 
 **Phase 2: Deploy Monitoring Chart**
 - [x] Create directory structure: infrastructure/observability/vault-monitoring/
@@ -1048,12 +1048,12 @@ cd infrastructure/observability/vault-monitoring
 - [x] Write templates/grafana-dashboard-health.yaml
 - [x] Write templates/grafana-dashboard-blast-radius.yaml
 - [x] Create placeholder dashboard JSON files
-- [ ] Commit and push to Git
-- [ ] ArgoCD discovers and syncs vault-monitoring
-- [ ] Run validation script (checks 1-9)
-- [ ] Verify ServiceMonitor scraping (Prometheus target UP)
-- [ ] Verify PrometheusRule loaded (4 alerts in Prometheus UI)
-- [ ] Verify Vault metrics queryable
+- [x] Commit and push to Git
+- [x] ArgoCD discovers and syncs vault-monitoring
+- [x] Run validation script (checks 1-9)
+- [x] Verify ServiceMonitor scraping (Prometheus target UP)
+- [x] Verify PrometheusRule loaded (4 alerts in Prometheus UI)
+- [x] Verify Vault metrics queryable
 
 **Phase 3: Create Grafana Dashboards**
 - [ ] Access Grafana UI (port-forward)
