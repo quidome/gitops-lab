@@ -1,5 +1,0 @@
-apiVersion: v2
-name: ntfy-resources
-description: HTTPRoute for Ntfy external access
-type: application
-version: 1.0.0

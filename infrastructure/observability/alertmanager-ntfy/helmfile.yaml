@@ -1,5 +1,0 @@
-releases:
-  - name: alertmanager-ntfy
-    namespace: observability
-    createNamespace: true
-    chart: ./helm-chart
