@@ -267,6 +267,280 @@ kubectl exec -n security vault-0 -- vault operator unseal <key-3>
 - Share tokens between environments
 - Disable authentication for convenience
 
+## Disaster Recovery
+
+### What to Back Up
+
+Critical data that MUST be backed up securely:
+
+1. **Unseal Keys** (5 keys, need 3 to unseal)
+2. **Root Token** (for emergency access)
+3. **Vault Data** (all secrets and configuration)
+4. **Admin User Credentials** (username/password for daily access)
+
+### Backup Procedures
+
+#### 1. Initial Backup (After vault operator init)
+
+When you first initialize Vault, save this output immediately:
+
+```bash
+kubectl exec -n security vault-0 -- vault operator init > vault-init-keys.txt
+```
+
+**Store `vault-init-keys.txt` securely:**
+- Offline storage (USB drive, paper backup)
+- Password manager (1Password, Bitwarden, etc.)
+- Encrypted archive in a secure location
+
+**NEVER commit this file to Git!**
+
+#### 2. Data Backup (Regular Schedule)
+
+Vault stores all data in the PersistentVolume. Back up the PVC data regularly.
+
+**Option A: Snapshot via TrueNAS**
+
+If using TrueNAS iSCSI backend:
+1. Create ZFS snapshot of the Vault dataset
+2. Replicate snapshot to backup location
+3. Schedule: Daily snapshots, retain 30 days
+
+**Option B: Vault Snapshot (Enterprise/Manual)**
+
+For manual backups:
+
+```bash
+# Export all secrets (requires root or admin token)
+export VAULT_TOKEN="<your-token>"
+
+# List all secret paths
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault kv list -format=json kv/ > secret-paths.json
+
+# Create backup script to export all secrets
+# (Store output securely, contains plaintext secrets!)
+```
+
+**Option C: PVC Backup via Kubernetes**
+
+```bash
+# Create temporary pod to access PVC
+kubectl run vault-backup --rm -it --restart=Never \
+  -n security \
+  --image=alpine:latest \
+  --overrides='
+{
+  "spec": {
+    "containers": [{
+      "name": "vault-backup",
+      "image": "alpine:latest",
+      "command": ["tar", "czf", "/backup/vault-data.tar.gz", "/vault/data"],
+      "volumeMounts": [{
+        "name": "vault-data",
+        "mountPath": "/vault/data"
+      }, {
+        "name": "backup",
+        "mountPath": "/backup"
+      }]
+    }],
+    "volumes": [{
+      "name": "vault-data",
+      "persistentVolumeClaim": {"claimName": "data-vault-0"}
+    }, {
+      "name": "backup",
+      "emptyDir": {}
+    }]
+  }
+}'
+
+# Copy backup out of cluster
+kubectl cp security/vault-backup:/backup/vault-data.tar.gz ./vault-data-$(date +%Y%m%d).tar.gz
+```
+
+**Backup Schedule Recommendation:**
+- **Daily**: Automated PVC/ZFS snapshots
+- **Weekly**: Manual verification of backup integrity
+- **Monthly**: Full DR drill (restore to test environment)
+- **Before major changes**: Ad-hoc backup before upgrades/migrations
+
+#### 3. Configuration Backup
+
+Back up Vault configuration files:
+
+```bash
+# Export enabled auth methods
+kubectl exec -n security vault-0 -- vault auth list -format=json > vault-auth-methods.json
+
+# Export policies
+kubectl exec -n security vault-0 -- vault policy list -format=json > vault-policies.json
+
+# Export AppRole configuration
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault read -format=json auth/approle/role/external-secrets > vault-approle-config.json
+```
+
+### Restore Procedures
+
+#### Scenario 1: Restore from PVC Backup
+
+**When to use:** Complete data loss, PVC corrupted, accidental deletion
+
+```bash
+# 1. Delete existing Vault (if present)
+kubectl delete pod vault-0 -n security
+kubectl delete pvc data-vault-0 -n security
+
+# 2. Restore PVC data from backup
+# (Method depends on your backup solution - TrueNAS restore, Velero, etc.)
+
+# 3. Recreate pod (will use restored PVC)
+kubectl apply -f infrastructure/security/vault/helmfile.yaml
+
+# 4. Unseal Vault
+kubectl exec -n security vault-0 -- vault operator unseal <key-1>
+kubectl exec -n security vault-0 -- vault operator unseal <key-2>
+kubectl exec -n security vault-0 -- vault operator unseal <key-3>
+
+# 5. Verify secrets
+kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
+  vault kv list kv/
+```
+
+#### Scenario 2: Migrate to New Cluster
+
+**When to use:** Moving to new hardware, cluster rebuild
+
+```bash
+# On OLD cluster:
+# 1. Create full backup (see Backup Procedures above)
+
+# On NEW cluster:
+# 1. Deploy Vault (don't initialize yet)
+kubectl apply -f infrastructure/security/vault/helmfile.yaml
+
+# 2. Stop Vault pod
+kubectl scale statefulset vault -n security --replicas=0
+
+# 3. Restore PVC data from backup
+# (Use your backup tool to restore to new PVC)
+
+# 4. Start Vault
+kubectl scale statefulset vault -n security --replicas=1
+
+# 5. Unseal with original keys
+kubectl exec -n security vault-0 -- vault operator unseal <key-1>
+kubectl exec -n security vault-0 -- vault operator unseal <key-2>
+kubectl exec -n security vault-0 -- vault operator unseal <key-3>
+
+# 6. Update downstream secrets
+# - Rotate vals-reader token (see Token Rotation section)
+# - Update AppRole secret-id if needed
+# - Restart ArgoCD repo-server
+```
+
+#### Scenario 3: Lost Unseal Keys (No Backup)
+
+**Result:** Cannot unseal Vault, all data is encrypted and inaccessible.
+
+**Options:**
+1. ❌ **Data is lost** - No recovery possible without unseal keys
+2. ✅ **Restore from backup** - If you have a backup of unseal keys
+3. ✅ **Reinitialize** - Lose all secrets, start fresh:
+
+```bash
+kubectl delete pvc data-vault-0 -n security
+kubectl delete pod vault-0 -n security
+# Follow Initial Setup from README
+```
+
+**Prevention:** Always back up unseal keys immediately after initialization!
+
+### Complete Disaster Recovery Drill
+
+Test your DR plan quarterly:
+
+```bash
+# 1. Create test backup
+kubectl exec -n security vault-0 -- vault status
+# Export current secrets for validation
+
+# 2. Simulate disaster
+kubectl delete namespace security
+
+# 3. Restore from backup
+# Follow Restore Procedures above
+
+# 4. Validate
+# - Vault unsealed successfully
+# - All secrets accessible
+# - External Secrets syncing
+# - ArgoCD can fetch secrets via Vals
+# - Applications using secrets are healthy
+
+# 5. Document results
+# - Time to restore: ___
+# - Issues encountered: ___
+# - Improvements needed: ___
+```
+
+### Automation Recommendations
+
+**Automated Backup Script (cron job):**
+
+```bash
+#!/bin/bash
+# /usr/local/bin/backup-vault.sh
+
+BACKUP_DIR="/mnt/backups/vault"
+DATE=$(date +%Y%m%d-%H%M%S)
+
+# Create PVC snapshot via your backup tool
+# Example for TrueNAS: trigger ZFS snapshot via API
+
+# Export metadata
+kubectl exec -n security vault-0 -- vault status > "${BACKUP_DIR}/vault-status-${DATE}.txt"
+
+# Rotate old backups (keep 30 days)
+find "${BACKUP_DIR}" -name "vault-*.txt" -mtime +30 -delete
+
+echo "Vault backup completed: ${DATE}"
+```
+
+**Add to crontab:**
+```bash
+0 2 * * * /usr/local/bin/backup-vault.sh
+```
+
+### Recovery Time Objective (RTO)
+
+Expected time to restore Vault in various scenarios:
+
+| Scenario | RTO | Requirements |
+|----------|-----|--------------|
+| Pod restart (sealed) | 5 minutes | Unseal keys available |
+| Token expired | 10 minutes | Root token or AppRole valid |
+| PVC corruption | 30-60 minutes | Recent backup available |
+| Complete cluster loss | 2-4 hours | Full backup + documentation |
+| Lost unseal keys | N/A | **Unrecoverable** without backup |
+
+### Critical Success Factors
+
+✅ **Backup:**
+- Unseal keys stored in 3+ secure locations
+- Automated daily PVC/ZFS snapshots
+- Monthly restore validation
+
+✅ **Documentation:**
+- Restore procedures tested and documented
+- Contact information for backup storage access
+- Runbook for common scenarios
+
+✅ **Monitoring:**
+- Alert on Vault sealed status
+- Alert on backup failures
+- Regular DR drill schedule
+
 ## AppRole Setup for External Secrets
 
 ### 1. Configure AppRole Authentication
