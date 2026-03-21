@@ -111,9 +111,7 @@ alertmanager:
             - severity=critical
           continue: false
 
-    receivers:
-      - name: "null"
-      # Pushover receiver configured in secrets.yaml.gotmpl
+    # Receivers defined in secrets.yaml.gotmpl (Helm replaces arrays, doesn't merge)
 
 # ============================================================================
 # Grafana Configuration
