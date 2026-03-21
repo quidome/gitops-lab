@@ -59,15 +59,13 @@ spec:
 
         {{- if .Values.alerts.tokenExpiration.enabled }}
         {{- $tokenCreatedEpoch := .Values.alerts.tokenExpiration.valsTokenCreatedAt | toDate "2006-01-02" | unixEpoch }}
+        {{- $expiryThresholdSeconds := sub (mul 365 24 3600) (mul .Values.alerts.tokenExpiration.warningDays 24 3600) }}
         - alert: VaultTokenExpiringSoon
-          # Time-based calculation: (current_time - token_creation_time) > (365 days - warning_days)
+          # Time-based calculation: token_age > (365 days - warning_days)
+          # Uses vector(1) as carrier to convert scalar comparison to vector
           # Note: This requires updating valsTokenCreatedAt when rotating the token
           expr: |
-            (
-              time() - {{ $tokenCreatedEpoch }}
-            ) > (
-              (365 * 24 * 3600) - ({{ .Values.alerts.tokenExpiration.warningDays }} * 24 * 3600)
-            )
+            (0 * vector(1) + time() - {{ $tokenCreatedEpoch }}) > {{ $expiryThresholdSeconds }}
           labels:
             severity: {{ .Values.alerts.tokenExpiration.severity }}
           annotations:
