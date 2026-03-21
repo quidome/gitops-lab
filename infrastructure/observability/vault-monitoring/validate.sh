@@ -92,8 +92,8 @@ fi
 
 # 7. Check Vault metrics endpoint
 echo "7. Checking Vault metrics endpoint..."
-METRICS_RESPONSE=$(kubectl exec -n security vault-0 -- wget -q -O- "http://localhost:8200/v1/sys/metrics?format=prometheus" 2>/dev/null | head -5 || echo "")
-if echo "$METRICS_RESPONSE" | grep -q "vault_" 2>/dev/null; then
+METRICS_RESPONSE=$(kubectl exec -n security vault-0 -- wget -q -O- "http://localhost:8200/v1/sys/metrics?format=prometheus" 2>/dev/null | grep -m1 "vault_" || echo "")
+if [ -n "$METRICS_RESPONSE" ]; then
   check_pass "Vault metrics endpoint responding"
 else
   check_fail "Vault metrics endpoint not available (telemetry not enabled?)"
