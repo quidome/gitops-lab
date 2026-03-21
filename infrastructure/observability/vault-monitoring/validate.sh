@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Vault Monitoring Deployment Validation
 # Based on proxmox-exporter/validate.sh pattern
 
@@ -13,17 +13,17 @@ WARN=0
 
 check_pass() {
   echo "   [PASS] $1"
-  ((PASS++))
+  PASS=$((PASS + 1))
 }
 
 check_fail() {
   echo "   [FAIL] $1"
-  ((FAIL++))
+  FAIL=$((FAIL + 1))
 }
 
 check_warn() {
   echo "   [WARN] $1"
-  ((WARN++))
+  WARN=$((WARN + 1))
 }
 
 # 1. Check prerequisites (namespaces exist)
@@ -36,8 +36,8 @@ fi
 
 # 2. Check ArgoCD application (using kubectl, not argocd CLI)
 echo "2. Checking ArgoCD application..."
-APP_STATUS=$(kubectl get application observability-vault-monitoring -n gitops -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "NotFound")
-APP_HEALTH=$(kubectl get application observability-vault-monitoring -n gitops -o jsonpath='{.status.health.status}' 2>/dev/null || echo "NotFound")
+APP_STATUS=$(kubectl get application vault-monitoring -n gitops -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "NotFound")
+APP_HEALTH=$(kubectl get application vault-monitoring -n gitops -o jsonpath='{.status.health.status}' 2>/dev/null || echo "NotFound")
 
 if [ "$APP_STATUS" = "Synced" ] && [ "$APP_HEALTH" = "Healthy" ]; then
   check_pass "ArgoCD application Synced and Healthy"
