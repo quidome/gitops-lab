@@ -57,7 +57,7 @@ repoServer:
       emptyDir: {}
   resources:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 1024Mi
     limits:
       memory: 1024Mi
@@ -88,7 +88,7 @@ repoServer:
       command: [/var/run/argocd/argocd-cmp-server]
       resources:
         requests:
-          cpu: 100m
+          cpu: 50m
           memory: 2Gi
         limits:
           memory: 2Gi
