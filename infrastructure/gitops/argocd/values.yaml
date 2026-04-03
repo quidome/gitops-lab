@@ -89,9 +89,9 @@ repoServer:
       resources:
         requests:
           cpu: 100m
-          memory: 512Mi
+          memory: 1Gi
         limits:
-          memory: 512Mi
+          memory: 1Gi
       env:
         - name: VAULT_ADDR
           value: "http://vault.security:8200"
