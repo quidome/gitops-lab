@@ -47,6 +47,16 @@ server:
     enabled: true
     timeoutSeconds: 10
 
+  # Schedule on kube2 node
+  nodeSelector:
+    kubernetes.io/hostname: kube2
+
+  # Allow scheduling on control-plane node
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
   # Service configuration for UI access
   service:
     enabled: true
