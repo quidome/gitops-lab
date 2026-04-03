@@ -86,6 +86,12 @@ repoServer:
     - name: helmfile-plugin
       image: travisghansen/argo-cd-helmfile:v0.3.13
       command: [/var/run/argocd/argocd-cmp-server]
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          memory: 512Mi
       env:
         - name: VAULT_ADDR
           value: "http://vault.security:8200"
