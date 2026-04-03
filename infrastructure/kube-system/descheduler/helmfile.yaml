@@ -1,0 +1,12 @@
+---
+repositories:
+  - name: descheduler
+    url: https://kubernetes-sigs.github.io/descheduler
+
+releases:
+  - name: descheduler
+    namespace: kube-system
+    chart: descheduler/descheduler
+    version: 0.31.1
+    values:
+      - values.yaml

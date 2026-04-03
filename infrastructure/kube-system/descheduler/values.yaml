@@ -1,0 +1,44 @@
+# Run every 5 minutes
+schedule: "*/5 * * * *"
+
+# Resource configuration per CLAUDE.md conventions
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 128Mi
+
+# Descheduler policies
+deschedulerPolicyAPIVersion: "descheduler/v1alpha2"
+deschedulerPolicy:
+  profiles:
+    - name: default
+      pluginConfig:
+        # Move pods from overutilized to underutilized nodes
+        - name: LowNodeUtilization
+          args:
+            thresholds:
+              cpu: 20
+              memory: 20
+            targetThresholds:
+              cpu: 50
+              memory: 50
+
+        # Spread replicas across nodes (limited benefit with single replicas)
+        - name: RemoveDuplicates
+
+        # Evict pods that no longer satisfy node affinity
+        - name: RemovePodsViolatingNodeAffinity
+          args:
+            nodeAffinityType:
+              - requiredDuringSchedulingIgnoredDuringExecution
+
+      plugins:
+        balance:
+          enabled:
+            - LowNodeUtilization
+            - RemoveDuplicates
+        deschedule:
+          enabled:
+            - RemovePodsViolatingNodeAffinity
