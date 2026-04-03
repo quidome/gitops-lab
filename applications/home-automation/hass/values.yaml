@@ -81,21 +81,28 @@ configuration:
     script: !include scripts.yaml
     scene: !include scenes.yaml
 
-# Require node with P1 meter USB adapter
-nodeSelector:
-  feature.node.kubernetes.io/usb-p1-meter.present: "true"
+# Prefer node with P1 meter USB adapter, but allow scheduling elsewhere
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: feature.node.kubernetes.io/usb-p1-meter.present
+              operator: In
+              values:
+                - "true"
 
 # Environment variables
 env:
   - name: TZ
     value: "Europe/Amsterdam"
 
-# Mount P1 meter USB device
+# Mount P1 meter USB device (optional - no type check so pod starts without device)
 additionalVolumes:
   - name: p1-meter
     hostPath:
       path: /dev/ttyUSB0
-      type: CharDevice
 
 additionalMounts:
   - name: p1-meter
