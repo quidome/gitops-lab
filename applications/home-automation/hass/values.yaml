@@ -24,10 +24,10 @@ persistence:
   accessMode: ReadWriteOnce
   size: 5Gi
 
-# Resource limits for home lab
+# Resource limits for home lab (cpu reduced temporarily while kube3 is down)
 resources:
   requests:
-    cpu: 100m
+    cpu: 50m
     memory: 1Gi
   limits:
     memory: 1Gi
