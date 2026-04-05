@@ -13,6 +13,19 @@ spec:
     - name: vault-health
       interval: 30s
       rules:
+        {{- if .Values.alerts.podNotReady.enabled }}
+        - alert: VaultPodNotReady
+          expr: |
+            kube_pod_status_phase{namespace="{{ .Values.vault.namespace }}", pod=~"vault-.*", phase=~"Pending|Failed"} == 1
+          for: {{ .Values.alerts.podNotReady.waitDuration }}
+          labels:
+            severity: {{ .Values.alerts.podNotReady.severity }}
+          annotations:
+            summary: "Vault pod is not running"
+            description: "Vault pod {{`{{ $labels.pod }}`}} is in {{`{{ $labels.phase }}`}} state. Check node resources and scheduling constraints."
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/infrastructure/security/vault/README.md"
+        {{- end }}
+
         {{- if .Values.alerts.sealed.enabled }}
         - alert: VaultSealed
           expr: vault_core_unsealed{namespace="{{ .Values.vault.namespace }}"} == 0
