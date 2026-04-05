@@ -25,12 +25,7 @@ controller:
       memory: 2Gi
 
 dex:
-  resources:
-    requests:
-      cpu: 20m
-      memory: 256Mi
-    limits:
-      memory: 256Mi
+  enabled: false
 
 redis:
   resources:
