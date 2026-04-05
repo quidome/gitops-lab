@@ -19,7 +19,7 @@ crds:
 controller:
   resources:
     requests:
-      cpu: 100m
+      cpu: 25m
       memory: 2Gi
     limits:
       memory: 2Gi
@@ -35,7 +35,7 @@ dex:
 redis:
   resources:
     requests:
-      cpu: 100m
+      cpu: 10m
       memory: 128Mi
     limits:
       memory: 128Mi
@@ -57,7 +57,7 @@ repoServer:
       emptyDir: {}
   resources:
     requests:
-      cpu: 50m
+      cpu: 25m
       memory: 1024Mi
     limits:
       memory: 1024Mi
@@ -88,7 +88,7 @@ repoServer:
       command: [/var/run/argocd/argocd-cmp-server]
       resources:
         requests:
-          cpu: 50m
+          cpu: 25m
           memory: 2Gi
         limits:
           memory: 2Gi
