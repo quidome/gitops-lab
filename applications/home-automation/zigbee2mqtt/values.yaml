@@ -13,6 +13,12 @@ zigbee2mqtt:
 service:
   type: ClusterIP
 statefulset:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 256Mi
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault

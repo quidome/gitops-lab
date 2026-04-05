@@ -30,7 +30,7 @@ prometheus:
     # Resource limits
     resources:
       requests:
-        cpu: 250m
+        cpu: 100m
         memory: 2Gi
       limits:
         memory: 2Gi
@@ -136,7 +136,7 @@ grafana:
   # Resource limits
   resources:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 300Mi
     limits:
       memory: 300Mi
@@ -213,7 +213,7 @@ prometheusOperator:
   # Resource limits for Operator pod
   resources:
     requests:
-      cpu: 50m
+      cpu: 20m
       memory: 200Mi
     limits:
       memory: 200Mi
@@ -232,7 +232,7 @@ nodeExporter:
   # Resource limits per DaemonSet pod
   resources:
     requests:
-      cpu: 50m
+      cpu: 10m
       memory: 50Mi
     limits:
       memory: 50Mi
@@ -241,6 +241,7 @@ nodeExporter:
 kubeStateMetrics:
   enabled: true
 
+kube-state-metrics:
   resources:
     requests:
       cpu: 10m

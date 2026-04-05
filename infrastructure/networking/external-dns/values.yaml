@@ -6,3 +6,10 @@ policy: sync
 sources: ["gateway-httproute"]
 triggerLoopOnEvent: true
 domainFilters: ["quido.me"]
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    memory: 64Mi

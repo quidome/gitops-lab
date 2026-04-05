@@ -28,7 +28,7 @@ securityContext:
 # Resource limits for production workloads
 resources:
   requests:
-    cpu: 20m
+    cpu: 10m
     memory: 256Mi
   limits:
     memory: 256Mi
@@ -52,7 +52,7 @@ cainjector:
       type: RuntimeDefault
   resources:
     requests:
-      cpu: 20m
+      cpu: 10m
       memory: 256Mi
     limits:
       memory: 256Mi
