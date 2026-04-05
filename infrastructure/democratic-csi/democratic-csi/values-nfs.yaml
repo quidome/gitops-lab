@@ -8,18 +8,18 @@ controller:
     resources:
       requests:
         cpu: 10m
-        memory: 50Mi
+        memory: 256Mi
       limits:
-        memory: 50Mi
+        memory: 256Mi
 
 node:
   driver:
     resources:
       requests:
         cpu: 10m
-        memory: 50Mi
+        memory: 256Mi
       limits:
-        memory: 50Mi
+        memory: 256Mi
 
 storageClasses:
   - name: truenas-nfs
