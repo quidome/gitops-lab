@@ -3,6 +3,15 @@
 csiDriver:
   name: "org.democratic-csi.iscsi"
 
+controller:
+  driver:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 50Mi
+      limits:
+        memory: 50Mi
+
 storageClasses:
   - name: truenas-iscsi
     defaultClass: true
@@ -23,6 +32,12 @@ storageClasses:
 node:
   hostPID: true
   driver:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 50Mi
+      limits:
+        memory: 50Mi
     extraEnv:
       - name: ISCSIADM_HOST_STRATEGY
         value: nsenter

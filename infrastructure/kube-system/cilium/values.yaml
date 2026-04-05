@@ -85,6 +85,12 @@ gatewayAPI:
     name: cilium-secrets
     sync: true
 envoy:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 100Mi
+    limits:
+      memory: 100Mi
   securityContext:
     capabilities:
       keepCapNetBindService: true
