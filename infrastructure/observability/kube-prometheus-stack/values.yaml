@@ -229,7 +229,8 @@ prometheusOperator:
 nodeExporter:
   enabled: true
 
-  # Resource limits per DaemonSet pod
+# Node Exporter subchart configuration
+prometheus-node-exporter:
   resources:
     requests:
       cpu: 10m
