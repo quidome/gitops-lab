@@ -1,7 +1,7 @@
 # Run every 5 minutes
 schedule: "*/5 * * * *"
 
-# Resource configuration per CLAUDE.md conventions
+# Resource configuration per AGENTS.md conventions
 resources:
   requests:
     cpu: 25m

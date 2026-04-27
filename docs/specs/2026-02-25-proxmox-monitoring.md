@@ -553,7 +553,7 @@ dashboard:
 
 - Create comprehensive README for the component
 - Create automated validation script
-- Update CLAUDE.md with new pattern documentation
+- Update AGENTS.md with new pattern documentation
 
 #### Changes
 
@@ -567,7 +567,7 @@ infrastructure/observability/proxmox-exporter/validate.sh
 **Modified:**
 
 ```
-CLAUDE.md (add local chart pattern documentation)
+AGENTS.md (add local chart pattern documentation)
 ```
 
 **README.md** (key sections):
@@ -721,7 +721,7 @@ echo "  - Verify dashboard in Grafana UI: kubectl port-forward -n observability 
 echo "    Navigate to http://localhost:3000 > Dashboards > Infrastructure > Proxmox VE Overview"
 ````
 
-**CLAUDE.md addition** (append to relevant section):
+**AGENTS.md addition** (append to relevant section):
 
 ```markdown
 ### Custom Helm Charts for Simple Exporters
@@ -782,8 +782,8 @@ infrastructure/<realm>/<component>/
   - Metrics exposed
   - Dashboard ConfigMap exists
 - [ ] Script provides clear success/failure messages
-- [ ] CLAUDE.md updated with local chart pattern
-- [ ] CLAUDE.md addition reviewed for accuracy and consistency
+- [ ] AGENTS.md updated with local chart pattern
+- [ ] AGENTS.md addition reviewed for accuracy and consistency
 
 ---
 
@@ -857,7 +857,7 @@ Organized by phase (see phase sections above for detailed validation steps):
 
 - README complete and accurate
 - Validation script functional
-- CLAUDE.md updated
+- AGENTS.md updated
 
 **Failure Scenario Tests** (from Sam's design):
 
@@ -894,10 +894,10 @@ Organized by phase (see phase sections above for detailed validation steps):
 - [x] Phase 5: Documentation & Validation Script
   - [x] Create README.md
   - [x] Create validate.sh
-  - [x] Update CLAUDE.md
+  - [x] Update AGENTS.md
   - [x] Run validation script successfully
 - [x] Verify all existing validations pass (none currently exist)
-- [x] Update CLAUDE.md with new patterns
+- [x] Update AGENTS.md with new patterns
 
 ## Migration Strategy
 

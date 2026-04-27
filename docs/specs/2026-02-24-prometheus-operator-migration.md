@@ -170,7 +170,6 @@ git commit -m "Remove old observability components for kube-prometheus-stack mig
 Decommissioning broken Prometheus (NFS WAL corruption) and separate
 Grafana/exporter deployments in preparation for unified kube-prometheus-stack.
 
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 
 git push
 
@@ -581,7 +580,6 @@ Replaces broken Prometheus with Prometheus Operator stack:
 - AlertManager enabled (notifications configured later)
 - ServiceMonitor-based discovery (enables advanced exporters)
 
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 
 git push
 

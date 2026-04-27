@@ -904,7 +904,7 @@ spec:
 
 2. **Update main README**
 
-Add section to `CLAUDE.md`:
+Add section to `AGENTS.md`:
 
 ```markdown
 ### Secret Injection Patterns
@@ -1016,7 +1016,7 @@ vault kv get kv/home-automation/zigbee2mqtt
 #### Deliverables
 
 - [ ] Decision guide created
-- [ ] CLAUDE.md updated
+- [ ] AGENTS.md updated
 - [ ] Troubleshooting guide added to README
 
 ---
