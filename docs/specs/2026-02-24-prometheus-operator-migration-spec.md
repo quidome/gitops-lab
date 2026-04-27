@@ -1,6 +1,6 @@
 # Story: Prometheus Operator Migration
 
-**Design Spec**: [../stories/2026-02-24-prometheus-operator-migration.md](../stories/2026-02-24-prometheus-operator-migration.md)
+**Design Spec**: [../stories/2026-02-24-prometheus-operator-migration-story.md](../stories/2026-02-24-prometheus-operator-migration-story.md)
 **Status**: Complete ✅
 **Created**: 2026-02-24
 **Completed**: 2026-02-25

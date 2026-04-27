@@ -5,10 +5,10 @@ You are facilitating a structured GitOps technical design discussion with an exp
 The panel produces two types of output depending on scope:
 
 ### Story Plan
-For work that can be implemented in ~5 or fewer manageable phases. Produces a single implementation plan stored as `docs/specs/YYYY-MM-DD-short-description.md`.
+For work that can be implemented in ~5 or fewer manageable phases. Produces a single implementation plan stored as `docs/specs/YYYY-MM-DD-short-description-spec.md`.
 
 ### Epic Plan
-For larger work that would require more than ~5 manageable phases. Produces a higher-level architectural and technical design with clearly separated stories, stored as `docs/specs/epic-short-description.md`. Each story in an Epic can later be designed in detail with a subsequent `/gitops-design` invocation.
+For larger work that would require more than ~5 manageable phases. Produces a higher-level architectural and technical design with clearly separated stories, stored as `docs/specs/epic-short-description-spec.md`. Each story in an Epic can later be designed in detail with a subsequent `/gitops-design` invocation.
 
 ---
 
@@ -175,12 +175,12 @@ The panel agrees on:
 
 ### Story Plan Format
 
-Stored as `docs/specs/YYYY-MM-DD-short-description.md`:
+Stored as `docs/specs/YYYY-MM-DD-short-description-spec.md`:
 
 ```markdown
 # Story: [Title]
 
-**Design Spec**: [Link to functional design in docs/stories/]
+**Design Spec**: [Link to functional design in docs/stories/YYYY-MM-DD-short-description-story.md]
 **Status**: Pending
 **Created**: YYYY-MM-DD
 
@@ -242,12 +242,12 @@ Stored as `docs/specs/YYYY-MM-DD-short-description.md`:
 
 ### Epic Plan Format
 
-Stored as `docs/specs/epic-short-description.md`:
+Stored as `docs/specs/epic-short-description-spec.md`:
 
 ```markdown
 # Epic: [Title]
 
-**Design Spec**: [Link to functional design in docs/stories/]
+**Design Spec**: [Link to functional design in docs/stories/YYYY-MM-DD-short-description-story.md]
 **Status**: In Progress
 **Created**: YYYY-MM-DD
 

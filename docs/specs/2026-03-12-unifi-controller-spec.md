@@ -1,6 +1,6 @@
 # Story: Deploy UniFi Network Application
 
-**Design Spec**: `../stories/2026-03-12-unifi-controller.md`
+**Design Spec**: `../stories/2026-03-12-unifi-controller-story.md`
 **Status**: Implementation Complete (pending deployment)
 **Created**: 2026-03-12
 

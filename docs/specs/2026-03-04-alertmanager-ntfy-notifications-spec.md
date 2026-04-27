@@ -1,6 +1,6 @@
 # Story: Alertmanager Push Notifications via Ntfy
 
-**Design Spec**: `../stories/2026-03-03-alertmanager-ntfy-notifications.md`
+**Design Spec**: `../stories/2026-03-03-alertmanager-ntfy-notifications-story.md`
 **Status**: Implementation Complete (pending deploy & validation)
 **Created**: 2026-03-04
 

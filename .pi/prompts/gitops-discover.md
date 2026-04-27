@@ -137,7 +137,7 @@ The panel reviews the design together:
 
 All spec files are stored in `docs/stories/`.
 
-**Naming convention:** `YYYY-MM-DD-short-description.md`
+**Naming convention:** `YYYY-MM-DD-short-description-story.md`
 
 The directory will be created if it does not exist.
 
