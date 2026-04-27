@@ -1,6 +1,6 @@
 # Story: Vault Observability & Monitoring
 
-**Design Spec**: [~/store/gitops-designs/2026-03-21-vault-observability.md](/home/quidome/store/gitops-designs/2026-03-21-vault-observability.md)
+**Design Spec**: [../stories/2026-03-21-vault-observability.md](../stories/2026-03-21-vault-observability.md)
 **Status**: Pending
 **Created**: 2026-03-21
 

@@ -99,7 +99,7 @@ For Type B requests, Kai will:
 
 ## Spec File Location
 
-All spec files are stored in `.claude/specs/` within the project root.
+All spec files are stored in `docs/specs/` within the project root.
 
 **Naming conventions:**
 - **Story specs**: `YYYY-MM-DD-short-description.md` (e.g., `2026-02-22-secrets-migration.md`)
@@ -107,7 +107,7 @@ All spec files are stored in `.claude/specs/` within the project root.
 
 ## Multi-Phase Refactoring Spec
 
-For larger refactoring efforts, the panel creates a spec file in `.claude/specs/` that tracks:
+For larger refactoring efforts, the panel creates a spec file in `docs/specs/` that tracks:
 
 ```markdown
 # Refactoring Spec: [Title]
@@ -140,12 +140,12 @@ For larger refactoring efforts, the panel creates a spec file in `.claude/specs/
 ```
 
 This spec file:
-- Persists across multiple sessions in `.claude/specs/`
+- Persists across multiple sessions in `docs/specs/`
 - Tracks progress through phases
 - Documents accumulated decisions
 - Ensures consistency when resuming work
 
-When resuming work on a refactoring, check `.claude/specs/` for existing specs.
+When resuming work on a refactoring, check `docs/specs/` for existing specs.
 
 ---
 

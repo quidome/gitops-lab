@@ -1,14 +1,14 @@
 # Expert Panel GitOps Technical Design
 
-You are facilitating a structured GitOps technical design discussion with an expert panel. The goal is to take a **functional deployment spec** (produced by `/gitops-discover` and stored in `~/store/gitops-designs/`) and work it into a **technical design and implementation plan**.
+You are facilitating a structured GitOps technical design discussion with an expert panel. The goal is to take a **functional deployment spec** (produced by `/gitops-discover` and stored in `docs/stories/`) and work it into a **technical design and implementation plan**.
 
 The panel produces two types of output depending on scope:
 
 ### Story Plan
-For work that can be implemented in ~5 or fewer manageable phases. Produces a single implementation plan stored as `.claude/specs/YYYY-MM-DD-short-description.md`.
+For work that can be implemented in ~5 or fewer manageable phases. Produces a single implementation plan stored as `docs/specs/YYYY-MM-DD-short-description.md`.
 
 ### Epic Plan
-For larger work that would require more than ~5 manageable phases. Produces a higher-level architectural and technical design with clearly separated stories, stored as `.claude/specs/epic-short-description.md`. Each story in an Epic can later be designed in detail with a subsequent `/gitops-design` invocation.
+For larger work that would require more than ~5 manageable phases. Produces a higher-level architectural and technical design with clearly separated stories, stored as `docs/specs/epic-short-description.md`. Each story in an Epic can later be designed in detail with a subsequent `/gitops-design` invocation.
 
 ---
 
@@ -80,7 +80,7 @@ For larger work that would require more than ~5 manageable phases. Produces a hi
 
 ## Input: Functional Deployment Specs
 
-The input to `/gitops-design` is a functional deployment spec from `~/store/gitops-designs/`. These specs are produced by `/gitops-discover` and contain:
+The input to `/gitops-design` is a functional deployment spec from `docs/stories/`. These specs are produced by `/gitops-discover` and contain:
 - Deployment stories with acceptance criteria
 - Expected behavior and edge cases
 - GitOps structure (Helm charts, Helmfile, ArgoCD apps)
@@ -88,7 +88,7 @@ The input to `/gitops-design` is a functional deployment spec from `~/store/gito
 
 The `/gitops-design` panel reads these specs as **requirements** — the "what" is defined, now the panel designs the "how".
 
-If the user provides a filename or path, read that spec directly. If they provide a description, look for a matching spec in `~/store/gitops-designs/`. If multiple specs could match, ask which one.
+If the user provides a filename or path, read that spec directly. If they provide a description, look for a matching spec in `docs/stories/`. If multiple specs could match, ask which one.
 
 ---
 
@@ -98,7 +98,7 @@ If the user provides a filename or path, read that spec directly. If they provid
 
 Kai reads the functional deployment spec and leads the panel through understanding it:
 
-1. **Read the spec**: Load and carefully read the functional deployment spec from `~/store/gitops-designs/`
+1. **Read the spec**: Load and carefully read the functional deployment spec from `docs/stories/`
 2. **Understand the scope**: What deployment stories need to be implemented? What's the acceptance criteria?
 3. **Map to platform**: Which existing charts, Helmfile environments, ArgoCD apps are involved? What needs to change?
 4. **Identify the remarks**: What did Kai and Jordan flag during `/gitops-discover` that affects the technical design?
@@ -175,12 +175,12 @@ The panel agrees on:
 
 ### Story Plan Format
 
-Stored as `.claude/specs/YYYY-MM-DD-short-description.md`:
+Stored as `docs/specs/YYYY-MM-DD-short-description.md`:
 
 ```markdown
 # Story: [Title]
 
-**Design Spec**: [Link to functional design in ~/store/gitops-designs/]
+**Design Spec**: [Link to functional design in docs/stories/]
 **Status**: Pending
 **Created**: YYYY-MM-DD
 
@@ -242,12 +242,12 @@ Stored as `.claude/specs/YYYY-MM-DD-short-description.md`:
 
 ### Epic Plan Format
 
-Stored as `.claude/specs/epic-short-description.md`:
+Stored as `docs/specs/epic-short-description.md`:
 
 ```markdown
 # Epic: [Title]
 
-**Design Spec**: [Link to functional design in ~/store/gitops-designs/]
+**Design Spec**: [Link to functional design in docs/stories/]
 **Status**: In Progress
 **Created**: YYYY-MM-DD
 

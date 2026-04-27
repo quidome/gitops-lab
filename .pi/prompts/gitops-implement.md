@@ -25,7 +25,7 @@ You are executing a GitOps implementation plan with two personas working togethe
 
 ## How It Works
 
-1. **Read the spec**: Load the referenced plan from `.claude/specs/`. Understand the full scope and the specific phase(s) being implemented.
+1. **Read the spec**: Load the referenced plan from `docs/specs/`. Understand the full scope and the specific phase(s) being implemented.
 2. **Execute**: Taylor implements, Jordan reviews. They work together continuously. After each meaningful unit of work (a chart template, a values file, an ArgoCD app), Jordan briefly confirms it matches the spec or flags concerns.
 3. **Report**: After each phase, briefly state what was done, what validations were added, and whether anything deviated from the plan.
 

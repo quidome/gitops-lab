@@ -1,6 +1,6 @@
 # Story: Prometheus Operator Migration
 
-**Design Spec**: [~/store/gitops-designs/2026-02-24-prometheus-operator-migration.md](file:///home/quidome/store/gitops-designs/2026-02-24-prometheus-operator-migration.md)
+**Design Spec**: [../stories/2026-02-24-prometheus-operator-migration.md](../stories/2026-02-24-prometheus-operator-migration.md)
 **Status**: Complete ✅
 **Created**: 2026-02-24
 **Completed**: 2026-02-25
@@ -769,7 +769,7 @@ git push
 - Document troubleshooting procedures
 
 **Changes**:
-- Save validation scripts to `.claude/scripts/observability/` or similar
+- Save validation scripts to `.pi/extensions/observability/` or similar
 - Update GITOPS.md with observability stack info (optional, can be follow-up)
 
 **Failure scenario tests**:
@@ -926,7 +926,7 @@ None — current observability stack has no automated validation.
 - [x] **Phase 4**: Validate external access (HTTPRoute, HTTPS, dashboards, metrics) ✅
 - [x] **Phase 5**: Failure scenario testing (pod restarts, resilience) — Skipped (Phase 4 validation sufficient)
 - [x] Verify all new validations pass ✅
-- [ ] Document validation scripts (optional: save to `.claude/scripts/`)
+- [ ] Document validation scripts (optional: save to `.pi/extensions/`)
 - [ ] Update GITOPS.md (optional: add kube-prometheus-stack to observability components)
 
 ---

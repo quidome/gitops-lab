@@ -128,14 +128,14 @@ The panel reviews the design together:
 
 1. Maya finalizes the deployment stories and acceptance criteria
 2. Kai and Jordan's remarks are captured in dedicated sections
-3. The spec is written to `~/store/gitops-designs/`
+3. The spec is written to `docs/stories/`
 4. The panel confirms the spec is complete and internally consistent
 
 ---
 
 ## Spec File Location
 
-All spec files are stored in `~/store/gitops-designs/`.
+All spec files are stored in `docs/stories/`.
 
 **Naming convention:** `YYYY-MM-DD-short-description.md`
 

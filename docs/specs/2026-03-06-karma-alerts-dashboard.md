@@ -1,6 +1,6 @@
 # Story: Karma Alerts Dashboard
 
-**Design Spec**: `~/store/gitops-designs/2026-03-06-karma-alerts-dashboard.md`
+**Design Spec**: `../stories/2026-03-06-karma-alerts-dashboard.md`
 **Status**: Implemented
 **Created**: 2026-03-06
 

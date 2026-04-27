@@ -1,6 +1,6 @@
 # Story: Prometheus and Grafana Observability Stack
 
-**Design Spec**: [~/store/gitops-designs/2026-02-22-prometheus-grafana-observability.md](file:///home/quidome/store/gitops-designs/2026-02-22-prometheus-grafana-observability.md)
+**Design Spec**: [../stories/2026-02-22-prometheus-grafana-observability.md](../stories/2026-02-22-prometheus-grafana-observability.md)
 **Status**: Pending
 **Created**: 2026-02-22
 

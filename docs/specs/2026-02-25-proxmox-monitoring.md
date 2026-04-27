@@ -1,6 +1,6 @@
 # Story: Proxmox Monitoring
 
-**Design Spec**: [store/gitops-designs/2026-02-25-proxmox-monitoring.md](../../store/gitops-designs/2026-02-25-proxmox-monitoring.md)  
+**Design Spec**: [../stories/2026-02-25-proxmox-monitoring.md](../stories/2026-02-25-proxmox-monitoring.md)  
 **Status**: Complete  
 **Created**: 2026-02-25  
 **Completed**: 2026-02-25
