@@ -1,0 +1,11 @@
+releases:
+  - name: freshrss
+    namespace: productivity
+    chart: ./helm-chart
+    values:
+      - values.yaml
+      - freshrssAdminUser: {{ fetchSecretValue "ref+vault://kv/productivity/freshrss#FRESHRSS_USER" | quote }}
+      - freshrssAdminPassword: {{ fetchSecretValue "ref+vault://kv/productivity/freshrss#FRESHRSS_PASSWORD" | quote }}
+  - name: freshrss-resources
+    namespace: productivity
+    chart: ./resources

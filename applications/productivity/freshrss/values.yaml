@@ -1,0 +1,28 @@
+image:
+  repository: freshrss/freshrss
+  tag: "1.27.1"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: truenas-iscsi
+  accessMode: ReadWriteOnce
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    memory: 256Mi
+
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+freshrssAdminUser: ""
+freshrssAdminPassword: ""
