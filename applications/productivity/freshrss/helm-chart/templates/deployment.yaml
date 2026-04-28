@@ -14,10 +14,6 @@ spec:
       labels:
         app.kubernetes.io/name: freshrss
     spec:
-      securityContext:
-        runAsUser: {{ .Values.securityContext.runAsUser }}
-        runAsGroup: {{ .Values.securityContext.runAsGroup }}
-        fsGroup: {{ .Values.securityContext.fsGroup }}
       containers:
         - name: freshrss
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
