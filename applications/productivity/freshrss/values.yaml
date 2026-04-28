@@ -19,5 +19,7 @@ resources:
   limits:
     memory: 256Mi
 
+cronMin: "7,27,47"
+
 freshrssAdminUser: ""
 freshrssAdminPassword: ""

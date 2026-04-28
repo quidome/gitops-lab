@@ -38,6 +38,8 @@ spec:
               value: "--api-enabled --base-url https://rss.quido.me --default-user $FRESHRSS_ADMIN_USERNAME"
             - name: FRESHRSS_USER
               value: "--user $FRESHRSS_ADMIN_USERNAME --password $FRESHRSS_ADMIN_PASSWORD"
+            - name: CRON_MIN
+              value: {{ .Values.cronMin | quote }}
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
