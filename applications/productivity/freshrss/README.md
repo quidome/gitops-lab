@@ -14,6 +14,7 @@ Initial GitOps scaffold for internal-only FreshRSS deployment.
 - Populate Vault path `kv/productivity/freshrss` with keys:
   - `FRESHRSS_USER`
   - `FRESHRSS_PASSWORD`
-- Secrets are injected at deploy-time via Vals in `helmfile.yaml.gotmpl`.
+- Secrets are injected at deploy-time via Vals in `helmfile.yaml.gotmpl` and rendered into Kubernetes Secret `freshrss-auth`.
+- Deployment consumes credentials via `secretKeyRef` (credentials are not embedded directly in Deployment env values).
 - Validate iOS client compatibility and document tested client(s).
 - Decide whether to keep SQLite-only or move to PostgreSQL/MariaDB.

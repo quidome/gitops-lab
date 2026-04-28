@@ -31,9 +31,15 @@ spec:
             - name: FRESHRSS_INSTALL
               value: "--api-enabled --base-url https://rss.quido.me"
             - name: FRESHRSS_USER
-              value: {{ .Values.freshrssAdminUser | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-auth
+                  key: FRESHRSS_USER
             - name: FRESHRSS_PASSWORD
-              value: {{ .Values.freshrssAdminPassword | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-auth
+                  key: FRESHRSS_PASSWORD
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
