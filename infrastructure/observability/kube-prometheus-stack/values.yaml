@@ -136,10 +136,10 @@ grafana:
   # Resource limits
   resources:
     requests:
-      cpu: 50m
-      memory: 300Mi
+      cpu: 200m
+      memory: 1Gi
     limits:
-      memory: 300Mi
+      memory: 1Gi
 
   # Grafana configuration
   grafana.ini:
@@ -160,7 +160,8 @@ grafana:
   readinessProbe:
     initialDelaySeconds: 30
     periodSeconds: 10
-    timeoutSeconds: 5
+    timeoutSeconds: 10
+    failureThreshold: 6
 
   livenessProbe:
     initialDelaySeconds: 60
