@@ -35,6 +35,9 @@ redis:
     limits:
       memory: 128Mi
 
+redisSecretInit:
+  enabled: false
+
 server:
   resources:
     requests:
