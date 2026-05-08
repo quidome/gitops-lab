@@ -56,7 +56,7 @@ Store the vals-reader token:
 export VALS_TOKEN="<paste-vals-reader-token-here>"
 
 kubectl create secret generic vault-token \
-  -n argocd \
+  -n gitops \
   --from-literal=token="$VALS_TOKEN"
 ```
 
@@ -64,7 +64,7 @@ Patch ArgoCD repo-server to use Vault:
 
 **Step 2a: Add env vars to main repo-server container:**
 ```bash
-kubectl patch deployment argocd-repo-server -n argocd --type=json -p='[
+kubectl patch deployment argocd-repo-server -n gitops --type=json -p='[
   {
     "op": "add",
     "path": "/spec/template/spec/containers/0/env/-",
@@ -91,7 +91,7 @@ kubectl patch deployment argocd-repo-server -n argocd --type=json -p='[
 
 **Step 2b: Add env vars to helmfile-plugin container:**
 ```bash
-kubectl patch deployment argocd-repo-server -n argocd --type=json -p='[
+kubectl patch deployment argocd-repo-server -n gitops --type=json -p='[
   {
     "op": "add",
     "path": "/spec/template/spec/containers/2/env",
@@ -118,16 +118,16 @@ kubectl patch deployment argocd-repo-server -n argocd --type=json -p='[
 
 Wait for rollout:
 ```bash
-kubectl rollout status deployment argocd-repo-server -n argocd
+kubectl rollout status deployment argocd-repo-server -n gitops
 ```
 
 Verify the patch:
 ```bash
 # Check main repo-server container
-kubectl get deployment argocd-repo-server -n argocd -o jsonpath='{.spec.template.spec.containers[0].env}' | jq '.[] | select(.name | startswith("VAULT"))'
+kubectl get deployment argocd-repo-server -n gitops -o jsonpath='{.spec.template.spec.containers[0].env}' | jq '.[] | select(.name | startswith("VAULT"))'
 
 # Check helmfile-plugin container (most important!)
-kubectl get deployment argocd-repo-server -n argocd -o jsonpath='{.spec.template.spec.containers[2].env}' | jq '.[] | select(.name | startswith("VAULT"))'
+kubectl get deployment argocd-repo-server -n gitops -o jsonpath='{.spec.template.spec.containers[2].env}' | jq '.[] | select(.name | startswith("VAULT"))'
 ```
 
 Both should show `VAULT_ADDR` and `VAULT_TOKEN` variables.
@@ -209,10 +209,10 @@ password: {{ fetchSecretValue "ref+vault://kv/app/creds#password" }}
 
 ```bash
 # Sync the application to fetch updated secrets
-argocd app sync home-automation-saic-mqtt-gateway
+kubectl patch application home-automation-saic-mqtt-gateway -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'
 
 # Wait for deployment to complete
-argocd app wait home-automation-saic-mqtt-gateway --health
+kubectl wait --for=jsonpath='{.status.health.status}'=Healthy application/home-automation-saic-mqtt-gateway -n gitops --timeout=180s
 ```
 
 **What happens:**
@@ -241,7 +241,7 @@ helmfile -f applications/home-automation/saic-mqtt-gateway/helmfile.yaml.gotmpl 
 |--------|-------------------|---------------------------|
 | **Secret fetch** | During ArgoCD sync | Continuous (every 1h) |
 | **Change in Vault** | No automatic update | Auto-syncs within 1h |
-| **To apply changes** | `argocd app sync` | Wait or delete pod |
+| **To apply changes** | Trigger ArgoCD sync via `kubectl patch application ...` | Wait or delete pod |
 | **Secret staleness** | Until next deployment | Max 1 hour |
 | **Best for** | App-specific, static secrets | Shared, frequently updated secrets |
 
@@ -267,13 +267,13 @@ Check that secret values appear (not `ref+vault://...` strings).
 
 ```bash
 # Trigger sync
-argocd app sync <your-app>
+kubectl patch application <your-app> -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'
 
 # Check for errors
-argocd app get <your-app>
+kubectl get application <your-app> -n gitops -o yaml
 
 # If sync fails, check repo-server logs
-kubectl logs -n argocd -l app.kubernetes.io/name=argocd-repo-server --tail=50 | grep -i vault
+kubectl logs -n gitops -l app.kubernetes.io/name=argocd-repo-server --tail=50 | grep -i vault
 ```
 
 ## Troubleshooting
@@ -297,15 +297,15 @@ Should show `vals-reader` in policies.
 **Solution:** Check both containers have VAULT env vars:
 ```bash
 # Main repo-server container
-kubectl exec -n argocd deploy/argocd-repo-server -c repo-server -- sh -c 'printenv | grep VAULT'
+kubectl exec -n gitops deploy/argocd-repo-server -c repo-server -- sh -c 'printenv | grep VAULT'
 
 # Helmfile-plugin container (CRITICAL - this is where Vals runs!)
-kubectl exec -n argocd deploy/argocd-repo-server -c helmfile-plugin -- sh -c 'printenv | grep VAULT'
+kubectl exec -n gitops deploy/argocd-repo-server -c helmfile-plugin -- sh -c 'printenv | grep VAULT'
 ```
 
 If helmfile-plugin is missing variables, patch it:
 ```bash
-kubectl patch deployment argocd-repo-server -n argocd --type=json -p='[
+kubectl patch deployment argocd-repo-server -n gitops --type=json -p='[
   {
     "op": "add",
     "path": "/spec/template/spec/containers/2/env",
@@ -327,21 +327,21 @@ kubectl patch deployment argocd-repo-server -n argocd --type=json -p='[
   }
 ]'
 
-kubectl rollout status deployment argocd-repo-server -n argocd
+kubectl rollout status deployment argocd-repo-server -n gitops
 ```
 
 ### Problem: ArgoCD sync fails with other Vault connection error
 
 **Check repo-server can reach Vault:**
 ```bash
-kubectl exec -n argocd deploy/argocd-repo-server -c helmfile-plugin -- sh -c 'printenv | grep VAULT'
+kubectl exec -n gitops deploy/argocd-repo-server -c helmfile-plugin -- sh -c 'printenv | grep VAULT'
 ```
 
 Should show both `VAULT_ADDR` and `VAULT_TOKEN`.
 
 **Check Vault is accessible:**
 ```bash
-kubectl run -n argocd vault-test --rm -it --image=curlimages/curl --restart=Never -- \
+kubectl run -n gitops vault-test --rm -it --image=curlimages/curl --restart=Never -- \
   curl -s http://vault.security:8200/v1/sys/health
 ```
 
@@ -387,13 +387,13 @@ vault token revoke <old-vals-token>
 # Create new token (follow Step 1 above)
 
 # Update ArgoCD secret
-kubectl delete secret vault-token -n argocd
+kubectl delete secret vault-token -n gitops
 kubectl create secret generic vault-token \
-  -n argocd \
+  -n gitops \
   --from-literal=token="<new-vals-token>"
 
 # Restart repo-server to pick up new token
-kubectl rollout restart deployment argocd-repo-server -n argocd
+kubectl rollout restart deployment argocd-repo-server -n gitops
 ```
 
 ## When to Use Vals vs External Secrets
@@ -419,7 +419,7 @@ kubectl rollout restart deployment argocd-repo-server -n argocd
 - ✅ Read-only token limits blast radius (can't modify/delete secrets)
 - ✅ Token has 1-year TTL with auto-renewal
 - ⚠️ Token stored in K8s secret (encrypted at rest by K8s)
-- ⚠️ Anyone with kubectl access to argocd namespace can read token
+- ⚠️ Anyone with kubectl access to gitops namespace can read token
 - ⚠️ Vault must be unsealed for Vals to work
 
 **Acceptable for home lab** where you control cluster access.

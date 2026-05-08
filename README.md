@@ -12,7 +12,7 @@ Core of the setup:
 * ArgoCD
 * cert-manager
 * democratic-csi
-* OpenBAO + External Secrets Operator
+* Vault + Vals (deploy-time secret injection)
 
 ### Inpiration
 
@@ -28,191 +28,49 @@ Core of the setup:
 
 ## setup
 
-### OpenBAO (Secret Management)
+### Vault (Secret Management)
 
-OpenBAO is used for secret management, with External Secrets Operator (ESO) syncing secrets to Kubernetes.
+Vault is used for secret management, and secrets are injected at deploy-time via Vals in Helmfile.
 
-#### Unseal OpenBAO (after pod restart)
+Primary reference: `infrastructure/security/vault/VALS-SETUP.md`
 
-OpenBAO starts sealed. You need 3 of 5 unseal keys:
-
-```sh
-kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key-1>
-kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key-2>
-kubectl exec -n security openbao-0 -- bao operator unseal <unseal-key-3>
-```
-
-Check status:
+#### Add/update a secret
 
 ```sh
-kubectl exec -n security openbao-0 -- bao status
-```
-
-#### Add a secret
-
-```sh
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv put kv/<path> <key>=<value>'
+vault kv put kv/<realm>/<application> <key>=<value>
 ```
 
 Example:
 
 ```sh
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="hvs.xxx" && bao kv put kv/myapp password=supersecret api-key=abc123'
+vault kv put kv/home-automation/mosquitto passwordfile='user1:$7$...'
 ```
 
-#### Read a secret
+#### Read/list secrets
 
 ```sh
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv get kv/<path>'
+vault kv get kv/<realm>/<application>
+vault kv list kv/<realm>
 ```
 
-#### List secrets
-
-```sh
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv list kv/'
-```
-
-#### Use secret in an application
-
-Create an ExternalSecret in your app namespace:
+#### Use secret in an application (Helmfile + Vals)
 
 ```yaml
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: myapp-secrets
-  namespace: myapp
-spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: openbao
-    kind: ClusterSecretStore
-  target:
-    name: myapp-secrets
-  data:
-    - secretKey: password
-      remoteRef:
-        key: myapp
-        property: password
-    - secretKey: api-key
-      remoteRef:
-        key: myapp
-        property: api-key
+# helmfile.yaml.gotmpl
+releases:
+  - name: my-app
+    values:
+      - secretValue: {{ fetchSecretValue "ref+vault://kv/realm/app#KEY" | quote }}
 ```
 
-ESO creates a Kubernetes Secret `myapp-secrets` that your pods can use.
-
-#### Bootstrap ESO connection to OpenBAO (one-time setup)
-
-After initializing OpenBAO, set up AppRole auth for ESO:
+#### Trigger sync after secret changes
 
 ```sh
-kubectl exec -it -n security openbao-0 -- sh
+kubectl patch application <app-name> -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'
 ```
-
-Inside the pod:
-
-```sh
-export BAO_TOKEN="<root-token>"
-
-# Enable KV v2 secrets engine
-bao secrets enable -path=kv kv-v2
-
-# Enable AppRole auth
-bao auth enable approle
-
-# Create policy for ESO (read-only)
-bao policy write eso-policy - <<EOF
-path "kv/data/*" {
-  capabilities = ["read"]
-}
-path "kv/metadata/*" {
-  capabilities = ["read", "list"]
-}
-EOF
-
-# Create AppRole
-bao write auth/approle/role/eso \
-  token_policies="eso-policy" \
-  token_ttl=1h \
-  token_max_ttl=4h
-
-# Get credentials (save these!)
-bao read auth/approle/role/eso/role-id
-bao write -f auth/approle/role/eso/secret-id
-```
-
-Create the bootstrap secret (only manual secret needed):
-
-```sh
-kubectl create secret generic openbao-approle \
-  --namespace security \
-  --from-literal=role-id=<role-id> \
-  --from-literal=secret-id=<secret-id>
-```
-
-The ClusterSecretStore is deployed via GitOps and references this secret.
-
-#### Verify ESO connection
-
-```sh
-kubectl get clustersecretstore openbao
-```
-
-Should show `Ready: True`.
-
-#### Migrate SealedSecret to OpenBAO
-
-Example: migrating `external-dns-pihole` SealedSecret.
-
-**Before (SealedSecret):**
-
-```yaml
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  name: external-dns-pihole
-  namespace: external-dns
-spec:
-  encryptedData:
-    EXTERNAL_DNS_PIHOLE_PASSWORD: AgCOHDSjpEyy...  # encrypted blob
-```
-
-**Step 1: Add secret to OpenBAO**
-
-```sh
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<root-token>" && bao kv put kv/external-dns pihole-password=<actual-password>'
-```
-
-**Step 2: Replace SealedSecret with ExternalSecret**
-
-```yaml
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: external-dns-pihole
-  namespace: external-dns
-spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: openbao
-    kind: ClusterSecretStore
-  target:
-    name: external-dns-pihole
-  data:
-    - secretKey: EXTERNAL_DNS_PIHOLE_PASSWORD
-      remoteRef:
-        key: external-dns
-        property: pihole-password
-```
-
-**Step 3: Delete the SealedSecret file from the repo**
-
-The ExternalSecret creates a Kubernetes Secret with the same name, so the app continues to work unchanged.
-
 ### Sealed secrets (legacy)
 
-> **Note**: Sealed secrets is being replaced by OpenBAO + ESO.
+> **Note**: Sealed secrets is legacy and has been replaced by Vault + Vals.
 
 To store a yaml document in a secret, create document.yaml first, like:
 
@@ -290,25 +148,33 @@ I installed all the required binaries on my workstation and install from there.
 # Add cilium chart repository and update before installing
 helm repo add cilium https://helm.cilium.io && helm repo update
 helm install cilium cilium/cilium -n kube-system \
-  -f infrastructure/networking/cilium/values.yaml \
-  --version 1.17.6 \
+  -f infrastructure/kube-system/cilium/values.yaml \
+  --version 1.19.3 \
   --set operator.replicas=1
 ```
 
 The cilium files in this repository contain the proper values for my setup.
+
+Verify live Cilium version:
+```sh
+kubectl -n kube-system get ds cilium -o jsonpath='{.spec.template.spec.containers[0].image}'
+```
 
 ### ArgoCD
 
 I installed all the required binaries on my workstation and install from there.
 
 ```sh
-# Argo CD Bootstrap
-kubectl create namespace argocd
-kubectl kustomize --enable-helm infrastructure-legacy/controllers/argocd | kubectl apply -f -
-kubectl apply -f infrastructure-legacy/controllers/argocd/managed-apps.yaml
+# Argo CD Bootstrap (chart version pinned in helmfile: 9.5.12)
+kubectl create namespace gitops
+helmfile -f infrastructure/gitops/argocd/helmfile.yaml apply
+kubectl apply -f infrastructure/applicationset.yaml
 
-# Obtain argocd web interface initial password
-kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+# Check ArgoCD server deployment
+kubectl get deploy -n gitops argocd-server
+
+# Verify live ArgoCD version
+kubectl -n gitops get deploy argocd-server -o jsonpath='{.spec.template.spec.containers[0].image}'
 ```
 
 ### cert-manager
@@ -328,23 +194,23 @@ Deployed via Helmfile using the k8sonlab chart. Exposed on LoadBalancer IP `172.
 docker run --rm eclipse-mosquitto mosquitto_passwd -c -b /dev/stdout <username> <password>
 ```
 
-**Store passwordfile in OpenBao:**
+**Store passwordfile in Vault:**
 ```sh
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<token>" && bao kv put kv/home-automation/mosquitto passwordfile="user1:\$7\$101\$...
-user2:\$7\$101\$..."'
+vault kv put kv/home-automation/mosquitto passwordfile="user1:\$7\$101\$...
+user2:\$7\$101\$..."
 ```
 
 #### SAIC MQTT Gateway
 
 Custom Helm chart for the SAIC iSmart MQTT gateway. Connects to Mosquitto and ABRP.
 
-**Store secrets in OpenBao:**
+**Store secrets in Vault:**
 ```sh
-kubectl exec -n security openbao-0 -- sh -c 'export BAO_TOKEN="<token>" && bao kv put kv/home-automation/saic-mqtt-gateway \
+vault kv put kv/home-automation/saic-mqtt-gateway \
   SAIC_USER="<user>" \
   SAIC_PASSWORD="<password>" \
   MQTT_USER="saic" \
   MQTT_PASSWORD="<mqtt-password>" \
   ABRP_API_KEY="<api-key>" \
-  ABRP_USER_TOKEN="<token>"'
+  ABRP_USER_TOKEN="<token>"
 ```

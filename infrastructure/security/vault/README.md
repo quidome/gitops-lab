@@ -1,6 +1,6 @@
 # HashiCorp Vault
 
-HashiCorp Vault deployment for UI-based secret management. Runs alongside OpenBao for gradual migration.
+HashiCorp Vault deployment for UI-based secret management.
 
 ## Deployment
 
@@ -605,53 +605,20 @@ In the Vault UI (http://vault.quido.me):
 
 ### Create Secrets
 
-Use the same naming convention as OpenBao:
+Use this naming convention:
 ```
-kv/<realm>/<application>/<property>
+kv/<realm>/<application>
 ```
 
 Examples:
-- `kv/home-automation/saic-mqtt-gateway/SAIC_USER`
-- `kv/home-automation/saic-mqtt-gateway/ABRP_USER_TOKEN`
-- `kv/networking/external-dns/pihole-password`
+- `kv/home-automation/saic-mqtt-gateway` (keys: `SAIC_USER`, `ABRP_USER_TOKEN`)
+- `kv/networking/external-dns` (key: `EXTERNAL_DNS_PIHOLE_PASSWORD`)
 
-### Migrate an Application
+## Current State
 
-**Before (using OpenBao):**
-```yaml
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: my-app
-spec:
-  secretStoreRef:
-    name: openbao
-    kind: ClusterSecretStore
-  # ... rest of config
-```
-
-**After (using Vault):**
-```yaml
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: my-app
-spec:
-  secretStoreRef:
-    name: vault  # <-- Just change this!
-    kind: ClusterSecretStore
-  # ... rest of config (paths stay the same)
-```
-
-## Migration Strategy
-
-1. **Add secrets to Vault** via UI (same paths as OpenBao)
-2. **Change one ExternalSecret at a time** to use `vault` ClusterSecretStore
-3. **Test the application** to ensure it still works
-4. **Repeat** for each application
-5. **Decommission OpenBao** once all apps are migrated
-
-No big bang migration needed - run both side-by-side!
+- Vault is the active secret backend.
+- Helmfile uses Vals (`fetchSecretValue`) for deploy-time secret injection.
+- External Secrets can use the `vault` `ClusterSecretStore` where runtime syncing is needed.
 
 ## Useful Commands
 
@@ -669,14 +636,6 @@ kubectl exec -n security vault-0 -- vault secrets list
 kubectl exec -n security vault-0 -- vault kv get kv/home-automation/mosquitto
 ```
 
-## Comparison: Vault vs OpenBao
+## Notes
 
-| Feature | Vault | OpenBao |
-|---------|-------|---------|
-| UI | ✅ Full-featured | ❌ None |
-| CLI | ✅ Full | ✅ Full |
-| API | ✅ Full | ✅ Full |
-| External Secrets | ✅ Supported | ✅ Supported |
-| Management | UI makes it easy | CLI only |
-
-**Why both?** Vault provides better UX with the UI, while OpenBao remains as the open-source fork. Gradual migration allows testing without risk.
+For Vals integration details, see `VALS-SETUP.md`.
