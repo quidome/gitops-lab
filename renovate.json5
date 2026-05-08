@@ -21,7 +21,6 @@
       automerge: true,
       automergeType: 'pr',
       minimumReleaseAge: '3 days',
-      matchConfidence: ['high', 'very high'],
     },
   ],
 }
