@@ -68,40 +68,6 @@ releases:
 ```sh
 kubectl patch application <app-name> -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'
 ```
-### Sealed secrets (legacy)
-
-> **Note**: Sealed secrets is legacy and has been replaced by Vault + Vals.
-
-To store a yaml document in a secret, create document.yaml first, like:
-
-```sh
-name: foo
-pass: bar
-key: [2,3,4,5]
-```
-
-The following command takes the contents of document.yaml and stores it in a secret under the key "secret.yaml". The name of the secret will be myNewSecret.
-```sh
-kubectl create secret generic myNewSecret --from-file=secret.yaml=document.yaml -o yaml > secret.yaml
-```
-
-Seal the secret:
-
-```sh
-cat secret.yaml | kubeseal --controller-namespace kube-system --controller-name sealed-secrets -o yaml
-```
-
-Show secret without what is added by the cluster and frameworks:
-
-```sh
-kubectl get secrets zigbee2mqtt -o yaml | yq eval-all 'del(.metadata.annotations, .metadata.labels, .metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid)'
-```
-
-This secret can be piped into sealedsecrets:
-
-```sh
-kubectl get secrets zigbee2mqtt -o yaml | yq eval-all 'del(.metadata.annotations, .metadata.labels, .metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid)' | kubeseal --controller-namespace kube-system --controller-name sealed-secrets -o yaml
-```
 
 ### Nixos
 
@@ -177,9 +143,6 @@ kubectl get deploy -n gitops argocd-server
 kubectl -n gitops get deploy argocd-server -o jsonpath='{.spec.template.spec.containers[0].image}'
 ```
 
-### cert-manager
-
-### democratic-csi
 
 ## Applications
 
@@ -187,7 +150,7 @@ kubectl -n gitops get deploy argocd-server -o jsonpath='{.spec.template.spec.con
 
 #### Mosquitto (MQTT Broker)
 
-Deployed via Helmfile using the k8sonlab chart. Exposed on LoadBalancer IP `172.16.40.51:1883`.
+Deployed via Helmfile using the k8sonlab chart. Exposed internally as a `ClusterIP` service on port `1883`.
 
 **Generate password hash:**
 ```sh
@@ -214,3 +177,10 @@ vault kv put kv/home-automation/saic-mqtt-gateway \
   ABRP_API_KEY="<api-key>" \
   ABRP_USER_TOKEN="<token>"
 ```
+
+#### Zigbee2MQTT
+
+Zigbee2MQTT is **not** exposed as its own `Service` type `LoadBalancer`.
+
+- Service type is `ClusterIP`
+- External access is via `HTTPRoute` (`zigbee2mqtt.quido.me`) through `gateway-internal` (LoadBalancer IP `172.16.40.50`)
