@@ -36,6 +36,9 @@ spec:
         # Example: "demo/frontend/nginx" -> ["demo", "frontend", "nginx"] -> get element at index 1 -> "frontend"
         namespace: '{{ index (splitList "/" .path.path) (sub (len (splitList "/" .path.path)) 2) }}'
       syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
         retry:
           limit: 5
           backoff:
