@@ -1,6 +1,7 @@
 {
   extends: [
     'config:recommended',
+    'mergeConfidence:all-badges',
   ],
   kubernetes: {
     enabled: true,
