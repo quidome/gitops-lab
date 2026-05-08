@@ -14,7 +14,7 @@ configs:
 
 crds:
   install: true
-  keep: false
+  keep: true
 
 controller:
   resources:

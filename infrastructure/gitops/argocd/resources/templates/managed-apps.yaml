@@ -2,11 +2,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: argocd-managed-apps
+  namespace: gitops
 spec:
   destination:
     namespace: gitops
     server: https://kubernetes.default.svc
   project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
   sources:
     - path: .
       directory:
