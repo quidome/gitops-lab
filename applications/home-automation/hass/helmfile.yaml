@@ -6,7 +6,7 @@ releases:
   - name: hass
     namespace: home-automation
     chart: pajikos/home-assistant
-    version: "0.3.58"
+    version: "0.3.60"
     values:
       - values.yaml
   - name: hass-resources
