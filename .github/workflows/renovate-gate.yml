@@ -1,0 +1,14 @@
+name: Renovate Gate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pass:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Always pass
+        run: true
