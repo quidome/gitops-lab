@@ -69,6 +69,12 @@ releases:
 kubectl patch application <app-name> -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'
 ```
 
+#### Unseal Vault from gopass (first 3 of 5 keys)
+
+```sh
+gopass show personal/vault/prod | awk 'NR<=3' | xargs -I{} kubectl exec -n security vault-0 -- vault operator unseal "{}"
+```
+
 ### Nixos
 
 The key elements to make this setup work are in the snipper below.
