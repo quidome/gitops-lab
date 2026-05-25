@@ -1,29 +1,36 @@
-name: YAML Lint
+name: Helmfile Validate
 
 on:
   pull_request:
     paths:
-      - '**/*.yml'
-      - '**/*.yaml'
+      - '**/helmfile.yaml'
+      - '**/helmfile.yaml.gotmpl'
+      - '**/values.yaml'
+      - '**/values-*.yaml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  yamllint:
+  helmfile-validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set up Helmfile
+        uses: helmfile/helmfile-action@v2.0.4
         with:
-          python-version: '3.x'
+          helmfile-version: v0.168.0
 
-      - name: Install yamllint
-        run: pip install yamllint
-
-      - name: Run yamllint
-        run: yamllint .
+      - name: Validate Helmfiles
+        run: |
+          set -euo pipefail
+          while IFS= read -r f; do
+            echo "Validating $f"
+            helmfile -f "$f" lint
+          done < <(find . -type f \( -name 'helmfile.yaml' -o -name 'helmfile.yaml.gotmpl' \))
