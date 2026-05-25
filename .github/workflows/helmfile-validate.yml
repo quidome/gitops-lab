@@ -23,9 +23,16 @@ jobs:
         uses: azure/setup-helm@v4
 
       - name: Set up Helmfile
-        uses: helmfile/helmfile-action@v2.0.4
-        with:
-          helmfile-version: v0.168.0
+        run: |
+          set -euo pipefail
+          HELMFILE_VERSION=v0.168.0
+          curl -fsSL -o /tmp/helmfile.tar.gz "https://github.com/helmfile/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION#v}_linux_amd64.tar.gz"
+          tar -xzf /tmp/helmfile.tar.gz -C /tmp helmfile
+          sudo mv /tmp/helmfile /usr/local/bin/helmfile
+          helmfile --version
+
+      - name: Install helm-diff plugin
+        run: helm plugin install https://github.com/databus23/helm-diff --verify=false || true
 
       - name: Validate Helmfiles
         run: |
