@@ -1,3 +1,8 @@
+codebergRepoCreds:
+  url: https://codeberg.org/quidome
+  username: ref+vault://kv/gitops/argocd#username
+  password: ref+vault://kv/gitops/argocd#password
+
 configs:
   cm:
     create: true
