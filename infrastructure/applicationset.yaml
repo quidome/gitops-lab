@@ -8,7 +8,7 @@ spec:
   goTemplate: true
   generators:
     - git:
-        repoURL: git@codeberg.org:quidome/gitops-lab.git
+        repoURL: https://codeberg.org/quidome/gitops-lab.git
         revision: main
         directories:
           - path: infrastructure/*/*
@@ -33,7 +33,7 @@ spec:
       source:
         plugin:
           name: helmfile
-        repoURL: git@codeberg.org:quidome/gitops-lab.git
+        repoURL: https://codeberg.org/quidome/gitops-lab.git
         targetRevision: main
         path: "{{ .path.path }}"
       destination:
