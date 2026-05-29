@@ -18,12 +18,12 @@ spec:
         recurse: true
         include: "{application.yaml,applicationset.yaml,*/application.yaml,*/applicationset.yaml}"
         jsonnet: {}
-      repoURL: git@codeberg.org:quidome/gitops-lab.git
+      repoURL: https://codeberg.org/quidome/gitops-lab.git
       targetRevision: main
     - path: .
       directory:
         recurse: true
         include: "{application.yaml,applicationset.yaml,*/application.yaml,*/applicationset.yaml}"
         jsonnet: {}
-      repoURL: git@codeberg.org:quidome/gitops-apps.git
+      repoURL: https://codeberg.org/quidome/gitops-apps.git
       targetRevision: main
