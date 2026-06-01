@@ -1,0 +1,62 @@
+image:
+  repository: ghcr.io/renovatebot/renovate
+  tag: "39.463.0"
+  pullPolicy: IfNotPresent
+
+cronjob:
+  schedule: "17 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 600
+  suspend: false
+
+secretName: renovate-secrets
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    memory: 512Mi
+
+securityContext:
+  pod:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  container:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+renovate:
+  config:
+    platform: forgejo
+    endpoint: https://codeberg.org/api/v1
+    onboarding: true
+    requireConfig: optional
+    dependencyDashboard: true
+    repositories:
+      - quidome/gitops-lab
+    extends:
+      - config:recommended
+    labels:
+      - dependencies
+    timezone: Europe/Berlin
+    schedule:
+      - after 1am and before 5am every weekday
+    packageRules:
+      - description: Automerge patch updates
+        matchUpdateTypes:
+          - patch
+        automerge: true
+        automergeType: pr
+        minimumReleaseAge: 3 days
+
+extraEnv: []
+# extraEnv:
+#   - name: LOG_LEVEL
+#     value: debug

@@ -1,0 +1,18 @@
+repositories: []
+
+releases:
+  - name: renovate-resources
+    namespace: gitops
+    chart: ./resources
+    values:
+      - resources-values.yaml
+
+  - name: renovate
+    namespace: gitops
+    chart: ./helm-chart
+    wait: true
+    timeout: 300
+    needs:
+      - gitops/renovate-resources
+    values:
+      - helm-chart/values.yaml
