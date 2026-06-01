@@ -17,9 +17,9 @@ renovateGithubToken: ""
 resources:
   requests:
     cpu: 200m
-    memory: 512Mi
+    memory: 1Gi
   limits:
-    memory: 512Mi
+    memory: 1Gi
 
 securityContext:
   pod:
@@ -60,3 +60,5 @@ renovate:
 extraEnv:
   - name: LOG_LEVEL
     value: debug
+  - name: NODE_OPTIONS
+    value: --max-old-space-size=768
