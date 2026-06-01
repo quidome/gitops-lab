@@ -1,6 +1,6 @@
 image:
-  repository: ghcr.io/renovatebot/renovate
-  tag: "39.463.0"
+  repository: renovate/renovate
+  tag: "43.207"
   pullPolicy: IfNotPresent
 
 cronjob:
