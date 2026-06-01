@@ -1,0 +1,12 @@
+repositories: []
+
+releases:
+  - name: renovate
+    namespace: gitops
+    chart: ./helm-chart
+    wait: true
+    timeout: 300
+    values:
+      - helm-chart/values.yaml
+      - renovateToken: {{ fetchSecretValue "ref+vault://kv/gitops/renovate#RENOVATE_TOKEN" | quote }}
+        renovateGithubToken: {{ fetchSecretValue "ref+vault://kv/gitops/renovate#RENOVATE_GITHUB_TOKEN" | quote }}

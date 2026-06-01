@@ -31,16 +31,9 @@ spec:
                 - --config-file=/opt/renovate/config.json
               env:
                 - name: RENOVATE_TOKEN
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.secretName }}
-                      key: RENOVATE_TOKEN
+                  value: {{ .Values.renovateToken | quote }}
                 - name: RENOVATE_GITHUB_TOKEN
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.secretName }}
-                      key: RENOVATE_GITHUB_TOKEN
-                      optional: true
+                  value: {{ .Values.renovateGithubToken | quote }}
 {{- with .Values.extraEnv }}
 {{ toYaml . | nindent 16 }}
 {{- end }}

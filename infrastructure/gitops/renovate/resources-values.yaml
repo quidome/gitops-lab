@@ -1,6 +1,0 @@
-externalSecret:
-  refreshInterval: 1h
-  secretStoreRef:
-    kind: ClusterSecretStore
-    name: vault
-  vaultPath: kv/gitops/renovate

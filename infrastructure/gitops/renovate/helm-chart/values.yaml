@@ -11,7 +11,8 @@ cronjob:
   startingDeadlineSeconds: 600
   suspend: false
 
-secretName: renovate-secrets
+renovateToken: ""
+renovateGithubToken: ""
 
 resources:
   requests:
