@@ -27,9 +27,9 @@ spec:
             - name: renovate
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
-              args:
-                - --config-file=/opt/renovate/config.json
               env:
+                - name: RENOVATE_CONFIG_FILE
+                  value: /opt/renovate/config.json
                 - name: RENOVATE_TOKEN
                   value: {{ .Values.renovateToken | quote }}
                 - name: RENOVATE_GITHUB_TOKEN
