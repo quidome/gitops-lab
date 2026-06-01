@@ -42,6 +42,7 @@ renovate:
     dependencyDashboard: true
     repositories:
       - quidome/gitops-lab
+      - quidome/gitops-apps
     extends:
       - config:recommended
     labels:
