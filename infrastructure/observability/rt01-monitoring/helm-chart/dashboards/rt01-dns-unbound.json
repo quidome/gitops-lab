@@ -1,0 +1,45 @@
+{
+  "uid": "rt01-dns-unbound",
+  "title": "rt01 DNS / Unbound",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "tags": ["network", "dns", "unbound", "rt01"],
+  "timezone": "browser",
+  "time": {"from": "now-6h", "to": "now"},
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Unbound exporter up",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "up{instance=\"rt01.lan.balti.casa\",exporter=\"unbound\"}", "legendFormat": "unbound"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "DNS queries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [{"expr": "sum(rate(unbound_num_queries_total{instance=\"rt01.lan.balti.casa\"}[5m]))", "legendFormat": "queries/s"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Cache hits / misses",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "targets": [
+        {"expr": "sum(rate(unbound_cache_hits_total{instance=\"rt01.lan.balti.casa\"}[5m]))", "legendFormat": "hits/s"},
+        {"expr": "sum(rate(unbound_cache_misses_total{instance=\"rt01.lan.balti.casa\"}[5m]))", "legendFormat": "misses/s"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Answer rcodes",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12},
+      "targets": [{"expr": "sum by (rcode) (rate(unbound_num_answer_rcode_total{instance=\"rt01.lan.balti.casa\"}[5m]))", "legendFormat": "{{rcode}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Unbound scrape samples",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+      "targets": [{"expr": "scrape_samples_scraped{instance=\"rt01.lan.balti.casa\",exporter=\"unbound\"}", "legendFormat": "samples"}]
+    }
+  ]
+}

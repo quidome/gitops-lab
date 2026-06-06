@@ -1,0 +1,58 @@
+{
+  "uid": "rt01-pihole",
+  "title": "rt01 Pi-hole",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "tags": ["network", "dns", "pihole", "rt01"],
+  "timezone": "browser",
+  "time": {"from": "now-24h", "to": "now"},
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Pi-hole exporter up",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "up{instance=\"rt01.lan.balti.casa\",exporter=\"pihole\"}", "legendFormat": "pihole"}]
+    },
+    {
+      "type": "stat",
+      "title": "Domains blocked",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "targets": [{"expr": "pihole_domains_being_blocked{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "domains"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Queries today / ads blocked today",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [
+        {"expr": "pihole_dns_queries_today{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "queries"},
+        {"expr": "pihole_ads_blocked_today{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "blocked"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Blocked percentage",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "fieldConfig": {"defaults": {"unit": "percent"}},
+      "targets": [{"expr": "pihole_ads_percentage_today{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "blocked %"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Forwarded / cached queries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "targets": [
+        {"expr": "pihole_queries_forwarded{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "forwarded"},
+        {"expr": "pihole_queries_cached{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "cached"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Clients",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "targets": [
+        {"expr": "pihole_clients_ever_seen{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "ever seen"},
+        {"expr": "pihole_unique_clients{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "unique"}
+      ]
+    }
+  ]
+}

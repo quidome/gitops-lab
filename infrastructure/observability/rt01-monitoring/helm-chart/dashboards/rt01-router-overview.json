@@ -1,0 +1,55 @@
+{
+  "uid": "rt01-router-overview",
+  "title": "rt01 Router Overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "tags": ["network", "router", "rt01"],
+  "timezone": "browser",
+  "time": {"from": "now-6h", "to": "now"},
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Exporter up",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "up{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "{{exporter}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU busy",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}},
+      "targets": [{"expr": "1 - avg by (instance) (rate(node_cpu_seconds_total{instance=\"rt01.lan.balti.casa\",mode=\"idle\"}[5m]))", "legendFormat": "cpu busy"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory used",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}},
+      "targets": [{"expr": "1 - (node_memory_MemAvailable_bytes{instance=\"rt01.lan.balti.casa\"} / node_memory_MemTotal_bytes{instance=\"rt01.lan.balti.casa\"})", "legendFormat": "memory used"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Network receive",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "fieldConfig": {"defaults": {"unit": "Bps"}},
+      "targets": [{"expr": "rate(node_network_receive_bytes_total{instance=\"rt01.lan.balti.casa\",device!~\"lo|veth.*|br.*|docker.*\"}[5m])", "legendFormat": "{{device}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Network transmit",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "fieldConfig": {"defaults": {"unit": "Bps"}},
+      "targets": [{"expr": "rate(node_network_transmit_bytes_total{instance=\"rt01.lan.balti.casa\",device!~\"lo|veth.*|br.*|docker.*\"}[5m])", "legendFormat": "{{device}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Interface errors + drops",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+      "targets": [
+        {"expr": "rate(node_network_receive_errs_total{instance=\"rt01.lan.balti.casa\"}[5m]) + rate(node_network_receive_drop_total{instance=\"rt01.lan.balti.casa\"}[5m])", "legendFormat": "rx {{device}}"},
+        {"expr": "rate(node_network_transmit_errs_total{instance=\"rt01.lan.balti.casa\"}[5m]) + rate(node_network_transmit_drop_total{instance=\"rt01.lan.balti.casa\"}[5m])", "legendFormat": "tx {{device}}"}
+      ]
+    }
+  ]
+}

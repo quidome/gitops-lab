@@ -1,0 +1,42 @@
+{
+  "uid": "rt01-dhcp-kea",
+  "title": "rt01 DHCP / Kea",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "tags": ["network", "dhcp", "kea", "rt01"],
+  "timezone": "browser",
+  "time": {"from": "now-6h", "to": "now"},
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Kea exporter up",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "up{instance=\"rt01.lan.balti.casa\",exporter=\"kea\"}", "legendFormat": "kea"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Kea scrape samples",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [{"expr": "scrape_samples_scraped{instance=\"rt01.lan.balti.casa\",exporter=\"kea\"}", "legendFormat": "samples"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "DHCPv4 assigned addresses",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "targets": [{"expr": "kea_dhcp4_addresses_assigned{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "subnet {{subnet_id}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "DHCPv4 declined addresses",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "targets": [{"expr": "kea_dhcp4_addresses_declined{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "subnet {{subnet_id}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "DHCPv4 total addresses",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "targets": [{"expr": "kea_dhcp4_addresses_total{instance=\"rt01.lan.balti.casa\"}", "legendFormat": "subnet {{subnet_id}}"}]
+    }
+  ]
+}

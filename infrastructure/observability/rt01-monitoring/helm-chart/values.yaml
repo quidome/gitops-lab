@@ -1,0 +1,44 @@
+rt01:
+  host: rt01.lan.balti.casa
+  address: 172.16.40.1
+  labels:
+    instance: rt01.lan.balti.casa
+    role: router
+    network: lan
+
+scrape:
+  interval: 60s
+  timeout: 10s
+
+exporters:
+  node:
+    enabled: true
+    port: 9100
+    path: /metrics
+  kea:
+    enabled: true
+    port: 9547
+    path: /metrics
+  unbound:
+    enabled: true
+    port: 9167
+    path: /metrics
+  wireguard:
+    enabled: true
+    port: 9586
+    path: /metrics
+  pihole:
+    enabled: true
+    port: 9617
+    path: /metrics
+
+serviceMonitor:
+  enabled: true
+  labels: {}
+
+dashboards:
+  enabled: true
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Network"

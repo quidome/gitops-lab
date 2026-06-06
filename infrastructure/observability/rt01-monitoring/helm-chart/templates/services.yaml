@@ -1,0 +1,38 @@
+{{- $root := . -}}
+{{- range $name, $exporter := .Values.exporters }}
+{{- if $exporter.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rt01-monitoring.fullname" $root }}-{{ $name }}
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    {{- include "rt01-monitoring.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}-exporter
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: {{ $exporter.port }}
+      targetPort: {{ $exporter.port }}
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ include "rt01-monitoring.fullname" $root }}-{{ $name }}
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    {{- include "rt01-monitoring.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}-exporter
+subsets:
+  - addresses:
+      - ip: {{ $root.Values.rt01.address }}
+        hostname: {{ $root.Values.rt01.host }}
+    ports:
+      - name: metrics
+        port: {{ $exporter.port }}
+        protocol: TCP
+{{- end }}
+{{- end }}

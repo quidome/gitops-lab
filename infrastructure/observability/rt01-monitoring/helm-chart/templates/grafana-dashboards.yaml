@@ -1,0 +1,27 @@
+{{- if .Values.dashboards.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rt01-monitoring.fullname" . }}-dashboards
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "rt01-monitoring.labels" . | nindent 4 }}
+    {{- with .Values.dashboards.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with .Values.dashboards.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  rt01-router-overview.json: |-
+{{ .Files.Get "dashboards/rt01-router-overview.json" | nindent 4 }}
+  rt01-dns-unbound.json: |-
+{{ .Files.Get "dashboards/rt01-dns-unbound.json" | nindent 4 }}
+  rt01-dhcp-kea.json: |-
+{{ .Files.Get "dashboards/rt01-dhcp-kea.json" | nindent 4 }}
+  rt01-wireguard.json: |-
+{{ .Files.Get "dashboards/rt01-wireguard.json" | nindent 4 }}
+  rt01-pihole.json: |-
+{{ .Files.Get "dashboards/rt01-pihole.json" | nindent 4 }}
+{{- end }}
