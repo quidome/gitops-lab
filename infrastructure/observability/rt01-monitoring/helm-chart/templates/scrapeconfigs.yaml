@@ -10,6 +10,7 @@ metadata:
   labels:
     {{- include "rt01-monitoring.labels" $root | nindent 4 }}
     app.kubernetes.io/component: {{ $name }}-exporter
+    release: kube-prometheus-stack
 spec:
   jobName: rt01-{{ $name }}
   metricsPath: {{ $exporter.path }}
