@@ -1,0 +1,6 @@
+apiVersion: v2
+name: blackbox-probes
+description: Probe CRDs and dashboards for network reachability monitoring
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,123 @@
+prober:
+  url: blackbox-exporter:9115
+  scheme: http
+  path: /probe
+
+probeDefaults:
+  interval: 30s
+  scrapeTimeout: 15s
+
+probes:
+  httpExternal:
+    enabled: true
+    name: http-external
+    module: http_2xx
+    jobName: blackbox-http-external
+    targets:
+      - https://grafana.quido.me
+      - https://codeberg.org
+      - https://cloudflare.com
+    labels:
+      probe_type: http
+      scope: external
+  tcpExternal:
+    enabled: true
+    name: tcp-external
+    module: tcp_connect
+    jobName: blackbox-tcp-external
+    targets:
+      - 1.1.1.1:443
+      - 8.8.8.8:53
+    labels:
+      probe_type: tcp
+      scope: external
+  rt01Services:
+    enabled: true
+    name: rt01-services
+    module: tcp_connect
+    jobName: blackbox-rt01-services
+    targets:
+      - 172.16.40.1:53
+      - 172.16.40.1:80
+      - 172.16.40.1:9100
+    labels:
+      probe_type: tcp
+      scope: rt01
+  rt01Dns:
+    enabled: true
+    name: rt01-dns
+    module: dns_rt01_udp
+    jobName: blackbox-rt01-dns
+    targets:
+      - 172.16.40.1:53
+    labels:
+      probe_type: dns
+      scope: rt01
+  freedomDnsIpv4:
+    enabled: true
+    name: freedom-dns-ipv4
+    module: dns_freedom_udp_ipv4
+    jobName: blackbox-freedom-dns-ipv4
+    targets:
+      - 185.93.175.43:53
+      - 185.232.98.76:53
+    labels:
+      probe_type: dns
+      scope: isp
+      ip_family: ipv4
+  freedomDnsIpv6:
+    enabled: true
+    name: freedom-dns-ipv6
+    module: dns_freedom_udp_ipv6
+    jobName: blackbox-freedom-dns-ipv6
+    targets:
+      - "[2a10:3780:2:52:185:93:175:43]:53"
+      - "[2a10:3780:2:53:185:232:98:76]:53"
+    labels:
+      probe_type: dns
+      scope: isp
+      ip_family: ipv6
+  icmp:
+    enabled: true
+    name: icmp
+    module: icmp
+    jobName: blackbox-icmp
+    targets:
+      - 172.16.40.1
+      - 1.1.1.1
+      - 8.8.8.8
+    labels:
+      probe_type: icmp
+      scope: network
+  pppPeer:
+    enabled: true
+    name: ppp-peer
+    module: icmp
+    jobName: blackbox-ppp-peer
+    targets:
+      - 185.93.175.230
+    labels:
+      probe_type: icmp
+      scope: wan-edge
+  internalHosts:
+    enabled: true
+    name: internal-hosts
+    module: icmp
+    jobName: blackbox-internal-hosts
+    targets:
+      - 172.16.40.64
+      - 172.16.40.75
+      - 172.16.40.76
+      - 172.16.40.77
+      - 172.16.40.99
+      - 172.16.40.100
+    labels:
+      probe_type: icmp
+      scope: internal
+
+dashboards:
+  enabled: true
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Network"

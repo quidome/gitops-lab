@@ -1,0 +1,71 @@
+fullnameOverride: blackbox-exporter
+
+# The chart's self-monitoring is not used; kube-prometheus-stack discovers Probe CRDs.
+serviceMonitor:
+  selfMonitor:
+    enabled: false
+  enabled: false
+
+config:
+  modules:
+    http_2xx:
+      prober: http
+      timeout: 10s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+        follow_redirects: true
+        preferred_ip_protocol: ip4
+    tcp_connect:
+      prober: tcp
+      timeout: 5s
+      tcp:
+        preferred_ip_protocol: ip4
+    dns_rt01_udp:
+      prober: dns
+      timeout: 5s
+      dns:
+        query_name: grafana.quido.me
+        query_type: A
+        valid_rcodes: [NOERROR]
+        transport_protocol: udp
+        preferred_ip_protocol: ip4
+    dns_freedom_udp_ipv4:
+      prober: dns
+      timeout: 5s
+      dns:
+        query_name: grafana.quido.me
+        query_type: A
+        valid_rcodes: [NOERROR]
+        transport_protocol: udp
+        preferred_ip_protocol: ip4
+    dns_freedom_udp_ipv6:
+      prober: dns
+      timeout: 5s
+      dns:
+        query_name: grafana.quido.me
+        query_type: AAAA
+        valid_rcodes: [NOERROR]
+        transport_protocol: udp
+        preferred_ip_protocol: ip6
+    icmp:
+      prober: icmp
+      timeout: 5s
+      icmp:
+        preferred_ip_protocol: ip4
+
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+    add: ["NET_RAW"]
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 64Mi
+  limits:
+    memory: 64Mi

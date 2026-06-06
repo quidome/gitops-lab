@@ -1,0 +1,19 @@
+{{- if .Values.dashboards.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "blackbox-probes.fullname" . }}-dashboard
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "blackbox-probes.labels" . | nindent 4 }}
+    {{- with .Values.dashboards.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with .Values.dashboards.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  network-probes.json: |-
+{{ .Files.Get "dashboards/network-probes.json" | nindent 4 }}
+{{- end }}

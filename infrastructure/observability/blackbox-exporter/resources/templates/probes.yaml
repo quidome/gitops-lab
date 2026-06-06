@@ -1,0 +1,34 @@
+{{- $root := . -}}
+{{- range $key, $probe := .Values.probes }}
+{{- if $probe.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: {{ include "blackbox-probes.fullname" $root }}-{{ $probe.name }}
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    {{- include "blackbox-probes.labels" $root | nindent 4 }}
+    release: kube-prometheus-stack
+    app.kubernetes.io/component: blackbox-probe
+spec:
+  jobName: {{ $probe.jobName }}
+  module: {{ $probe.module }}
+  interval: {{ $root.Values.probeDefaults.interval }}
+  scrapeTimeout: {{ $root.Values.probeDefaults.scrapeTimeout }}
+  prober:
+    url: {{ $root.Values.prober.url | quote }}
+    scheme: {{ $root.Values.prober.scheme }}
+    path: {{ $root.Values.prober.path }}
+  targets:
+    staticConfig:
+      static:
+        {{- range $probe.targets }}
+        - {{ . | quote }}
+        {{- end }}
+      labels:
+        {{- with $probe.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+{{- end }}
+{{- end }}
