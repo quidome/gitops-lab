@@ -1,0 +1,28 @@
+{{- $root := . -}}
+{{- range $name, $exporter := .Values.exporters }}
+{{- if $exporter.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: {{ include "rt01-monitoring.fullname" $root }}-{{ $name }}
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    {{- include "rt01-monitoring.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}-exporter
+spec:
+  jobName: rt01-{{ $name }}
+  metricsPath: {{ $exporter.path }}
+  scheme: http
+  scrapeInterval: {{ $root.Values.scrape.interval }}
+  scrapeTimeout: {{ $root.Values.scrape.timeout }}
+  staticConfigs:
+    - targets:
+        - {{ printf "%s:%v" $root.Values.rt01.address $exporter.port | quote }}
+      labels:
+        instance: {{ $root.Values.rt01.labels.instance | quote }}
+        role: {{ $root.Values.rt01.labels.role | quote }}
+        network: {{ $root.Values.rt01.labels.network | quote }}
+        exporter: {{ $name | quote }}
+{{- end }}
+{{- end }}
