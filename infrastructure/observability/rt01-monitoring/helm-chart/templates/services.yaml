@@ -18,21 +18,25 @@ spec:
       targetPort: {{ $exporter.port }}
       protocol: TCP
 ---
-apiVersion: v1
-kind: Endpoints
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
 metadata:
   name: {{ include "rt01-monitoring.fullname" $root }}-{{ $name }}
   namespace: {{ $root.Release.Namespace }}
   labels:
     {{- include "rt01-monitoring.labels" $root | nindent 4 }}
     app.kubernetes.io/component: {{ $name }}-exporter
-subsets:
+    kubernetes.io/service-name: {{ include "rt01-monitoring.fullname" $root }}-{{ $name }}
+addressType: IPv4
+ports:
+  - name: metrics
+    port: {{ $exporter.port }}
+    protocol: TCP
+endpoints:
   - addresses:
-      - ip: {{ $root.Values.rt01.address }}
-        hostname: {{ $root.Values.rt01.host }}
-    ports:
-      - name: metrics
-        port: {{ $exporter.port }}
-        protocol: TCP
+      - {{ $root.Values.rt01.address | quote }}
+    conditions:
+      ready: true
+    hostname: {{ $root.Values.rt01.host | quote }}
 {{- end }}
 {{- end }}
