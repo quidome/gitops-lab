@@ -38,15 +38,6 @@ config:
         valid_rcodes: [NOERROR]
         transport_protocol: udp
         preferred_ip_protocol: ip4
-    dns_freedom_udp_ipv6:
-      prober: dns
-      timeout: 5s
-      dns:
-        query_name: grafana.quido.me
-        query_type: AAAA
-        valid_rcodes: [NOERROR]
-        transport_protocol: udp
-        preferred_ip_protocol: ip6
     icmp:
       prober: icmp
       timeout: 5s

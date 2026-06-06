@@ -65,18 +65,6 @@ probes:
       probe_type: dns
       scope: isp
       ip_family: ipv4
-  freedomDnsIpv6:
-    enabled: true
-    name: freedom-dns-ipv6
-    module: dns_freedom_udp_ipv6
-    jobName: blackbox-freedom-dns-ipv6
-    targets:
-      - "[2a10:3780:2:52:185:93:175:43]:53"
-      - "[2a10:3780:2:53:185:232:98:76]:53"
-    labels:
-      probe_type: dns
-      scope: isp
-      ip_family: ipv6
   icmp:
     enabled: true
     name: icmp
