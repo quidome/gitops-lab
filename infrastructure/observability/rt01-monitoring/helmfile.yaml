@@ -7,4 +7,4 @@ releases:
     wait: true
     timeout: 300
     values:
-      - values.yaml
+      - helm-chart/values.yaml
