@@ -7,6 +7,8 @@ image:
 
 service:
   type: ClusterIP
+  # Pinned so Pi-hole can use Unbound directly without resolving a Service DNS name during startup.
+  clusterIP: 10.43.167.15
   port: 53
 
 resources:

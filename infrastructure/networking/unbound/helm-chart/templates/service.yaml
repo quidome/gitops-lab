@@ -6,6 +6,9 @@ metadata:
     app: {{ .Release.Name }}
 spec:
   type: {{ .Values.service.type }}
+  {{- with .Values.service.clusterIP }}
+  clusterIP: {{ . }}
+  {{- end }}
   ports:
     - name: dns-udp
       port: {{ .Values.service.port }}
