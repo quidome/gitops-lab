@@ -9,6 +9,7 @@ releases:
     version: 2.35.0
     values:
       - values.yaml
+      - adminPassword: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
   - name: pihole-resources
     namespace: networking
     chart: ./resources

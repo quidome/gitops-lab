@@ -1,7 +1,4 @@
 provider: pihole
-extraArgs:
-  - --pihole-server=http://172.16.40.1
-  - --pihole-api-version=6
 policy: sync
 sources: ["gateway-httproute"]
 triggerLoopOnEvent: true
