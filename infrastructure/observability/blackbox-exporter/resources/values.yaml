@@ -65,6 +65,17 @@ probes:
       probe_type: dns
       scope: isp
       ip_family: ipv4
+  piholeDns:
+    enabled: true
+    name: pihole-dns
+    module: dns_pihole_udp
+    jobName: blackbox-pihole-dns
+    targets:
+      - 172.16.40.53:53
+    labels:
+      probe_type: dns
+      scope: lan
+      service: pihole
   icmp:
     enabled: true
     name: icmp
