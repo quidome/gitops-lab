@@ -20,7 +20,7 @@ config:
       timeout: 5s
       tcp:
         preferred_ip_protocol: ip4
-    dns_rt01_udp:
+    dns_pihole_rt01_udp:
       prober: dns
       timeout: 5s
       dns:
@@ -38,7 +38,7 @@ config:
         valid_rcodes: [NOERROR]
         transport_protocol: udp
         preferred_ip_protocol: ip4
-    dns_pihole_udp:
+    dns_pihole_k8s_udp:
       prober: dns
       timeout: 5s
       dns:

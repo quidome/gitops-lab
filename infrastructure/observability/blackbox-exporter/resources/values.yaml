@@ -31,28 +31,32 @@ probes:
     labels:
       probe_type: tcp
       scope: external
-  rt01Services:
+  routerRt01Services:
     enabled: true
-    name: rt01-services
+    name: router-rt01-services
     module: tcp_connect
-    jobName: blackbox-rt01-services
+    jobName: blackbox-router-rt01-services
     targets:
       - 172.16.40.1:53
       - 172.16.40.1:80
       - 172.16.40.1:9100
     labels:
       probe_type: tcp
-      scope: rt01
-  rt01Dns:
+      scope: lan
+      device: router
+      instance_name: rt01
+  piholeRt01Dns:
     enabled: true
-    name: rt01-dns
-    module: dns_rt01_udp
-    jobName: blackbox-rt01-dns
+    name: pihole-rt01-dns
+    module: dns_pihole_rt01_udp
+    jobName: blackbox-pihole-rt01-dns
     targets:
       - 172.16.40.1:53
     labels:
       probe_type: dns
-      scope: rt01
+      scope: lan
+      service: pihole
+      instance_name: rt01
   freedomDnsIpv4:
     enabled: true
     name: freedom-dns-ipv4
@@ -65,29 +69,41 @@ probes:
       probe_type: dns
       scope: isp
       ip_family: ipv4
-  piholeDns:
+  piholeK8sDns:
     enabled: true
-    name: pihole-dns
-    module: dns_pihole_udp
-    jobName: blackbox-pihole-dns
+    name: pihole-k8s-dns
+    module: dns_pihole_k8s_udp
+    jobName: blackbox-pihole-k8s-dns
     targets:
       - 172.16.40.53:53
     labels:
       probe_type: dns
       scope: lan
       service: pihole
-  icmp:
+      instance_name: k8s
+  routerRt01Icmp:
     enabled: true
-    name: icmp
+    name: router-rt01-icmp
     module: icmp
-    jobName: blackbox-icmp
+    jobName: blackbox-router-rt01-icmp
     targets:
       - 172.16.40.1
+    labels:
+      probe_type: icmp
+      scope: lan
+      device: router
+      instance_name: rt01
+  externalIcmp:
+    enabled: true
+    name: external-icmp
+    module: icmp
+    jobName: blackbox-external-icmp
+    targets:
       - 1.1.1.1
       - 8.8.8.8
     labels:
       probe_type: icmp
-      scope: network
+      scope: external
   pppPeer:
     enabled: true
     name: ppp-peer
