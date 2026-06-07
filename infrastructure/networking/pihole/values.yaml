@@ -8,7 +8,7 @@ resources:
   limits:
     memory: 128Mi
 
-DNS1: 172.16.40.1
+DNS1: unbound.networking.svc.cluster.local
 DNS2:
 persistentVolumeClaim:
   enabled: true

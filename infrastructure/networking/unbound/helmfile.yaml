@@ -1,0 +1,6 @@
+releases:
+  - name: unbound
+    namespace: networking
+    chart: ./helm-chart
+    values:
+      - helm-chart/values.yaml

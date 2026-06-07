@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}
+data:
+  unbound.conf: |
+    server:
+      interface: 0.0.0.0
+      port: 53
+      verbosity: {{ .Values.unbound.verbosity }}
+
+      do-ip4: yes
+      do-ip6: no
+      do-udp: yes
+      do-tcp: yes
+      prefer-ip6: no
+
+      access-control: 0.0.0.0/0 allow
+
+      harden-glue: yes
+      harden-dnssec-stripped: yes
+      harden-referral-path: yes
+      use-caps-for-id: no
+      edns-buffer-size: 1232
+      qname-minimisation: yes
+      prefetch: yes
+      prefetch-key: yes
+      rrset-roundrobin: yes
+
+      hide-identity: yes
+      hide-version: yes
+
+      msg-cache-size: {{ .Values.unbound.cache.msgCacheSize }}
+      rrset-cache-size: {{ .Values.unbound.cache.rrsetCacheSize }}
+
+      private-address: 10.0.0.0/8
+      private-address: 172.16.0.0/12
+      private-address: 192.168.0.0/16
+      private-address: 169.254.0.0/16
+      private-address: fd00::/8
+      private-address: fe80::/10
+
+      auto-trust-anchor-file: "/opt/unbound/etc/unbound/root.key"

@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: docker.io/mvance/unbound
+  tag: "1.22.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 53
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 64Mi
+
+unbound:
+  verbosity: 1
+  cache:
+    msgCacheSize: 32m
+    rrsetCacheSize: 64m
