@@ -16,6 +16,24 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
+      initContainers:
+        - name: prepare-config
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              cp /config/unbound.conf /workdir/unbound.conf
+              /opt/unbound/sbin/unbound-anchor -a /workdir/root.key
+              chown -R 1000:1000 /workdir
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: workdir
+              mountPath: /workdir
       containers:
         - name: unbound
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -28,10 +46,8 @@ spec:
               containerPort: 53
               protocol: TCP
           volumeMounts:
-            - name: config
-              mountPath: /opt/unbound/etc/unbound/unbound.conf
-              subPath: unbound.conf
-              readOnly: true
+            - name: workdir
+              mountPath: /opt/unbound/etc/unbound
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
@@ -48,3 +64,5 @@ spec:
         - name: config
           configMap:
             name: {{ .Release.Name }}-config
+        - name: workdir
+          emptyDir: {}
