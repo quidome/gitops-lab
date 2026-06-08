@@ -48,7 +48,7 @@
       "title": "Query spread by instance - last 5m",
       "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
       "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100, "custom": {"stacking": {"mode": "normal", "group": "A"}, "fillOpacity": 80}}},
-      "targets": [{"expr": "100 * label_replace(increase(pihole_dns_queries_today{job=~\"networking/pihole-.*-prometheus-exporter\"}[5m]), \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\") / scalar(sum(increase(pihole_dns_queries_today{job=~\"networking/pihole-.*-prometheus-exporter\"}[5m])))", "legendFormat": "{{pihole}}"}]
+      "targets": [{"expr": "100 * sum by (pihole) (label_replace(avg_over_time(pihole_request_rate{job=~\"networking/pihole-.*-prometheus-exporter\"}[5m]), \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")) / scalar(sum(avg_over_time(pihole_request_rate{job=~\"networking/pihole-.*-prometheus-exporter\"}[5m])))", "legendFormat": "{{pihole}}"}]
     },
     {
       "type": "timeseries",
