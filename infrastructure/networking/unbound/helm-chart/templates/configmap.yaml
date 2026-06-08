@@ -43,3 +43,9 @@ data:
       private-address: fe80::/10
 
       auto-trust-anchor-file: "/opt/unbound/etc/unbound/root.key"
+
+    remote-control:
+      control-enable: yes
+      control-interface: 127.0.0.1
+      control-port: 8953
+      control-use-cert: no

@@ -74,6 +74,74 @@ spec:
               port: dns-tcp
             initialDelaySeconds: 5
             periodSeconds: 5
+        {{- if .Values.monitoring.enabled }}
+        - name: exporter
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              cat >/tmp/unbound-exporter.pl <<'PERL'
+              use strict;
+              use warnings;
+              use IO::Socket::INET;
+
+              my $server = IO::Socket::INET->new(
+                LocalAddr => '0.0.0.0',
+                LocalPort => {{ .Values.monitoring.port }},
+                Proto => 'tcp',
+                Listen => 16,
+                Reuse => 1,
+              ) or die "listen failed: $!\n";
+
+              while (my $client = $server->accept()) {
+                $client->recv(my $request, 4096);
+                my $stats = `/opt/unbound/sbin/unbound-control -c /opt/unbound/etc/unbound/unbound.conf stats_noreset 2>&1`;
+                my $ok = ($? == 0);
+                my $body = "";
+
+                if ($ok) {
+                  for my $line (split /\n/, $stats) {
+                    next unless $line =~ /^([A-Za-z0-9_.-]+)=([0-9.eE+-]+)$/;
+                    my ($name, $value) = ($1, $2);
+                    $name =~ s/[^A-Za-z0-9_]/_/g;
+                    $body .= "unbound_${name} ${value}\n";
+                  }
+                } else {
+                  $body = $stats;
+                }
+
+                my $status = $ok ? "200 OK" : "500 Internal Server Error";
+                print $client "HTTP/1.1 $status\r\n";
+                print $client "Content-Type: text/plain; version=0.0.4\r\n";
+                print $client "Content-Length: " . length($body) . "\r\n\r\n";
+                print $client $body;
+                close $client;
+              }
+              PERL
+              exec perl /tmp/unbound-exporter.pl
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.monitoring.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: workdir
+              mountPath: /opt/unbound/etc/unbound
+          resources:
+            {{- toYaml .Values.monitoring.resources | nindent 12 }}
+          livenessProbe:
+            tcpSocket:
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 5
+        {{- end }}
       volumes:
         - name: config
           configMap:
