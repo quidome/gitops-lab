@@ -2,7 +2,7 @@
   "uid": "rt01-pihole",
   "title": "Kubernetes Pi-hole",
   "schemaVersion": 39,
-  "version": 2,
+  "version": 3,
   "refresh": "1m",
   "tags": ["network", "dns", "pihole", "k8s"],
   "timezone": "browser",
@@ -38,8 +38,29 @@
     },
     {
       "type": "timeseries",
+      "title": "Request rate by instance",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12},
+      "fieldConfig": {"defaults": {"unit": "reqps", "custom": {"stacking": {"mode": "normal", "group": "A"}}}},
+      "targets": [{"expr": "label_replace(pihole_request_rate{job=~\"networking/pihole-.*-prometheus-exporter\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Queries today by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+      "fieldConfig": {"defaults": {"custom": {"stacking": {"mode": "normal", "group": "A"}}}},
+      "targets": [{"expr": "label_replace(pihole_dns_queries_today{job=~\"networking/pihole-.*-prometheus-exporter\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Blocked today by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+      "fieldConfig": {"defaults": {"custom": {"stacking": {"mode": "normal", "group": "A"}}}},
+      "targets": [{"expr": "label_replace(pihole_ads_blocked_today{job=~\"networking/pihole-.*-prometheus-exporter\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
       "title": "Forwarded / cached queries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
       "targets": [
         {"expr": "sum(pihole_queries_forwarded{job=~\"networking/pihole-.*-prometheus-exporter\"})", "legendFormat": "forwarded"},
         {"expr": "sum(pihole_queries_cached{job=~\"networking/pihole-.*-prometheus-exporter\"})", "legendFormat": "cached"}
@@ -47,8 +68,28 @@
     },
     {
       "type": "timeseries",
+      "title": "Forwarded queries by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+      "fieldConfig": {"defaults": {"custom": {"stacking": {"mode": "normal", "group": "A"}}}},
+      "targets": [{"expr": "label_replace(pihole_queries_forwarded{job=~\"networking/pihole-.*-prometheus-exporter\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "DNS probe latency by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 36},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [{"expr": "label_replace(probe_duration_seconds{job=~\"blackbox-pihole-[abc]-dns\"}, \"pihole\", \"$1\", \"job\", \"blackbox-(pihole-[abc])-dns\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "SERVFAIL by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 36},
+      "targets": [{"expr": "label_replace(pihole_reply{job=~\"networking/pihole-.*-prometheus-exporter\", type=\"serv_fail\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
       "title": "Clients",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 44},
       "targets": [
         {"expr": "max(pihole_clients_ever_seen{job=~\"networking/pihole-.*-prometheus-exporter\"})", "legendFormat": "ever seen"},
         {"expr": "max(pihole_unique_clients{job=~\"networking/pihole-.*-prometheus-exporter\"})", "legendFormat": "unique"}
