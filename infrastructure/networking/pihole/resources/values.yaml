@@ -1,3 +1,7 @@
+dnsVip:
+  name: pihole-dns
+  loadBalancerIP: 172.16.40.53
+
 routes:
   - name: pihole-a
     hostnames:

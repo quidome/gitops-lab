@@ -69,13 +69,25 @@ probes:
       probe_type: dns
       scope: isp
       ip_family: ipv4
+  piholeVipDns:
+    enabled: true
+    name: pihole-vip-dns
+    module: dns_pihole_k8s_udp
+    jobName: blackbox-pihole-vip-dns
+    targets:
+      - 172.16.40.53:53
+    labels:
+      probe_type: dns
+      scope: lan
+      service: pihole
+      instance_name: pihole-vip
   piholeADns:
     enabled: true
     name: pihole-a-dns
     module: dns_pihole_k8s_udp
     jobName: blackbox-pihole-a-dns
     targets:
-      - 172.16.40.53:53
+      - 172.16.40.57:53
     labels:
       probe_type: dns
       scope: lan
