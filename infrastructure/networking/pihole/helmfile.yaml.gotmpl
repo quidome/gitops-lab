@@ -3,13 +3,52 @@ repositories:
     url: https://mojo2600.github.io/pihole-kubernetes
 
 releases:
-  - name: pihole
+  - name: pihole-a
     namespace: networking
     chart: pihole/pihole
     version: 2.35.0
     values:
       - values.yaml
       - adminPassword: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
+      - virtualHost: pihole-a.quido.me
+        persistentVolumeClaim:
+          existingClaim: pihole
+        serviceDns:
+          loadBalancerIP: 172.16.40.53
+          annotations:
+            "lbipam.cilium.io/sharing-key": "pihole-a-dns"
+        nodeSelector:
+          kubernetes.io/hostname: kube1
+  - name: pihole-b
+    namespace: networking
+    chart: pihole/pihole
+    version: 2.35.0
+    values:
+      - values.yaml
+      - adminPassword: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
+      - virtualHost: pihole-b.quido.me
+        serviceDns:
+          loadBalancerIP: 172.16.40.54
+          annotations:
+            "lbipam.cilium.io/sharing-key": "pihole-b-dns"
+        nodeSelector:
+          kubernetes.io/hostname: kube2
+  - name: pihole-c
+    namespace: networking
+    chart: pihole/pihole
+    version: 2.35.0
+    values:
+      - values.yaml
+      - adminPassword: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
+      - virtualHost: pihole-c.quido.me
+        serviceDns:
+          loadBalancerIP: 172.16.40.55
+          annotations:
+            "lbipam.cilium.io/sharing-key": "pihole-c-dns"
+        nodeSelector:
+          kubernetes.io/hostname: kube3
   - name: pihole-resources
     namespace: networking
     chart: ./resources
+    values:
+      - resources/values.yaml

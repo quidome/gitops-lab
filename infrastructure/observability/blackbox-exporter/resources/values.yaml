@@ -69,18 +69,42 @@ probes:
       probe_type: dns
       scope: isp
       ip_family: ipv4
-  piholeK8sDns:
+  piholeADns:
     enabled: true
-    name: pihole-k8s-dns
+    name: pihole-a-dns
     module: dns_pihole_k8s_udp
-    jobName: blackbox-pihole-k8s-dns
+    jobName: blackbox-pihole-a-dns
     targets:
       - 172.16.40.53:53
     labels:
       probe_type: dns
       scope: lan
       service: pihole
-      instance_name: k8s
+      instance_name: pihole-a
+  piholeBDns:
+    enabled: true
+    name: pihole-b-dns
+    module: dns_pihole_k8s_udp
+    jobName: blackbox-pihole-b-dns
+    targets:
+      - 172.16.40.54:53
+    labels:
+      probe_type: dns
+      scope: lan
+      service: pihole
+      instance_name: pihole-b
+  piholeCDns:
+    enabled: true
+    name: pihole-c-dns
+    module: dns_pihole_k8s_udp
+    jobName: blackbox-pihole-c-dns
+    targets:
+      - 172.16.40.55:53
+    labels:
+      probe_type: dns
+      scope: lan
+      service: pihole
+      instance_name: pihole-c
   routerRt01Icmp:
     enabled: true
     name: router-rt01-icmp

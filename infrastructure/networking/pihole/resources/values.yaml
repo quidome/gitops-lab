@@ -1,0 +1,14 @@
+routes:
+  - name: pihole-a
+    hostnames:
+      - pihole.quido.me
+      - pihole-a.quido.me
+    serviceName: pihole-a-web
+  - name: pihole-b
+    hostnames:
+      - pihole-b.quido.me
+    serviceName: pihole-b-web
+  - name: pihole-c
+    hostnames:
+      - pihole-c.quido.me
+    serviceName: pihole-c-web
