@@ -89,14 +89,21 @@
     },
     {
       "type": "timeseries",
-      "title": "SERVFAIL by instance",
+      "title": "Upstream response time by instance",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 44},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [{"expr": "label_replace(pihole_forward_destinations_responsetime{job=~\"networking/pihole-.*-prometheus-exporter\", destination=\"10.43.167.15\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "SERVFAIL by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 52},
       "targets": [{"expr": "label_replace(pihole_reply{job=~\"networking/pihole-.*-prometheus-exporter\", type=\"serv_fail\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
     },
     {
       "type": "timeseries",
       "title": "Clients",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 52},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 52},
       "targets": [
         {"expr": "max(pihole_clients_ever_seen{job=~\"networking/pihole-.*-prometheus-exporter\"})", "legendFormat": "ever seen"},
         {"expr": "max(pihole_unique_clients{job=~\"networking/pihole-.*-prometheus-exporter\"})", "legendFormat": "unique"}
