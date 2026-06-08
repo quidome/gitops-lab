@@ -24,4 +24,6 @@ data:
 {{ .Files.Get "dashboards/rt01-wireguard.json" | nindent 4 }}
   rt01-pihole.json: |-
 {{ .Files.Get "dashboards/rt01-pihole.json" | nindent 4 }}
+  dns-overview.json: |-
+{{ .Files.Get "dashboards/dns-overview.json" | nindent 4 }}
 {{- end }}

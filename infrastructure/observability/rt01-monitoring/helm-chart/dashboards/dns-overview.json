@@ -1,0 +1,102 @@
+{
+  "uid": "dns-overview",
+  "title": "DNS Overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "tags": ["network", "dns", "pihole", "unbound", "k8s"],
+  "timezone": "browser",
+  "time": {"from": "now-24h", "to": "now"},
+  "panels": [
+    {
+      "type": "stat",
+      "title": "DNS VIP probe",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "probe_success{job=\"blackbox-pihole-vip-dns\"}", "legendFormat": "vip"}]
+    },
+    {
+      "type": "stat",
+      "title": "DNS VIP latency",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [{"expr": "probe_duration_seconds{job=\"blackbox-pihole-vip-dns\"}", "legendFormat": "vip"}]
+    },
+    {
+      "type": "stat",
+      "title": "Pi-hole exporters up",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "targets": [{"expr": "sum(up{job=~\"networking/pihole-.*-prometheus-exporter\"})", "legendFormat": "up"}]
+    },
+    {
+      "type": "stat",
+      "title": "Unbound exporters up",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "targets": [{"expr": "sum(up{job=\"networking/unbound\"})", "legendFormat": "up"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Pi-hole query spread - last 5m",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 4},
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100, "custom": {"stacking": {"mode": "normal", "group": "A"}, "fillOpacity": 80}}},
+      "targets": [{"expr": "100 * sum by (pihole) (label_replace(avg_over_time(pihole_request_rate{job=~\"networking/pihole-.*-prometheus-exporter\"}[5m]), \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")) / scalar(sum(avg_over_time(pihole_request_rate{job=~\"networking/pihole-.*-prometheus-exporter\"}[5m])))", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Pi-hole request rate by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "fieldConfig": {"defaults": {"unit": "reqps", "custom": {"stacking": {"mode": "normal", "group": "A"}}}},
+      "targets": [{"expr": "label_replace(pihole_request_rate{job=~\"networking/pihole-.*-prometheus-exporter\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "DNS probe latency by endpoint",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [{"expr": "label_replace(probe_duration_seconds{job=~\"blackbox-pihole-(vip|[abc])-dns\"}, \"endpoint\", \"$1\", \"job\", \"blackbox-(pihole-(?:vip|[abc]))-dns\")", "legendFormat": "{{endpoint}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Pi-hole upstream response time to Unbound",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [{"expr": "label_replace(pihole_forward_destinations_responsetime{job=~\"networking/pihole-.*-prometheus-exporter\", destination=\"10.43.167.15\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Pi-hole SERVFAIL by instance",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+      "targets": [{"expr": "label_replace(pihole_reply{job=~\"networking/pihole-.*-prometheus-exporter\", type=\"serv_fail\"}, \"pihole\", \"$1\", \"job\", \"networking/(pihole-[abc])-prometheus-exporter\")", "legendFormat": "{{pihole}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Unbound query rate",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+      "fieldConfig": {"defaults": {"unit": "qps"}},
+      "targets": [{"expr": "sum(rate(unbound_total_num_queries{job=\"networking/unbound\"}[5m]))", "legendFormat": "queries"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Unbound cache hit rate",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100}},
+      "targets": [{"expr": "100 * sum(rate(unbound_total_num_cachehits{job=\"networking/unbound\"}[5m])) / sum(rate(unbound_total_num_queries{job=\"networking/unbound\"}[5m]))", "legendFormat": "hit rate"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Unbound cache hits vs misses",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 36},
+      "fieldConfig": {"defaults": {"unit": "qps", "custom": {"stacking": {"mode": "normal", "group": "A"}}}},
+      "targets": [
+        {"expr": "sum(rate(unbound_total_num_cachehits{job=\"networking/unbound\"}[5m]))", "legendFormat": "hits"},
+        {"expr": "sum(rate(unbound_total_num_cachemiss{job=\"networking/unbound\"}[5m]))", "legendFormat": "misses"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Unbound query rate by pod",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 36},
+      "fieldConfig": {"defaults": {"unit": "qps", "custom": {"stacking": {"mode": "normal", "group": "A"}}}},
+      "targets": [{"expr": "sum by (pod) (rate(unbound_total_num_queries{job=\"networking/unbound\"}[5m]))", "legendFormat": "{{pod}}"}]
+    }
+  ]
+}
