@@ -87,7 +87,7 @@ probes:
     module: dns_pihole_k8s_udp
     jobName: blackbox-pihole-b-dns
     targets:
-      - 172.16.40.54:53
+      - 172.16.40.56:53
     labels:
       probe_type: dns
       scope: lan
