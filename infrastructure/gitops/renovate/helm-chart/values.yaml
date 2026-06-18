@@ -48,15 +48,6 @@ renovate:
     labels:
       - dependencies
     timezone: Europe/Berlin
-    schedule:
-      - after 1am and before 5am every weekday
-    packageRules:
-      - description: Automerge patch updates
-        matchUpdateTypes:
-          - patch
-        automerge: true
-        automergeType: pr
-        minimumReleaseAge: 3 days
 
 extraEnv:
   - name: NODE_OPTIONS
