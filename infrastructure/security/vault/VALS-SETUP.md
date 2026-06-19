@@ -188,7 +188,8 @@ kv/<realm>/<application>  (secret path)
 **Examples:**
 - `kv/home-automation/zigbee2mqtt#network-key`
 - `kv/home-automation/saic-mqtt-gateway#SAIC_USER`
-- `kv/networking/external-dns#pihole-password`
+- `kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD`
+- `kv/networking/external-dns#EXTERNAL_DNS_RFC2136_TSIG_SECRET`
 
 ### Reference Syntax
 

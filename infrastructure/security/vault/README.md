@@ -612,7 +612,7 @@ kv/<realm>/<application>
 
 Examples:
 - `kv/home-automation/saic-mqtt-gateway` (keys: `SAIC_USER`, `ABRP_USER_TOKEN`)
-- `kv/networking/external-dns` (key: `EXTERNAL_DNS_PIHOLE_PASSWORD`)
+- `kv/networking/external-dns` (keys: `EXTERNAL_DNS_PIHOLE_PASSWORD`, `EXTERNAL_DNS_RFC2136_TSIG_SECRET`)
 
 ## Current State
 
