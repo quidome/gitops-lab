@@ -6,7 +6,7 @@ releases:
   - name: blackbox-exporter
     namespace: observability
     chart: prometheus-community/prometheus-blackbox-exporter
-    version: 11.10.0
+    version: 11.13.0
     wait: true
     timeout: 300
     values:
