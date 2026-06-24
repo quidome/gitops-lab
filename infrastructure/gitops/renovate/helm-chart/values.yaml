@@ -1,6 +1,6 @@
 image:
   repository: renovate/renovate
-  tag: "43.233"
+  tag: "43.242"
   pullPolicy: IfNotPresent
 
 cronjob:
