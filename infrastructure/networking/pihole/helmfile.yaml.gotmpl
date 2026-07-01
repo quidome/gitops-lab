@@ -6,7 +6,7 @@ releases:
   - name: pihole-a
     namespace: networking
     chart: pihole/pihole
-    version: 2.36.0
+    version: 2.37.0
     values:
       - values.yaml
       - adminPassword: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
@@ -22,7 +22,7 @@ releases:
   - name: pihole-b
     namespace: networking
     chart: pihole/pihole
-    version: 2.36.0
+    version: 2.37.0
     values:
       - values.yaml
       - adminPassword: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
@@ -36,7 +36,7 @@ releases:
   - name: pihole-c
     namespace: networking
     chart: pihole/pihole
-    version: 2.36.0
+    version: 2.37.0
     values:
       - values.yaml
       - adminPassword: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
