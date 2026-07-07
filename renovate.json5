@@ -15,9 +15,18 @@
         'docker',
       ],
       enabled: true,
+      groupName: 'docker dependencies',
+      matchUpdateTypes: ['minor', 'patch', 'digest', 'pin'],
+      automerge: true,
+      automergeType: 'pr',
     },
     {
-      matchUpdateTypes: ['minor', 'patch'],
+      matchManagers: ['helmv3', 'helm-values', 'kubernetes'],
+      automerge: false,
+    },
+    {
+      matchUpdateTypes: ['major'],
+      automerge: false,
     },
   ],
 }
