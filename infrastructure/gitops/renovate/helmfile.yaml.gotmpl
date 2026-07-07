@@ -9,4 +9,4 @@ releases:
     values:
       - helm-chart/values.yaml
       - renovateToken: {{ fetchSecretValue "ref+vault://kv/gitops/renovate#RENOVATE_TOKEN" | quote }}
-        renovateGithubToken: {{ fetchSecretValue "ref+vault://kv/gitops/renovate#RENOVATE_GITHUB_TOKEN" | quote }}
+        githubComToken: {{ fetchSecretValue "ref+vault://kv/gitops/renovate#GITHUB_COM_TOKEN" | quote }}

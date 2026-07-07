@@ -32,8 +32,8 @@ spec:
                   value: /opt/renovate/config.json
                 - name: RENOVATE_TOKEN
                   value: {{ .Values.renovateToken | quote }}
-                - name: RENOVATE_GITHUB_TOKEN
-                  value: {{ .Values.renovateGithubToken | quote }}
+                - name: GITHUB_COM_TOKEN
+                  value: {{ .Values.githubComToken | quote }}
 {{- with .Values.extraEnv }}
 {{ toYaml . | nindent 16 }}
 {{- end }}

@@ -12,7 +12,7 @@ cronjob:
   suspend: false
 
 renovateToken: ""
-renovateGithubToken: ""
+githubComToken: ""
 
 resources:
   requests:
