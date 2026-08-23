@@ -7,6 +7,6 @@ releases:
   - name: metrics-server
     namespace: observability
     chart: metrics-server/metrics-server
-    version: 3.13.1
+    version: 3.14.0
     values:
       - values.yaml
