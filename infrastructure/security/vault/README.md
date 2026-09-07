@@ -144,24 +144,22 @@ Now you can manage secrets without using the root token!
 **Solution:**
 
 ```bash
-# 1. Create new vals-reader token
-export VAULT_TOKEN="<your-root-token-or-admin-token>"
+# Check Vault and the current ArgoCD token
+./scripts/refresh-vault-token.sh status
 
-NEW_TOKEN=$(kubectl exec -n security vault-0 -- env VAULT_TOKEN="${VAULT_TOKEN}" \
-  vault token create -policy=vals-reader -period=8760h -display-name="vals-reader" \
-  -format=json | jq -r '.auth.client_token')
+# Create a new token and restart ArgoCD
+./scripts/refresh-vault-token.sh refresh
 
-# 2. Update ArgoCD secret
-kubectl create secret generic vault-token -n gitops \
-  --from-literal=token="$NEW_TOKEN" \
-  --dry-run=client -o yaml | kubectl apply -f -
+# Override the gopass entry if needed
+VAULT_TOKEN_GOPASS_ENTRY="personal/vault/other-admin" \
+  ./scripts/refresh-vault-token.sh refresh
 
-# 3. Restart ArgoCD repo-server
-kubectl rollout restart deployment argocd-repo-server -n gitops
-kubectl rollout status deployment argocd-repo-server -n gitops
-
-echo "New vals-reader token: $NEW_TOKEN"
+# Or provide a management token directly through the environment
+VAULT_TOKEN="<your-root-token-or-admin-token>" \
+  ./scripts/refresh-vault-token.sh refresh
 ```
+
+`status` reports Vault health and safe metadata for the current token. `refresh` creates a new one-year `vals-reader` token, updates `gitops/vault-token`, restarts the ArgoCD repo-server, and revokes the previous token without printing any token. If revocation fails, the command reports the failure after the new token is active.
 
 **Note:** The vals-reader policy must exist first. If it doesn't, see `VALS-SETUP.md` for complete setup.
 

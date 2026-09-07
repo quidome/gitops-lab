@@ -72,8 +72,10 @@ kubectl patch application <app-name> -n gitops --type merge -p '{"operation":{"i
 #### Unseal Vault from gopass (first 3 of 5 keys)
 
 ```sh
-gopass show personal/vault/prod | awk 'NR<=3' | xargs -I{} kubectl exec -n security vault-0 -- vault operator unseal "{}"
+./scripts/unseal-vault.sh
 ```
+
+The script reads `personal/vault/prod` without printing the keys, applies the first three keys, and checks the final Vault status. Pass a different gopass entry as the first argument if needed.
 
 ### Nixos
 
