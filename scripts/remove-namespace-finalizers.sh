@@ -1,8 +1,10 @@
-#!/bin/bash
-# Remove finalizers from a Kubernetes namespace.
-# Usage: ./remove-namespace-finalizers.sh <namespace>
+#!/usr/bin/env bash
+set -euo pipefail
 
-if [ -z "$1" ]; then
+# Remove finalizers from a Kubernetes namespace.
+# Usage: ./scripts/remove-namespace-finalizers.sh <namespace>
+
+if (( $# != 1 )); then
     echo "Usage: $0 <namespace>"
     exit 1
 fi

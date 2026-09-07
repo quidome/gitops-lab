@@ -3,7 +3,7 @@
 List all resources in a Kubernetes namespace.
 
 Usage:
-    python list_namespace_resources.py <namespace> [--json]
+    python scripts/list_namespace_resources.py <namespace> [--json]
 """
 
 import subprocess
@@ -16,7 +16,10 @@ def run_kubectl(args):
     """Run kubectl command and return output."""
     cmd = ["kubectl"] + args
     result = subprocess.run(cmd, capture_output=True, text=True)
-    return result.stdout, result.stderr
+    if result.returncode != 0:
+        details = result.stderr.strip() or "no error output"
+        raise RuntimeError(f"{' '.join(cmd)} failed: {details}")
+    return result.stdout
 
 
 def get_age(creation_timestamp):
@@ -65,7 +68,7 @@ def get_all_resources_in_namespace(namespace):
     """Get all resources in the specified namespace."""
     resources = []
 
-    stdout, _ = run_kubectl(["api-resources", "--namespaced=true", "--verbs=list", "-o", "name"])
+    stdout = run_kubectl(["api-resources", "--namespaced=true", "--verbs=list", "-o", "name"])
     resource_types = stdout.strip().split("\n")
 
     omit_types = {"events", "events.events.k8s.io"}
@@ -74,28 +77,28 @@ def get_all_resources_in_namespace(namespace):
         if not resource_type or resource_type in omit_types:
             continue
 
-        stdout, stderr = run_kubectl([
+        stdout = run_kubectl([
             "get", resource_type,
             "-n", namespace,
             "-o", "json"
         ])
 
-        if stderr and "not found" in stderr.lower():
-            continue
-
         try:
             data = json.loads(stdout)
-            items = data.get("items", [])
-            for item in items:
-                resources.append({
-                    "type": resource_type,
-                    "name": item.get("metadata", {}).get("name", "unknown"),
-                    "namespace": item.get("metadata", {}).get("namespace", namespace),
-                    "status": get_status(item, resource_type),
-                    "age": get_age(item.get("metadata", {}).get("creationTimestamp", "")),
-                })
-        except json.JSONDecodeError:
-            continue
+        except json.JSONDecodeError as error:
+            raise RuntimeError(
+                f"kubectl returned invalid JSON for resource type {resource_type}: {error}"
+            ) from error
+
+        items = data.get("items", [])
+        for item in items:
+            resources.append({
+                "type": resource_type,
+                "name": item.get("metadata", {}).get("name", "unknown"),
+                "namespace": item.get("metadata", {}).get("namespace", namespace),
+                "status": get_status(item, resource_type),
+                "age": get_age(item.get("metadata", {}).get("creationTimestamp", "")),
+            })
 
     return resources
 
@@ -114,7 +117,11 @@ def main():
         sys.exit(1)
 
     namespace = args[0]
-    resources = get_all_resources_in_namespace(namespace)
+    try:
+        resources = get_all_resources_in_namespace(namespace)
+    except (FileNotFoundError, RuntimeError) as error:
+        print(f"Error: {error}", file=sys.stderr)
+        return 1
 
     if json_output:
         print(json.dumps(resources, indent=2))
@@ -130,6 +137,8 @@ def main():
         print("-" * 120)
         print(f"Total: {len(resources)} resources")
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -97,10 +97,10 @@ kubectl apply -f infrastructure/applicationset.yaml
 
 ```bash
 # List all resources in a namespace
-python list_namespace_resources.py <namespace> [--json]
+python scripts/list_namespace_resources.py <namespace> [--json]
 
 # Remove stuck namespace finalizers
-./remove-namespace-finalizers.sh <namespace>
+./scripts/remove-namespace-finalizers.sh <namespace>
 ```
 
 ## Key Conventions
