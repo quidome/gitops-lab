@@ -10,6 +10,7 @@ app:
   # Cilium Envoy runs on the three Kubernetes node addresses. Keep this list
   # limited to the proxies that connect directly to Pocket ID.
   trustProxy: "172.16.40.75/32,172.16.40.76/32,172.16.40.77/32"
+  encryptionKey: ""
   encryptionKeySecretName: pocket-id-secrets
   encryptionKeySecretKey: encryption-key
 
