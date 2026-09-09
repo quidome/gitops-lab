@@ -54,6 +54,8 @@ spec:
             - name: pocket-id-secrets
               mountPath: /run/secrets/pocket-id
               readOnly: true
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -64,3 +66,5 @@ spec:
             items:
               - key: {{ .Values.app.encryptionKeySecretKey }}
                 path: encryption-key
+        - name: tmp
+          emptyDir: {}
