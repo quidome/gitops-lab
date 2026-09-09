@@ -1,0 +1,64 @@
+fullnameOverride: pocket-id
+
+image:
+  repository: ghcr.io/pocket-id/pocket-id
+  tag: "v2.12.0"
+  pullPolicy: IfNotPresent
+
+app:
+  url: https://id.quido.me
+  # Cilium Envoy runs on the three Kubernetes node addresses. Keep this list
+  # limited to the proxies that connect directly to Pocket ID.
+  trustProxy: "172.16.40.75/32,172.16.40.76/32,172.16.40.77/32"
+  encryptionKeySecretName: pocket-id-secrets
+  encryptionKeySecretKey: encryption-key
+
+data:
+  mountPath: /app/data
+  storageClass: truenas-iscsi
+  accessMode: ReadWriteOnce
+  size: 5Gi
+
+service:
+  type: ClusterIP
+  port: 1411
+  targetPort: http
+
+httpRoute:
+  enabled: true
+  hostname: id.quido.me
+  gateway:
+    name: gateway-internal
+    namespace: networking
+
+strategy:
+  type: Recreate
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 256Mi
+  limits:
+    memory: 256Mi
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+probes:
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
