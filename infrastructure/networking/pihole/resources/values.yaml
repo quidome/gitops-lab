@@ -1,5 +1,6 @@
 dnsVip:
   name: pihole-dns
+  clusterIP: 10.43.203.19
   loadBalancerIP: 172.16.40.53
 
 routes:
