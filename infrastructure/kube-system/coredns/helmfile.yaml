@@ -1,0 +1,6 @@
+releases:
+  - name: coredns
+    namespace: kube-system
+    chart: ./resources
+    values:
+      - values.yaml

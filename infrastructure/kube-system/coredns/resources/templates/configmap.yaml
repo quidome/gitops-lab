@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: coredns-custom
+    app.kubernetes.io/part-of: coredns
+data:
+  quido-me.server: |
+    quido.me:53 {
+      errors
+      cache 30
+      forward . {{ .Values.internalDnsServer }}
+    }

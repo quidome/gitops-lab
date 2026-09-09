@@ -6,6 +6,7 @@ metadata:
     app: pihole
 spec:
   type: LoadBalancer
+  clusterIP: {{ .Values.dnsVip.clusterIP }}
   loadBalancerIP: {{ .Values.dnsVip.loadBalancerIP }}
   externalTrafficPolicy: Cluster
   ports:
