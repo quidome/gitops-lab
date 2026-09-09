@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pocket-id.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pocket-id.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  selector:
+    matchLabels:
+      {{- include "pocket-id.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "pocket-id.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: pocket-id
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          env:
+            - name: APP_URL
+              value: {{ .Values.app.url | quote }}
+            - name: TRUST_PROXY
+              value: {{ .Values.app.trustProxy | quote }}
+            - name: ENCRYPTION_KEY_FILE
+              value: /run/secrets/pocket-id/encryption-key
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            {{- toYaml .Values.probes.readiness | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            {{- toYaml .Values.probes.liveness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.data.mountPath }}
+            - name: pocket-id-secrets
+              mountPath: /run/secrets/pocket-id
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "pocket-id.fullname" . }}-data
+        - name: pocket-id-secrets
+          secret:
+            secretName: {{ .Values.app.encryptionKeySecretName }}
+            items:
+              - key: {{ .Values.app.encryptionKeySecretKey }}
+                path: encryption-key
