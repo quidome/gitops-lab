@@ -9,7 +9,7 @@ Pocket ID is the internal OIDC provider for the homelab.
 - **Gateway:** `gateway-internal`
 - **Image:** `ghcr.io/pocket-id/pocket-id:v2.12.0`
 - **Data:** SQLite under `/app/data` on `truenas-iscsi`
-- **Secret source:** Vault through the existing `ClusterSecretStore` named `vault`
+- **Secret source:** Vault through Helmfile Vals during Argo CD rendering
 
 Pocket ID is intentionally exposed only through the internal Gateway. The wildcard certificate already covers `id.quido.me`; the HTTPRoute is also an input to the existing ExternalDNS configuration.
 
@@ -29,7 +29,7 @@ encryption-key
 
 Generate the value outside Git with a secure random generator. Do not print it in logs, commit it, or rotate it casually. Losing or changing this key can make encrypted Pocket ID data unrecoverable.
 
-The ExternalSecret renders the Kubernetes Secret `pocket-id-secrets`. The workload reads the key from a mounted file using `ENCRYPTION_KEY_FILE`.
+Helmfile Vals fetches the key during Argo CD rendering and renders the Kubernetes Secret `pocket-id-secrets`. The workload reads the key from a mounted file using `ENCRYPTION_KEY_FILE`. The key is never stored in Git.
 
 ## First enrollment
 
@@ -81,8 +81,8 @@ Do not disable these paths after OIDC is enabled.
 Render and validate locally before GitOps promotion:
 
 ```bash
-helmfile -f infrastructure/security/pocket-id/helmfile.yaml lint
-helmfile -f infrastructure/security/pocket-id/helmfile.yaml template
+helmfile -f infrastructure/security/pocket-id/helmfile.yaml.gotmpl lint
+helmfile -f infrastructure/security/pocket-id/helmfile.yaml.gotmpl template
 ```
 
 Inspect the rendered output for:
