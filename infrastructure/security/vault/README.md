@@ -7,7 +7,7 @@ HashiCorp Vault deployment for UI-based secret management.
 - **Namespace**: `security`
 - **Storage**: 1Gi iSCSI (truenas-iscsi)
 - **Mode**: Standalone
-- **UI Access**: http://vault.quido.me
+- **UI Access**: https://vault.quido.me
 
 ## Initial Setup
 
@@ -39,6 +39,12 @@ kubectl exec -n security vault-0 -- vault status
 ```
 
 Look for `Sealed: false`
+
+## Pocket ID OIDC
+
+Vault supports native Pocket ID OIDC authentication. The auth backend and identity mappings are intentionally bootstrapped manually because a GitOps job would require a privileged Vault management token in Kubernetes.
+
+See [OIDC-SETUP.md](OIDC-SETUP.md) for client settings, the one-time bootstrap procedure, validation, and break-glass recovery.
 
 ## Token & User Management
 
