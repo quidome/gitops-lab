@@ -1,0 +1,45 @@
+---
+environments:
+  default:
+    values:
+      - oidcClientID: {{ fetchSecretValue "ref+vault://kv/gitops/argocd#oidc-client-id" | quote }}
+        oidcClientSecret: {{ fetchSecretValue "ref+vault://kv/gitops/argocd#oidc-client-secret" | quote }}
+---
+repositories:
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+
+releases:
+  - name: argocd
+    namespace: gitops
+    chart: argo/argo-cd
+    version: 10.8.2
+    values:
+      - values.yaml
+      - configs:
+          cm:
+            url: https://argocd.quido.me
+            oidc.config: |
+              name: Pocket ID
+              issuer: https://id.quido.me
+              clientID: {{ .Values.oidcClientID }}
+              clientSecret: $oidc.pocketid.clientSecret
+              requestedScopes:
+                - openid
+                - profile
+                - email
+                - groups
+          rbac:
+            policy.default: ""
+            scopes: '[groups, email]'
+            policy.csv: |
+              g, argocd-admins, role:admin
+              g, argocd-readonly, role:readonly
+          secret:
+            extra:
+              oidc.pocketid.clientSecret: {{ .Values.oidcClientSecret | quote }}
+  - name: argocd-resources
+    namespace: gitops
+    chart: ./resources
+    values:
+      - values.yaml
