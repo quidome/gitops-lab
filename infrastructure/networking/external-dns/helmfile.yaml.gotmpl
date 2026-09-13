@@ -11,7 +11,6 @@ releases:
       - values.yaml
       - extraArgs:
           - --pihole-server=http://pihole-a-web.networking.svc.cluster.local
-          - --pihole-api-version=6
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
             value: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
@@ -24,7 +23,6 @@ releases:
       - values.yaml
       - extraArgs:
           - --pihole-server=http://pihole-b-web.networking.svc.cluster.local
-          - --pihole-api-version=6
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
             value: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
@@ -37,7 +35,6 @@ releases:
       - values.yaml
       - extraArgs:
           - --pihole-server=http://pihole-c-web.networking.svc.cluster.local
-          - --pihole-api-version=6
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
             value: {{ fetchSecretValue "ref+vault://kv/networking/external-dns#EXTERNAL_DNS_PIHOLE_PASSWORD" | quote }}
