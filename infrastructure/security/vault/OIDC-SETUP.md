@@ -9,6 +9,8 @@ Do not commit or inject a root token, OIDC client secret, or generated user toke
 Create a confidential `Vault` OIDC client in Pocket ID with:
 
 - callback URL: `https://vault.quido.me/ui/vault/auth/oidc/oidc/callback`
+- post-logout redirect: none; the deployed Vault UI does not configure
+  RP-initiated logout
 - scopes: `openid profile email groups`
 - allowed groups: `vault-admins` and `vault-readonly`
 
@@ -111,6 +113,35 @@ vault_admin write identity/group-alias \
 5. Verify `userpass`, AppRole, and root-token recovery access still work.
 
 A Vault restart is not required after changing auth configuration.
+
+## Rotation, policy changes, and disablement
+
+Rotate the Vault OIDC client without creating an authentication gap:
+
+1. Create a replacement `Vault` client in Pocket ID and retain the current
+   client.
+2. Update `kv/security/vault` keys `oidc-client-id` and
+   `oidc-client-secret` with the replacement values without printing them.
+3. Re-run the `auth/oidc/config` command above and verify a Vault OIDC login
+   before revoking the old Pocket ID client.
+4. Revoke the old client only after both administrator fallback and the new
+   OIDC login work. Keep the previous values in the secure recovery record
+   until the change is accepted.
+
+Policy changes are explicit: update the `vault-readonly` policy or external
+identity-group mapping, then sign out and back in to test the resulting token.
+Never assign the root policy to an OIDC group.
+
+To disable OIDC after a failed or abandoned rollout, use a retained `userpass`
+or root-token session to run `vault_admin auth disable oidc`, remove the client
+from Pocket ID after recovery is verified, and leave `userpass`, AppRole, root
+recovery, and unseal-key access enabled. Restore the previous client values if
+OIDC is being rolled back rather than abandoned.
+
+The Argo CD Vals workflow and existing workloads authenticate to Vault with
+their existing Vault token/AppRole paths; they do not authenticate through the
+Pocket ID OIDC mount. A Pocket ID outage therefore must not prevent secret
+retrieval while Vault and those credentials remain healthy.
 
 ## Recovery
 

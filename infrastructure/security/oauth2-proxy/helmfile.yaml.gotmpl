@@ -1,0 +1,21 @@
+---
+environments:
+  default:
+    values:
+      - clientID: {{ fetchSecretValue "ref+vault://kv/security/oauth2-proxy-karma#oidc-client-id" | quote }}
+        clientSecret: {{ fetchSecretValue "ref+vault://kv/security/oauth2-proxy-karma#oidc-client-secret" | quote }}
+        cookieSecret: {{ fetchSecretValue "ref+vault://kv/security/oauth2-proxy-karma#cookie-secret" | quote }}
+---
+repositories: []
+
+releases:
+  - name: karma-sso
+    namespace: security
+    chart: ./helm-chart
+    wait: true
+    timeout: 300
+    values:
+      - oidc:
+          clientID: {{ .Values.clientID | quote }}
+          clientSecret: {{ .Values.clientSecret | quote }}
+        cookieSecret: {{ .Values.cookieSecret | quote }}

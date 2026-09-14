@@ -1,0 +1,85 @@
+fullnameOverride: karma-sso
+
+image:
+  repository: quay.io/oauth2-proxy/oauth2-proxy
+  tag: "v7.15.3"
+  pullPolicy: IfNotPresent
+
+oidc:
+  issuerURL: https://id.quido.me
+  clientID: ""
+  clientSecret: ""
+  redirectURL: https://alerts-sso.quido.me/oauth2/callback
+  # Reuse the initially approved Pocket ID groups for the POC. A user must
+  # belong to one of these groups even though the direct Karma route remains
+  # available during testing.
+  scope: openid profile email groups
+  allowedGroups:
+    - argocd-admins
+    - argocd-readonly
+  whitelistDomains:
+    - alerts-sso.quido.me
+
+cookieSecret: ""
+
+proxy:
+  httpAddress: 0.0.0.0:4180
+  upstreams:
+    - http://karma.observability.svc.cluster.local:80/
+  # Cilium Gateway Envoy runs on these node addresses in this cluster. Verify
+  # the source address with logs before promoting the proxy to a primary route.
+  trustedProxyIPs:
+    - 172.16.40.75/32
+    - 172.16.40.76/32
+    - 172.16.40.77/32
+  cookieName: __Secure-karma_sso
+  cookieSameSite: lax
+
+secret:
+  name: karma-sso-secrets
+  clientIDKey: client-id
+  clientSecretKey: client-secret
+  cookieSecretKey: cookie-secret
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: http
+
+httpRoute:
+  enabled: true
+  hostname: alerts-sso.quido.me
+  gateway:
+    name: gateway-internal
+    namespace: networking
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 128Mi
+  limits:
+    memory: 128Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+probes:
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+  liveness:
+    initialDelaySeconds: 15
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3

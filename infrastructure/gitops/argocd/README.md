@@ -14,6 +14,7 @@ Pocket ID client settings:
 
 - **Issuer:** `https://id.quido.me`
 - **Callback:** `https://argocd.quido.me/auth/callback`
+- **Post-logout redirect:** `https://argocd.quido.me`
 - **Scopes:** `openid profile email groups`
 - **Client type:** confidential
 

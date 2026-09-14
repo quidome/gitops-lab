@@ -1,0 +1,6 @@
+apiVersion: v2
+name: karma-sso
+description: Dedicated oauth2-proxy proof of concept for the Karma dashboard
+type: application
+version: 0.1.0
+appVersion: "v7.15.3"

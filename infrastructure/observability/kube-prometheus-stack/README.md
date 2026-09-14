@@ -9,13 +9,14 @@ https://grafana.quido.me
 ## Pocket ID OIDC
 
 Grafana uses its native Generic OAuth integration. It is not placed behind an
-OIDC proxy. The current Grafana image is `docker.io/grafana/grafana:13.2.1`
-from kube-prometheus-stack `90.0.0`.
+OIDC proxy. The current kube-prometheus-stack release is chart `91.0.0`; the chart
+selects the Grafana image unless an explicit image override is added.
 
 Create a confidential Pocket ID client with:
 
 - **Issuer:** `https://id.quido.me`
 - **Redirect URI:** `https://grafana.quido.me/login/generic_oauth`
+- **Post-logout redirect:** `https://grafana.quido.me/login`
 - **Scopes:** `openid profile email`
 - **Groups:** not requested; Grafana role mapping is intentionally not enabled
 

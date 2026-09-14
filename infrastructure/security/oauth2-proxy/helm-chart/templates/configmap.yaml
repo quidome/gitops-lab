@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "karma-sso.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "karma-sso.labels" . | nindent 4 }}
+data:
+  oauth2-proxy.cfg: |
+    http_address = {{ .Values.proxy.httpAddress | quote }}
+    provider = "oidc"
+    oidc_issuer_url = {{ .Values.oidc.issuerURL | quote }}
+    redirect_url = {{ .Values.oidc.redirectURL | quote }}
+    scope = {{ .Values.oidc.scope | quote }}
+    allowed_groups = {{ .Values.oidc.allowedGroups | toJson }}
+    whitelist_domains = {{ .Values.oidc.whitelistDomains | toJson }}
+    upstreams = {{ .Values.proxy.upstreams | toJson }}
+    reverse_proxy = true
+    trusted_proxy_ips = {{ .Values.proxy.trustedProxyIPs | toJson }}
+    force_https = true
+    cookie_name = {{ .Values.proxy.cookieName | quote }}
+    cookie_secure = true
+    cookie_httponly = true
+    cookie_samesite = {{ .Values.proxy.cookieSameSite | quote }}
+    skip_provider_button = true
+    pass_basic_auth = false
+    pass_user_headers = false
+    pass_access_token = false
+    pass_authorization_header = false
+    skip_auth_strip_headers = true
