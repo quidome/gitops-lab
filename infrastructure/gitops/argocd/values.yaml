@@ -3,6 +3,11 @@ codebergRepoCreds:
   username: ref+vault://kv/gitops/argocd#username
   password: ref+vault://kv/gitops/argocd#password
 
+githubRepoCreds:
+  url: https://github.com/quidome
+  username: quidome
+  password: ref+vault://kv/gitops/argocd#github-token
+
 configs:
   cm:
     create: true
