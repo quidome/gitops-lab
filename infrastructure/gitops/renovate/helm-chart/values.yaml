@@ -35,8 +35,7 @@ securityContext:
 
 renovate:
   config:
-    platform: forgejo
-    endpoint: https://codeberg.org/api/v1
+    platform: github
     onboarding: true
     requireConfig: optional
     dependencyDashboard: true
