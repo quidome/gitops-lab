@@ -1,15 +1,15 @@
 fullnameOverride: team
 
 # Images are pinned to the multi-architecture OCI indexes published for the
-# verified Team source revision 8936d2f.
+# verified Team source revision ec35e78.
 image:
   repository: ghcr.io/quidome/team
-  digest: sha256:5986a5a441f3a30b90c40d3e14a1837a835acccdbd725e03f2c60984f33b9912
+  digest: sha256:852068913108c2b7b252c0cf693813a8b1a531fdb5932f0b017db058a120ece2
   pullPolicy: IfNotPresent
 
 migrationImage:
   repository: ghcr.io/quidome/team
-  digest: sha256:9caf850a1aaab72e1cb01b990e1861647380b7a19444afd336e601768f325e07
+  digest: sha256:beb51b0d8b383c1293a352eedd114433599800cc4e3b19d1c8ad504c1c0c092e
   pullPolicy: IfNotPresent
 
 # Deployment-time values. Secret values are supplied by Helmfile/Vals.

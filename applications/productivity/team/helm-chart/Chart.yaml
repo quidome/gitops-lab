@@ -3,4 +3,4 @@ name: team
 description: Team coordinator runtime and database migration workload
 type: application
 version: 0.1.0
-appVersion: "sha-8936d2f"
+appVersion: "sha-ec35e78"
