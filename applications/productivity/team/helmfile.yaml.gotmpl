@@ -1,0 +1,34 @@
+environments:
+  default:
+    values:
+      - databaseUrl: {{ fetchSecretValue "ref+vault://kv/productivity/team#DATABASE_URL" | quote }}
+      - oidcClientSecret: {{ fetchSecretValue "ref+vault://kv/productivity/team#OIDC_CLIENT_SECRET" | quote }}
+      - postgresPassword: {{ fetchSecretValue "ref+vault://kv/productivity/team#POSTGRES_PASSWORD" | quote }}
+      - sessionSecret: {{ fetchSecretValue "ref+vault://kv/productivity/team#SESSION_SECRET" | quote }}
+
+---
+releases:
+  - name: team-postgresql
+    namespace: productivity
+    chart: ./postgresql-chart
+    wait: true
+    timeout: 900
+    values:
+      - postgres:
+          password: {{ .Values.postgresPassword | quote }}
+  - name: team
+    namespace: productivity
+    needs:
+      - productivity/team-postgresql
+    chart: ./helm-chart
+    wait: true
+    timeout: 900
+    values:
+      - databaseUrl: {{ .Values.databaseUrl | quote }}
+        oidcClientSecret: {{ .Values.oidcClientSecret | quote }}
+        sessionSecret: {{ .Values.sessionSecret | quote }}
+  - name: team-resources
+    namespace: productivity
+    needs:
+      - productivity/team
+    chart: ./resources

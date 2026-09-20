@@ -1,0 +1,75 @@
+fullnameOverride: team
+
+# Images are pinned to the multi-architecture OCI indexes published for the
+# verified Team source revision 8936d2f.
+image:
+  repository: ghcr.io/quidome/team
+  digest: sha256:5986a5a441f3a30b90c40d3e14a1837a835acccdbd725e03f2c60984f33b9912
+  pullPolicy: IfNotPresent
+
+migrationImage:
+  repository: ghcr.io/quidome/team
+  digest: sha256:9caf850a1aaab72e1cb01b990e1861647380b7a19444afd336e601768f325e07
+  pullPolicy: IfNotPresent
+
+# Deployment-time values. Secret values are supplied by Helmfile/Vals.
+databaseUrl: ""
+oidcClientSecret: ""
+sessionSecret: ""
+
+origin: https://team.quido.me
+oidc:
+  issuerUrl: https://id.quido.me
+  clientId: team-coordinator
+sessionTtlSeconds: 28800
+
+replicaCount: 1
+
+service:
+  port: 3000
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 256Mi
+
+migrationResources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 256Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+probes:
+  liveness:
+    initialDelaySeconds: 10
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+migration:
+  backoffLimit: 2
+  activeDeadlineSeconds: 900

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: team-resources
+description: Gateway resources for the Team coordinator
+type: application
+version: 0.1.0
