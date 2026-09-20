@@ -84,10 +84,10 @@ Do not deploy directly with `helm install`, `helm upgrade`, or `kubectl apply`. 
   - [x] 3.5 Document secret rotation for the database credential, Pocket ID client secret, and session secret, including expected session invalidation.
 
 - [ ] 4.0 Provision and secure PostgreSQL connectivity
-  - [ ] 4.1 Create or select the production database, role, and schema required by the Team migrations.
-  - [ ] 4.2 Store the complete PostgreSQL connection string in the approved secret workflow.
+  - [x] 4.1 Create or select the production database, role, and schema required by the Team migrations.
+  - [x] 4.2 Store the complete PostgreSQL connection string in the approved secret workflow.
   - [x] 4.3 Add only the required NetworkPolicy and database network access.
-  - [ ] 4.4 Run the migration job against the real PostgreSQL service and verify readiness afterward.
+  - [x] 4.4 Run the migration job against the real PostgreSQL service and verify readiness afterward.
   - [ ] 4.5 Confirm scheduled backups, retention, isolated restore verification, and ownership outside the application chart.
 
 - [ ] 5.0 Expose the application through HTTPS and Pocket ID
@@ -97,13 +97,13 @@ Do not deploy directly with `helm install`, `helm upgrade`, or `kubectl apply`. 
   - [ ] 5.4 Register the exact `${ORIGIN}/auth/callback` redirect URI in Pocket ID.
   - [ ] 5.5 Configure the Pocket ID issuer, client ID, client secret, and required scopes.
   - [ ] 5.6 Confirm unauthenticated application routes redirect to Pocket ID while liveness remains usable for infrastructure health checks.
-  - [ ] 5.7 Verify readiness returns HTTP 200 only when PostgreSQL is available.
+  - [x] 5.7 Verify readiness returns HTTP 200 only when PostgreSQL is available.
 
 - [ ] 6.0 Validate, roll out, and document operations
   - [x] 6.1 Run Helmfile lint and render checks for the changed component.
   - [x] 6.2 Run local Helm chart lint/template checks and static YAML/Kubernetes schema validation.
   - [x] 6.3 Review the final diff for plaintext secrets, `localhost` database URLs, mutable image tags, public exposure mistakes, and missing probes/resources.
-  - [ ] 6.4 Promote through Argo CD only after review and image verification.
+  - [x] 6.4 Promote through Argo CD only after review and image verification.
   - [ ] 6.5 Verify migration completion, runtime health, HTTPS, Pocket ID login, protected API access, and clean shutdown behavior.
   - [ ] 6.6 Run the Team production smoke check against the deployed HTTPS origin.
   - [ ] 6.7 Document rollback to the previous image and the database migration recovery boundary.
