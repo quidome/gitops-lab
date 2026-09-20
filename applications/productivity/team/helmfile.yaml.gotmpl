@@ -3,6 +3,7 @@ environments:
     values:
       - databaseUrl: {{ fetchSecretValue "ref+vault://kv/productivity/team#DATABASE_URL" | quote }}
       - oidcClientId: {{ fetchSecretValue "ref+vault://kv/productivity/team#OIDC_CLIENT_ID" | quote }}
+      - oidcIssuerUrl: {{ fetchSecretValue "ref+vault://kv/productivity/team#OIDC_ISSUER_URL" | quote }}
       - oidcClientSecret: {{ fetchSecretValue "ref+vault://kv/productivity/team#OIDC_CLIENT_SECRET" | quote }}
       - postgresPassword: {{ fetchSecretValue "ref+vault://kv/productivity/team#POSTGRES_PASSWORD" | quote }}
       - sessionSecret: {{ fetchSecretValue "ref+vault://kv/productivity/team#SESSION_SECRET" | quote }}
@@ -27,6 +28,7 @@ releases:
     values:
       - databaseUrl: {{ .Values.databaseUrl | quote }}
         oidc:
+          issuerUrl: {{ .Values.oidcIssuerUrl | quote }}
           clientId: {{ .Values.oidcClientId | quote }}
         oidcClientSecret: {{ .Values.oidcClientSecret | quote }}
         sessionSecret: {{ .Values.sessionSecret | quote }}

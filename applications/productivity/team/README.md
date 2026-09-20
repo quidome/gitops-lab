@@ -39,23 +39,22 @@ Required keys:
   The password must be URL-encoded; generating it as hex avoids encoding issues.
 - `POSTGRES_PASSWORD` - the same password supplied to the PostgreSQL
   StatefulSet. Keep this synchronized with `DATABASE_URL`.
+- `OIDC_ISSUER_URL` - Pocket ID issuer URL.
 - `OIDC_CLIENT_ID` - Pocket ID client identifier.
 - `OIDC_CLIENT_SECRET` - Pocket ID client secret.
 - `SESSION_SECRET` - random value of at least 32 characters.
 
 Reviewable runtime defaults are defined in `helm-chart/values.yaml`; the deployed
-OIDC client identifier is supplied from Vault so Pocket ID client registrations can
-use their actual identifier:
+OIDC issuer URL and client identifier are supplied from Vault:
 
 - `ORIGIN=https://team.quido.me`
-- `OIDC_ISSUER_URL=https://id.quido.me`
 - `SESSION_TTL_SECONDS=28800`
 - `DEV_AUTH_BYPASS=false`
 
 The runtime chart stores the three sensitive Vault-provided values in a
 Kubernetes Secret as base64-encoded data. The runtime consumes all three via
-`valueFrom`, while the migration Job consumes only `DATABASE_URL`. `OIDC_CLIENT_ID`
-is rendered as a direct runtime environment variable. The PostgreSQL chart stores
+`valueFrom`, while the migration Job consumes only `DATABASE_URL`. `OIDC_ISSUER_URL` and `OIDC_CLIENT_ID` are rendered as direct runtime environment
+variables. The PostgreSQL chart stores
 `POSTGRES_PASSWORD` in its own Secret. Vault-backed changes alter the runtime
 checksum and trigger a rollout.
 
@@ -68,9 +67,10 @@ Create the Pocket ID client and store its exact client identifier in
 - Scope: `openid`
 - Issuer: `https://id.quido.me`
 
-Store the client identifier and generated client secret at
-`kv/productivity/team` under `OIDC_CLIENT_ID` and `OIDC_CLIENT_SECRET`. Do not
-record the client secret in Git or operational notes.
+Store the issuer URL, client identifier, and generated client secret at
+`kv/productivity/team` under `OIDC_ISSUER_URL`, `OIDC_CLIENT_ID`, and
+`OIDC_CLIENT_SECRET`. Do not record the client secret in Git or operational
+notes.
 
 ## PostgreSQL ownership and recovery boundary
 
