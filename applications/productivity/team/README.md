@@ -6,9 +6,9 @@ repository ApplicationSet and Helmfile plugin.
 ## Deployment contract
 
 - Source repository: https://github.com/quidome/team
-- Verified source revision: `ec35e78` (`feat(navigation): add icon-based active section navigation`)
-- Runtime image: `ghcr.io/quidome/team@sha256:852068913108c2b7b252c0cf693813a8b1a531fdb5932f0b017db058a120ece2`
-- Migration image: `ghcr.io/quidome/team@sha256:beb51b0d8b383c1293a352eedd114433599800cc4e3b19d1c8ad504c1c0c092e`
+- Verified source revision: `76e1b1d` (`refactor: replace program with events`)
+- Runtime image: `ghcr.io/quidome/team@sha256:c1ac7d7d8915cf88668418147cf19ad6ca5058c9c171709dec1e353ac056a40c`
+- Migration image: `ghcr.io/quidome/team@sha256:07c15d909ee57e8adf424bea1a5abb9e2210baf90d1c5530d9eaf50e43e2cab5`
 - PostgreSQL chart: local `postgresql-chart`
 - PostgreSQL image: `docker.io/library/postgres@sha256:3c5c8892d184f738f4fe282d14ddaa613a38f00f4189d2d94725ebe6f2909ddb` (official `postgres:16-alpine`)
 - Service: `team.productivity.svc.cluster.local:3000`
