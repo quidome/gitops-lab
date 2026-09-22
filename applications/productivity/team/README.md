@@ -6,9 +6,8 @@ repository ApplicationSet and Helmfile plugin.
 ## Deployment contract
 
 - Source repository: https://github.com/quidome/team
-- Verified source revision: `76e1b1d` (`refactor: replace program with events`)
-- Runtime image: `ghcr.io/quidome/team@sha256:c1ac7d7d8915cf88668418147cf19ad6ca5058c9c171709dec1e353ac056a40c`
-- Migration image: `ghcr.io/quidome/team@sha256:07c15d909ee57e8adf424bea1a5abb9e2210baf90d1c5530d9eaf50e43e2cab5`
+- Runtime image: `ghcr.io/quidome/team:latest` (dev phase — see below)
+- Migration image: `ghcr.io/quidome/team:latest-migration` (dev phase — see below)
 - PostgreSQL chart: local `postgresql-chart`
 - PostgreSQL image: `docker.io/library/postgres@sha256:3c5c8892d184f738f4fe282d14ddaa613a38f00f4189d2d94725ebe6f2909ddb` (official `postgres:16-alpine`)
 - Service: `team.productivity.svc.cluster.local:3000`
@@ -17,7 +16,24 @@ repository ApplicationSet and Helmfile plugin.
 - Public origin: `https://team.quido.me`
 - Gateway: `networking/gateway-internal`
 
-The runtime digest and migration digest are separate OCI indexes published from
+### Dev-phase image tracking
+
+While the app is under active development, `image.tag`/`migrationImage.tag` in
+`helm-chart/values.yaml` track the mutable `latest`/`latest-migration` GHCR
+tags with `pullPolicy: Always`, instead of pinning to a digest. This means the
+Deployment/Job specs never change between image pushes, so a plain
+`kubectl rollout restart deployment/team -n productivity` (or deleting the
+pod) is enough to pick up a newly published image — no commit/sync required.
+`Always` still checks the registry's current digest for the tag on every pod
+start and only re-pulls layers if it changed.
+
+Before production use, switch back to digest pinning (see git history prior
+to the dev-phase change for the pattern: `image.digest` /
+`migrationImage.digest`, resolved from the GHCR index digest for a specific
+source revision, with `pullPolicy: IfNotPresent`) so the deployed contents are
+verifiable from git alone and rollouts go through Argo CD review.
+
+The runtime image and migration image are separate OCI indexes published from
 the same source revision. The Secret is applied at sync wave `-2`, then the
 migration runs as an Argo CD `Sync` hook at wave `-1`; it must complete before
 the Deployment at wave `0` is rolled out. Failed migration hooks remain for

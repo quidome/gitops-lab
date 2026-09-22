@@ -1,16 +1,17 @@
 fullnameOverride: team
 
-# Images are pinned to the multi-architecture OCI indexes published for the
-# verified Team source revision 76e1b1d.
+# Dev phase: tracks the mutable `latest` tag with pullPolicy Always so a plain
+# `kubectl rollout restart` (or pod delete) always picks up whatever is newest
+# on GHCR. Switch back to digest pinning (see git history) before production.
 image:
   repository: ghcr.io/quidome/team
-  digest: sha256:c1ac7d7d8915cf88668418147cf19ad6ca5058c9c171709dec1e353ac056a40c
-  pullPolicy: IfNotPresent
+  tag: latest
+  pullPolicy: Always
 
 migrationImage:
   repository: ghcr.io/quidome/team
-  digest: sha256:07c15d909ee57e8adf424bea1a5abb9e2210baf90d1c5530d9eaf50e43e2cab5
-  pullPolicy: IfNotPresent
+  tag: latest-migration
+  pullPolicy: Always
 
 # Deployment-time values. Secret values are supplied by Helmfile/Vals.
 databaseUrl: ""

@@ -25,7 +25,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: migration
-          image: "{{ .Values.migrationImage.repository }}@{{ .Values.migrationImage.digest }}"
+          image: "{{ .Values.migrationImage.repository }}:{{ .Values.migrationImage.tag }}"
           imagePullPolicy: {{ .Values.migrationImage.pullPolicy }}
           securityContext:
             allowPrivilegeEscalation: {{ .Values.containerSecurityContext.allowPrivilegeEscalation }}
