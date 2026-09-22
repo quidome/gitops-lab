@@ -24,6 +24,10 @@ oidc:
   clientId: team-coordinator
 sessionTtlSeconds: 28800
 
+# Migrations run in an init container on every pod start, unguarded against
+# concurrent execution. Safe at replicaCount 1; raising it means a rollout
+# could start multiple new pods together, each racing to migrate the same
+# database.
 replicaCount: 1
 
 service:
@@ -70,7 +74,3 @@ probes:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
-
-migration:
-  backoffLimit: 2
-  activeDeadlineSeconds: 900

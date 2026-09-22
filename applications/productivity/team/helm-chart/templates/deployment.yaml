@@ -29,6 +29,27 @@ spec:
       terminationGracePeriodSeconds: 30
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: migration
+          image: "{{ .Values.migrationImage.repository }}:{{ .Values.migrationImage.tag }}"
+          imagePullPolicy: {{ .Values.migrationImage.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: {{ .Values.containerSecurityContext.allowPrivilegeEscalation }}
+            readOnlyRootFilesystem: {{ .Values.containerSecurityContext.readOnlyRootFilesystem }}
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "team.fullname" . }}
+                  key: DATABASE_URL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.migrationResources | nindent 12 }}
       containers:
         - name: team
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

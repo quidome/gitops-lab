@@ -34,11 +34,20 @@ source revision, with `pullPolicy: IfNotPresent`) so the deployed contents are
 verifiable from git alone and rollouts go through Argo CD review.
 
 The runtime image and migration image are separate OCI indexes published from
-the same source revision. The Secret is applied at sync wave `-2`, then the
-migration runs as an Argo CD `Sync` hook at wave `-1`; it must complete before
-the Deployment at wave `0` is rolled out. Failed migration hooks remain for
-inspection and cause the sync to fail; a later sync removes the old hook before
-creating a new one.
+the same source revision. Migrations run as an `initContainer` on the
+Deployment's own pod template, so they apply before the `team` container
+starts on every pod (re)start — an Argo CD sync, a plain
+`kubectl rollout restart`, or a kubelet-initiated restart after a crash or
+node reschedule. A failed migration leaves the init container in
+`CrashLoopBackOff`; the pod never becomes Ready, `maxUnavailable: 0` keeps the
+previous pod serving traffic, and the rollout stalls until the failure is
+fixed. Inspect it with
+`kubectl logs -n productivity <pod> -c migration`.
+
+This assumes `replicaCount: 1`. At a higher replica count, a rollout can start
+several new pods together, each running its own migration init container
+concurrently against the same database — Drizzle's migrator has no built-in
+locking against that.
 
 ## Runtime configuration
 
@@ -69,7 +78,8 @@ OIDC issuer URL and client identifier are supplied from Vault:
 
 The runtime chart stores the three sensitive Vault-provided values in a
 Kubernetes Secret as base64-encoded data. The runtime consumes all three via
-`valueFrom`, while the migration Job consumes only `DATABASE_URL`. `OIDC_ISSUER_URL` and `OIDC_CLIENT_ID` are rendered as direct runtime environment
+`valueFrom`, while the migration init container consumes only `DATABASE_URL`.
+`OIDC_ISSUER_URL` and `OIDC_CLIENT_ID` are rendered as direct runtime environment
 variables. The PostgreSQL chart stores
 `POSTGRES_PASSWORD` in its own Secret. Vault-backed changes alter the runtime
 checksum and trigger a rollout.
@@ -92,8 +102,10 @@ notes.
 
 The Helmfile provisions a standalone PostgreSQL StatefulSet named
 `team-postgresql` with a 10Gi `truenas-iscsi` ReadWriteOnce volume, a ClusterIP
-service, and a NetworkPolicy allowing only the Team runtime and migration pods
-to connect. The database role and database are both `team`.
+service, and a NetworkPolicy allowing only Team pods (matched by label, so it
+covers the migration init container and the runtime container alike, since
+both run in the same pod) to connect. The database role and database are
+both `team`.
 
 Create these Vault keys before the first sync:
 
@@ -118,13 +130,14 @@ starting a compatible application image.
 
 1. Update the relevant value in `kv/productivity/team`.
 2. Trigger an Argo CD sync so Helmfile/Vals renders the new value.
-3. Verify the migration hook and runtime health before closing the change.
+3. Verify the migration init container and runtime health before closing the
+   change.
 
 `POSTGRES_PASSWORD` initializes the PostgreSQL role; changing the Kubernetes
 Secret alone does not change an already-initialized database role. Rotate the
 database credential during a maintenance window: change the PostgreSQL role
 password, update `POSTGRES_PASSWORD` and `DATABASE_URL` together in Vault, then
-sync and verify the migration hook and readiness. Retain the PostgreSQL volume
+sync and verify the migration init container and readiness. Retain the PostgreSQL volume
 through the change. Rotating `OIDC_CLIENT_SECRET` requires the replacement
 Pocket ID client to be registered before sync. Rotating `SESSION_SECRET`
 invalidates existing coordinator sessions; users must sign in again.
