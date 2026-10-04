@@ -9,22 +9,36 @@
       '/\\.ya?ml$/',
     ],
   },
+  minimumReleaseAge: '3 days',
+  // Registries such as lscr.io give no release date. Without this, the
+  // renovate/stability-days check stays pending forever for those images.
+  minimumReleaseAgeBehaviour: 'timestamp-optional',
+  internalChecksFilter: 'flexible',
+  // Lets a passed stability-days check count as green when no CI check runs.
+  internalChecksAsSuccess: true,
+  // config:recommended allows only 2 new PRs per hour; Renovate runs every 6 hours.
+  prHourlyLimit: 0,
   packageRules: [
     {
-      matchCategories: [
-        'docker',
-      ],
-      enabled: true,
-      groupName: 'docker dependencies',
-      matchUpdateTypes: ['minor', 'patch', 'digest', 'pin'],
+      // Match on manager, not datasource or category: helm-values (images in
+      // helm-chart/values.yaml) has no 'docker' category, and OCI Helm charts
+      // also use the docker datasource.
+      description: 'Bundle and automerge non-major container image updates',
+      matchManagers: ['helm-values'],
+      matchUpdateTypes: ['minor', 'patch', 'digest'],
+      groupName: 'container images',
       automerge: true,
       automergeType: 'pr',
     },
     {
-      matchManagers: ['helmv3', 'helm-values', 'kubernetes'],
+      description: 'Bundle non-major Helm chart and plain manifest updates for review',
+      matchManagers: ['helmfile', 'helmv3', 'kubernetes'],
+      matchUpdateTypes: ['minor', 'patch', 'digest'],
+      groupName: 'helm charts and manifests',
       automerge: false,
     },
     {
+      description: 'Review major updates one by one',
       matchUpdateTypes: ['major'],
       automerge: false,
     },
