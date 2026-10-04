@@ -143,6 +143,23 @@ Now you can manage secrets without using the root token!
 
 #### When the Vals Reader Token Expires
 
+Vault caps the token's 8760h period at the token auth mount's max TTL (768h),
+so the token lasts 32 days, not one year. The `gitops/vault-token-renew`
+CronJob (`infrastructure/gitops/argocd/resources/`) renews it every Monday.
+Check its last run with:
+
+```bash
+kubectl logs -n gitops -l app.kubernetes.io/name=vault-token-renew --tail=5
+```
+
+If renewal stopped for more than 32 days, the token is gone and must be
+refreshed with the script below. ArgoCD also caches the failed manifests, so
+hard-refresh the affected apps afterwards:
+
+```bash
+kubectl annotate application <app-name> -n gitops argocd.argoproj.io/refresh=hard --overwrite
+```
+
 **Symptoms:**
 - ArgoCD sync fails with "permission denied" or "invalid token"
 - Applications using Helmfile with `fetchSecretValue` fail to deploy

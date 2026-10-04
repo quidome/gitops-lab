@@ -1,0 +1,75 @@
+# Renews the vals-reader token in gitops/vault-token. Vault caps its period at
+# the token auth mount's max TTL (768h), so without renewal it expires after
+# 32 days and every Helmfile app fails with "invalid token". The token renews
+# itself through the default policy; no other credentials are needed.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-token-renew
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: vault-token-renew
+    app.kubernetes.io/part-of: argocd
+spec:
+  # Weekly leaves three more tries before the 32-day expiry
+  schedule: "17 4 * * 1"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      ttlSecondsAfterFinished: 604800
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: vault-token-renew
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 100
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: renew
+              image: hashicorp/vault:2.0.3
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  vault token renew >/dev/null
+                  printf 'Token renewed, expires at %s\n' "$(vault read -field=expire_time auth/token/lookup-self)"
+              env:
+                - name: VAULT_ADDR
+                  value: http://vault.security:8200
+                - name: VAULT_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: vault-token
+                      key: token
+                - name: HOME
+                  value: /tmp
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+                limits:
+                  memory: 64Mi
+          volumes:
+            - name: tmp
+              emptyDir: {}
