@@ -1,0 +1,5 @@
+apiVersion: v2
+name: vikunja-resources
+description: Gateway resources for Vikunja
+type: application
+version: 0.1.0

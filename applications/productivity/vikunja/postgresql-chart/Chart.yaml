@@ -1,0 +1,6 @@
+apiVersion: v2
+name: vikunja-postgresql
+description: PostgreSQL StatefulSet for Vikunja
+type: application
+version: 0.1.0
+appVersion: "16-alpine"

@@ -1,0 +1,45 @@
+environments:
+  default:
+    values:
+      - oidcClientId: {{ fetchSecretValue "ref+vault://kv/productivity/vikunja#OIDC_CLIENT_ID" | quote }}
+      - oidcClientSecret: {{ fetchSecretValue "ref+vault://kv/productivity/vikunja#OIDC_CLIENT_SECRET" | quote }}
+      - postgresPassword: {{ fetchSecretValue "ref+vault://kv/productivity/vikunja#POSTGRES_PASSWORD" | quote }}
+      - serviceSecret: {{ fetchSecretValue "ref+vault://kv/productivity/vikunja#SERVICE_SECRET" | quote }}
+
+---
+repositories:
+  - name: vikunja
+    url: ghcr.io/go-vikunja/helm-chart
+    oci: true
+
+releases:
+  - name: vikunja-postgresql
+    namespace: productivity
+    chart: ./postgresql-chart
+    wait: true
+    timeout: 900
+    values:
+      - postgres:
+          password: {{ .Values.postgresPassword | quote }}
+  - name: vikunja
+    namespace: productivity
+    needs:
+      - productivity/vikunja-postgresql
+    chart: vikunja/vikunja
+    version: 2.4.0
+    values:
+      - values.yaml
+      - vikunja:
+          secrets:
+            secret:
+              enabled: true
+              stringData:
+                VIKUNJA_DATABASE_PASSWORD: {{ .Values.postgresPassword | quote }}
+                VIKUNJA_SERVICE_SECRET: {{ .Values.serviceSecret | quote }}
+                VIKUNJA_AUTH_OPENID_PROVIDERS_POCKETID_CLIENTID: {{ .Values.oidcClientId | quote }}
+                VIKUNJA_AUTH_OPENID_PROVIDERS_POCKETID_CLIENTSECRET: {{ .Values.oidcClientSecret | quote }}
+  - name: vikunja-resources
+    namespace: productivity
+    needs:
+      - productivity/vikunja
+    chart: ./resources

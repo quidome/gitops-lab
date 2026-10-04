@@ -1,0 +1,108 @@
+# Values for the upstream chart (oci://ghcr.io/go-vikunja/helm-chart/vikunja).
+# The chart wraps the bjw-s common library chart v1.5.1; everything under
+# `vikunja:` is passed to it. Secret values are added by the helmfile.
+vikunja:
+  image:
+    repository: vikunja/vikunja
+    tag: "2.7.0"
+    pullPolicy: IfNotPresent
+
+  controller:
+    # Files volume is ReadWriteOnce (truenas-iscsi)
+    strategy: Recreate
+
+  automountServiceAccountToken: false
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 256Mi
+
+  # Liveness and readiness probes come from the chart. The first start runs
+  # all database migrations, so give it time before liveness applies.
+  probes:
+    startup:
+      enabled: true
+      custom: true
+      spec:
+        httpGet:
+          path: /api/v1/info
+          port: http
+        periodSeconds: 5
+        timeoutSeconds: 2
+        failureThreshold: 60
+
+  persistence:
+    # Task attachments and project backgrounds
+    data:
+      enabled: true
+      storageClass: truenas-iscsi
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      mountPath: /app/vikunja/files
+      retain: true
+    # SQLite volume from the chart defaults; PostgreSQL is used instead
+    database:
+      enabled: false
+    tmp:
+      enabled: true
+      type: emptyDir
+      mountPath: /tmp
+
+  # Exposed through an HTTPRoute in ./resources instead
+  ingress:
+    main:
+      enabled: false
+
+  # Mounted at /etc/vikunja/config.yml. Secret values come from environment
+  # variables (see helmfile), which Vikunja merges on top of this file.
+  configMaps:
+    config:
+      enabled: true
+      data:
+        config.yml: |
+          service:
+            publicurl: https://tasks.quido.me
+            timezone: Europe/Amsterdam
+            enableregistration: false
+          database:
+            type: postgres
+            host: vikunja-postgresql.productivity.svc.cluster.local:5432
+            user: vikunja
+            database: vikunja
+            sslmode: disable
+          auth:
+            local:
+              enabled: false
+            openid:
+              enabled: true
+              providers:
+                pocketid:
+                  name: Pocket ID
+                  authurl: https://id.quido.me
+                  scope: openid profile email
+
+  env:
+    VIKUNJA_DATABASE_TYPE: postgres
+
+  envFrom:
+    - secretRef:
+        name: vikunja-secret
