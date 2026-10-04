@@ -12,12 +12,13 @@ data:
     oidc_issuer_url = {{ .Values.oidc.issuerURL | quote }}
     redirect_url = {{ .Values.oidc.redirectURL | quote }}
     scope = {{ .Values.oidc.scope | quote }}
+    # Access is limited by allowed_groups; oauth2-proxy still requires an email rule.
+    email_domains = ["*"]
     allowed_groups = {{ .Values.oidc.allowedGroups | toJson }}
     whitelist_domains = {{ .Values.oidc.whitelistDomains | toJson }}
     upstreams = {{ .Values.proxy.upstreams | toJson }}
     reverse_proxy = true
     trusted_proxy_ips = {{ .Values.proxy.trustedProxyIPs | toJson }}
-    force_https = true
     cookie_name = {{ .Values.proxy.cookieName | quote }}
     cookie_secure = true
     cookie_httponly = true
