@@ -136,6 +136,15 @@ python scripts/list_namespace_resources.py <namespace> [--json]
       weight: 1
   ```
   Gateway API controllers normalize these fields with defaults; omitting them causes ArgoCD to detect drift between desired and live state.
+  Attach app routes to the `https` listener only, so plain HTTP is redirected to HTTPS by the `*-https-redirect` routes in `infrastructure/networking/gateway`:
+  ```yaml
+  parentRefs:
+    - name: gateway-internal
+      namespace: networking
+      sectionName: https
+      group: gateway.networking.k8s.io
+      kind: Gateway
+  ```
 
 ## Migration (Complete)
 

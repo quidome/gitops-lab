@@ -8,6 +8,7 @@ spec:
   parentRefs:
     - name: {{ .Values.httpRoute.gateway.name }}
       namespace: {{ .Values.httpRoute.gateway.namespace }}
+      sectionName: {{ .Values.httpRoute.gateway.sectionName }}
       group: gateway.networking.k8s.io
       kind: Gateway
   hostnames:

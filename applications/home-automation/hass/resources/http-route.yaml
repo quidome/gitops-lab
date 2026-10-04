@@ -10,6 +10,7 @@ spec:
     kind: Gateway
     name: gateway-internal
     namespace: networking
+    sectionName: https
   rules:
   - backendRefs:
     - group: ""
