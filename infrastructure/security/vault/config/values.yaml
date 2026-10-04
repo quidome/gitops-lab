@@ -23,3 +23,4 @@ httpRoute:
   gateway:
     name: gateway-internal
     namespace: networking
+    sectionName: https

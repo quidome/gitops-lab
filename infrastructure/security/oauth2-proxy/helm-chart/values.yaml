@@ -52,6 +52,7 @@ httpRoute:
   gateway:
     name: gateway-internal
     namespace: networking
+    sectionName: https
 
 resources:
   requests:
