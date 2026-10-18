@@ -194,7 +194,7 @@ Choices of the operator (2026-10-18):
 | `age` installed from Alpine at each run (option A) | No new image pipeline now | No; technical debt |
 | Everything in the existing PostgreSQL chart, behind `backup.enabled` | The chart owns the data; no new ArgoCD application | No |
 | Alert severity `critical` | Only `critical` reaches the operator now | No |
-| 02:30 Dutch time | Not at the same time as the team app's nightly reading at 03:00 | No |
+| 01:30 Dutch time (was 02:30, changed after build review R1) | Not at the same time as the team app's nightly reading at 03:00, and outside 02:00–03:00, which the clock change skips or repeats | No |
 
 ## Not in scope
 - An off-site copy outside TrueNAS (backlog).
@@ -267,8 +267,208 @@ Choices of the operator (2026-10-18):
 - 2026-10-18, step 1: the pod has `fsGroup: 999` (with `fsGroupChangePolicy: OnRootMismatch`) from the start, not only as the fallback for the NFS write test. Reason: the password file is mounted with mode 0440, and without `fsGroup` user 999 cannot read it (the database pod has `fsGroup: 999` for the same reason).
 - 2026-10-18, step 1: `backup.installImage` also has `tag: "3.24.2"`, and the image is `repository:tag@digest`. Reason: the spec says Renovate updates the digest, and the Renovate Helm values manager needs a tag for that.
 - 2026-10-18, step 1: the delete line uses `printf '%s\n' /backup/team-*.dump.age` instead of `ls -1 …` (shellcheck SC2012). Same result, tested.
+- 2026-10-18, after build review R1: the schedule is `30 1 * * *` (01:30), not 02:30. Reason: 02:30 does not exist on the night the clocks go forward, so the job skipped that night and the age alert fired (47 h gap). At 01:30 the longest normal gap is 25 h, under the 26 h limit.
+- 2026-10-18, after build review R2: recovery step 3a restores into a new database `team_restore` and then swaps the names, instead of `pg_restore --clean` on the running database. Reason: `--clean` fails when a later migration added a table that refers to a table in the dump.
+- 2026-10-18, after accept review A2: the job checks the dump with `pg_restore --file=/dev/null` instead of `pg_restore --list`. Reason: `--list` reads only the table of contents and passes a cut-off dump (tested).
 - None from a functional spec (technical change). The original request of this `/design` was the
 encrypted player names; the operator replaced it in Phase 0 with this backup (see the log in
 `change.md`).
 
 ## Review findings
+
+### Build review, 2026-10-18 (fresh agent, `/review build`)
+
+Input: mode `build` and this change folder. The arguments had nothing else. Scope: the branch
+`docs/team-database-recovery` against `main` only holds step 3 (product doc, README, progress).
+Steps 1 and 2 were already merged in #186 and #187, so I also reviewed those files as they are on
+`main` (`postgresql-chart/values.yaml`, `_helpers.tpl`, `templates/backup-*.yaml`,
+`templates/networkpolicy.yaml`). Read: the diff, `change.md`, this document, `docs/architecture.md`
+(still an empty template), `docs/decisions/` (empty), `AGENTS.md`, `docs/vision.md`,
+`docs/language.md`, `docs/backlog.md`. Nothing rebuilt that already exists: a search for
+`pg_dump|kind: CronJob|velero|volsync|volumesnapshot` in `infrastructure/` and `applications/`
+finds no other backup pattern.
+
+**R1 – Each spring the job skips a night and a false critical alert fires (medium).** The
+schedule `30 2 * * *` in `Europe/Amsterdam` falls in the hour that does not exist on the last Sunday
+of March, and in the hour that occurs twice on the last Sunday of October. Checked by a run: I fed
+the schedule to `github.com/robfig/cron/v3` v3.0.1 (the parser the Kubernetes CronJob controller uses)
+in a scratch program. Result: runs on 2027-03-27 and then 2027-03-29, with no run on 2027-03-28 (47 h
+gap), and two runs on 2026-10-25 (00:30 and 01:30 UTC). The 47 h gap is more than
+`maxAgeHours: 26`, so `TeamDatabaseBackupTooOld` sends a critical Pushover message each March
+(around 05:45 local time on the Sunday), and the operator learns to ignore this alert. The double
+run in October only costs one day of history (7 dumps then cover 6 days). Fix: pick a time outside
+02:00–03:00 that is still not 03:00 (for example `30 1 * * *` or `30 3 * * *`), and change the
+"02:30" in the product doc, the README and the decision table. The spec chose 02:30; the spec did
+not see this.
+
+**R2 – Restore with `--clean` fails when the live schema is newer than the dump (medium).** Recovery
+step 3a says that the app image "must be the same version as at the time of the dump, or newer",
+and 3b restores into a database that the *current* app image has already migrated. But
+`pg_restore --clean --if-exists` only drops the objects that are in the dump, without `CASCADE`. When a
+later migration adds a table with a foreign key to a table in the dump (the team migrations
+`0003`–`0006` already use `REFERENCES`, so this is the normal pattern), `DROP TABLE` of the
+referenced table fails, `--exit-on-error` stops, and `--single-transaction` rolls back. The result
+is safe (nothing changes) but the restore does not work, and the document gives no next step. How
+checked: a trace of the commands and PostgreSQL's drop behaviour; `grep -il references
+migrations/*` in `quidome/team` finds 4 of 6 migrations with foreign keys. Not run: my scratch
+reproduction in Docker was blocked by a permission check, so this is not reproduced. Test 10
+restored into an *empty* database, so the `--clean` path over existing tables was never exercised
+(see R3). Fix (docs only): in 3a and 3b, empty the database first (for example
+`dropdb`/`createdb` as user `team` inside `team-postgresql-0` while the app is at 0 replicas, or
+`DROP SCHEMA public CASCADE; CREATE SCHEMA public`), then `pg_restore` without `--clean`; and in 3b
+scale the app to 0 before the restore. Then try 3a once on a scratch database that already has the
+schema.
+
+**R3 – The progress claims are true, but one is broader than what was tested (low).** I reran:
+test 1 (rendering with `backup.enabled=false` equals the chart at `8886d60^`: identical), `helm lint`
+(pass), test 2 (`kubeconform -strict`, Kubernetes 1.33, datreeio CRD catalog: 8 valid), test 4
+(`shellcheck -s sh` on the script from the rendered CronJob: pass), test 5 (`promtool check rules`:
+2 rules, success). In the cluster (read-only `kubectl get`): CronJob and PVC
+`pvc-612723f9-…` exist, `lastSuccessfulTime` 2026-10-18T08:12:15Z, ArgoCD `team` Synced and Healthy.
+Tests 6–8, 10, 11 and the post-sync rule check: not checked (they need exec or the private key). The
+claim "Not run on live data: 3a and 3b. They use the same `pg_restore` command" is true about the
+command, but the part that 3a adds over test 10 – dropping existing objects – is exactly what was not
+run (R2). No test was found that cannot fail; test 9 and the `absent(…)` check show that the label
+selector matches the live metric.
+
+**R4 – The product doc and README call the dumps a "backup", against `docs/language.md` (low).**
+The word list: a backup is "stored outside the platform" and "has been shown to restore". The
+platform includes storage, so TrueNAS is inside it, and this document says so ("these dumps are not
+yet a full backup in the meaning of `docs/language.md`"). `docs/product/team-database.md` still
+says "The nightly backup makes sure that … a lost cluster does not lose them", and the README says
+"What is backed up", although it also says the dumps are on TrueNAS only. The product doc's "Errors and limits" says the dumps are on TrueNAS
+only, but a reader of the vision ("every service that keeps data has a backup") can take the team
+database as done. Checked by reading. Fix: say "nightly dump" (or keep the names of objects such
+as the CronJob and the alerts) and add one line under Purpose that this is not yet a backup in the
+word-list meaning until the off-site copy (backlog item 2) exists. The technical names
+(`team-postgresql-backup`, `TeamDatabaseBackup*`) can stay.
+
+**R5 – Small sibling and doc points (low).**
+- The recovery pod in step 1 uses `alpine:3.24.2` by tag only, while the chart pins the digest;
+  Renovate does not update Markdown, so the doc will drift from `backup.installImage`. Checked by
+  reading `renovate.json5` (managers `helm-values`, `helmfile`, `helmv3`, `kubernetes` on `*.yaml`).
+  Suggest: no tag in the doc ("the image in `backup.installImage`"), or accept the drift.
+- The `install-age` init container runs as root with all default capabilities; it does not drop
+  any. `apk add` and `cp` as root need few or none of them. Checked by reading the rendered
+  CronJob. Not tried with `drop: [ALL]`. Hardening only; the operator accepted option A.
+- The product doc points to `docs/changes/done/2026-10-18-team-database-backup/`, which exists only
+  after `/close`. True after Close; nothing to do if Close moves the folder.
+- The working tree of this branch also holds the unrelated, uncommitted product-workflow setup
+  (renames from `docs/specs/`, `docs/stories/`, `tasks/` and `docs/adrs/`, the new `AGENTS.md`
+  section "Way of working", `docs/vision.md` and others). Checked with `git status`. Keep it out of
+  the step 3 commit or pull request, or make it a separate commit with its own message.
+- Docs made false by the diff: none found. `AGENTS.md`, `README.md` and `docs/vision.md` do not
+  claim anything about the team backup; the vision's "Rough: backups … are not yet a solved and
+  checked part of the platform" stays true (R4). The decision record and the "Known technical debt"
+  line for `apk add age` (backlog item 3) are planned for Close; `docs/architecture.md` is still the
+  empty template.
+
+**Rules in `AGENTS.md`:** resources follow the rule (CPU requests only, memory request = limit) in
+both containers and in the recovery pod; the backup PVC is RWX on NFS with `Retain` and
+`resource-policy: keep` plus `Delete=false`; no new Vault paths; no HTTPRoute. No breach found.
+
+**Verdict:** no blocker. R1 and R2 should be fixed before Close (R1 is a one-line value change plus
+docs; R2 is a docs change and one scratch try). R3–R5 are notes.
+
+**Builder's answers (2026-10-18), branch `fix/team-database-backup-review`:**
+- R1 – fixed: `backup.schedule` is `30 1 * * *` with a comment why; product doc, README and the decision table say 01:30. The longest normal gap is now 25 h (October, Sunday to Monday), under the 26 h limit. Sync check: open until the PR is merged.
+- R2 – fixed and tested. First reproduced in the scratch namespace `team-restore-test`: a database with the dump's schema plus a table of a "later migration" with a foreign key to `players`; the old command `pg_restore --clean --if-exists --single-transaction --exit-on-error` stopped with `cannot drop constraint players_pkey … Use DROP ... CASCADE`, exit 1, nothing changed. Then the new 3a steps against the same database (one row changed first): `createdb team_restore`, `pg_restore --single-transaction --exit-on-error` into it, `ALTER DATABASE … RENAME` swap: all ok, and the restored `team` equals the live database in the MD5 checksum of all 13 tables; `dropdb team_old` ok. A broken dump into `team_restore` fails and `team` keeps its 14 players. The dump for this test was streamed from the live `pg_dump` into the scratch pod's memory volume (never on the workstation disk); decryption was already shown by test 10. 3b now says that 3a scales the app to 0 first. Scratch namespace deleted.
+- R3 – no change needed: the claim in the product doc now says what was tested and what was not.
+- R4 – fixed: the product doc and README say "nightly dump", and the Purpose says that the dumps are not yet a backup in the meaning of `docs/language.md` until the off-site copy exists. Object names (`team-postgresql-backup`, `TeamDatabaseBackup*`, "backup volume") stay.
+- R5.1 – fixed: step 1 of the recovery steps reads the image from `backup.installImage` in `values.yaml` with `yq` (tag and digest), so it cannot drift. Checked with `kubectl run --dry-run=client`: image `alpine:3.24.2@sha256:294b68…`, user 999, PVC `team-postgresql-backup`.
+- R5.2 – not fixed: `apk add` needs root to install the package, the container runs for a few seconds, and it has no service account token. The real fix is the own image (backlog item 3), which removes the init container.
+- R5.3 – fixed: the doc names the change folder and says it is in `docs/changes/` or in `docs/changes/done/` after Close.
+- R5.4 – no change needed: the step 1, 2 and 3 commits held only their own files; the workflow setup stays uncommitted.
+- Checks after the fixes: `helm lint` pass; test 1 (backup off equals before) pass; `kubeconform -strict` with CRD schemas: 8 valid.
+
+### Acceptance review, 2026-10-18 (fresh agent, `/review accept`)
+
+Input: mode `accept` and this change folder; the arguments had nothing else. Technical change, so
+the yardstick is the Objective, the Requirements summary (expected results 1–5 and the operator's
+choices) and `change.md`. Read: `change.md`, this document up to Progress, the result (the diff
+`8886d60^..HEAD` for `applications/productivity/team/` and `docs/product/team-database.md`, plus
+the uncommitted tree), `docs/vision.md`, `docs/language.md`, `docs/backlog.md`. Deviations and the
+build review were read only after the points below were formed. Checks run: `helm template` of
+`postgresql-chart` on this branch (schedule `30 1 * * *`, both alert expressions as specified);
+read-only `kubectl get` in `productivity` (CronJob, PVC `pvc-612723f9-…` RWX `truenas-nfs`,
+NetworkPolicy, PrometheusRule; live rule expressions equal the rendered ones). Not checked: the
+share content, decrypting and restoring (need exec or the private key); I rely on the Progress
+record for tests 6–11.
+
+**A1 – Expected result 1, the nightly full dump: faithful adaptation.** Built as
+`pg_dump --format=custom` of `team`, at 01:30 instead of 02:30 Dutch time. The change is the right
+reading of the intent ("each night"): 02:30 does not exist one night a year, and the alert would
+then fire falsely. 01:30 is outside the shifted hour, still before the team app's 03:00 reading;
+the October gap of 25 h stays under the 26 h limit. Checked by reading the rendered CronJob and by
+reasoning about the clock change. **Open, not a deviation:** the live CronJob still says
+`30 2 * * *` (this branch is not merged) and `LAST SCHEDULE` is `<none>`: every success so far is a
+job started by hand. Checked with `kubectl get cronjob`. Before Close: merge, sync, and see one
+scheduled night run succeed (and `lastSuccessfulTime` move).
+
+**A2 – Expected result 2, plain dump only in memory, checked, then encrypted: faithful.** Memory
+`emptyDir` (128Mi), `pg_restore --list`, `age -r` to the public key, `.partial` then rename; only
+the `.age` file reaches the share. Checked by reading the rendered script. Note (neutral drift in
+the doc): the product doc says "A damaged dump makes the run fail here" about `pg_restore --list`.
+`--list` reads the header and the table of contents, not the data blocks; a dump that is cut off
+in its data is caught by the exit code of `pg_dump` (`set -eu`), not by `--list`. Checked by trace,
+not run. Suggest: "A dump with a damaged header or table of contents makes the run fail here", or
+leave as is.
+
+**A3 – Expected result 3, `truenas-nfs` share, newest 7 by count: faithful.** Retention runs only
+after a good rename, sorts by the UTC timestamp in the name, never by age. PVC keeps through Helm
+and ArgoCD (`resource-policy: keep`, `Delete=false`, `Retain`). Checked by reading; test 7 and 8 in
+Progress show it in the cluster.
+
+**A4 – Expected result 4, critical alert for too old or missing: faithful.** Both rules are
+`critical` (the only severity that reaches Pushover), `TooOld` at 26 h + 15 m, `Missing` with
+`for: 26h`. The live rule matches the rendering. Note for the operator, not a deviation: one failed
+night pages at about 03:45 local time (26 h after 01:30, plus 15 m). That is what "critical" asks
+for; if a page at night is not wanted, Pushover quiet hours or a later schedule are the levers, not
+this change.
+
+**A5 – Expected result 5, recovery steps and one real, checked restore: faithful adaptation.**
+`docs/product/team-database.md` has get, decrypt, restore into the running database, lost cluster,
+lost key and clean up. Test 10 is a real restore of a real encrypted dump from the share, decrypted
+with the real private key, with row counts (and checksums) of all 13 tables. Step 3a changed after
+test 10 (from `pg_restore --clean` to restore into `team_restore` plus a rename swap). This serves
+the intent better: the old command would not have worked after a later migration, which is
+exactly the lost-cluster case (3b restores into an already migrated database). The new 3a was
+tried on a scratch database with a newer schema; the decrypt step was shown by test 10. So the full
+path is shown in two parts, not in one run; the product doc says this honestly. Not checked by me
+(needs exec and the key).
+
+**A6 – Restore step 3a: one small gap (low, neutral).** `kubectl scale … --replicas=0` returns
+before the app pod is gone. If the pod still holds a connection when the rename runs,
+`ALTER DATABASE team RENAME` fails with "being accessed by other users". The result is safe (both
+renames fail, `team` keeps its data), but the doc gives no hint. Checked by trace, not run.
+Suggest: after the scale to 0, wait for the pod to go
+(`kubectl wait --for=delete pod -l app.kubernetes.io/name=team -n productivity --timeout=120s`),
+and in the failure list: "if the rename says the database is in use, wait and run it again".
+
+**A7 – Operator's choices: all kept.** TrueNAS only, with the off-site copy in the backlog (item 2);
+age with the private key only outside the platform (the public key is in `values.yaml`; no key in
+Vault or the cluster found in the diff); `apk add age` at each run, with the own image in the
+backlog (item 3); keep 7; only the team database (other databases are backlog item 4). Checked by
+reading the diff and `docs/backlog.md`.
+
+**A8 – Language: faithful.** The product doc and README now say "nightly dump" and state that the
+dumps are not yet a backup in the meaning of `docs/language.md` until the off-site copy exists.
+This keeps the vision's "Rough: backups … are not yet a solved and checked part" true, and does not
+let the operator read the first core value as done for the team data. The change title and object
+names still say "backup"; acceptable as names. Checked by reading.
+
+**Deviations, read after the above:** all five agree with what I found. `fsGroup: 999` from the
+start, the image tag next to the digest, and `printf` instead of `ls` are faithful adaptations
+with no effect on the intent. The 01:30 schedule (A1) and the restore swap (A5) are faithful
+adaptations that serve the intent better than the spec. No concerning deviation.
+
+**Verdict: accepted with notes.** What was built is what was meant: a nightly, full, encrypted dump
+on the TrueNAS share, kept by count, with a critical alert, written recovery steps and one real,
+checked restore. Before Close: merge and sync this branch and see one scheduled night run succeed
+(A1). Optional doc touches: A2 wording, A6 wait step.
+
+**Builder's answers to the accept review (2026-10-18), branch `fix/team-database-backup-review` (PR #189):**
+- A1 – open until merge and sync: the CronJob must show `30 1 * * *`, and one run on its own schedule must succeed before Close.
+- A2 – fixed: the job checks the dump with `pg_restore --file=/dev/null` (reads all data) instead of `pg_restore --list`. Tested on the workstation with the same PostgreSQL image and a 4.4 MB dump: the good dump passes both checks (exit 0); the dump cut off at 2/3 passes `--list` (exit 0) but fails the new check (exit 1, `could not read from input file: end of file`). The product doc says so. Recorded under Deviations.
+- A6 – fixed: step 3a waits for the app pod to be gone (`kubectl wait --for=delete pod -l app.kubernetes.io/name=team,app.kubernetes.io/instance=team`) before the restore, and says what to do if the rename still finds the database in use.
+- A3, A4, A5, A7, A8 – no change needed.

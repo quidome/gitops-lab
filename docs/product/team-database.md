@@ -1,14 +1,18 @@
 # Team database
 
-What the team database and its backup do **now**, for the operator. Updated at each /close that
+What the team database and its nightly dump do **now**, for the operator. Updated at each /close that
 changes it.
 
 ## Purpose
 The team app (the youth team coordinator tool, source in `quidome/team`) keeps its data in one
 PostgreSQL database: the players, their roles, the trainings, the attendance, the game schedule
 and the sessions. Since team v0.3.0 the players and attendance exist only in this database. The
-nightly backup makes sure that a broken database, a deleted volume or a lost cluster does not lose
+nightly dump makes sure that a broken database, a deleted volume or a lost cluster does not lose
 them.
+
+The dumps are on TrueNAS, which is part of the platform. So they are not yet a backup in the
+meaning of `docs/language.md` (stored outside the platform). They become one when the off-site
+copy exists (backlog).
 
 ## Behaviour
 
@@ -20,14 +24,16 @@ them.
 - Chart: `applications/productivity/team/postgresql-chart/`. Deployed by ArgoCD (application
   `team`); the README of the team deployment has the configuration and the secrets.
 
-### The nightly backup
-- CronJob `team-postgresql-backup`, each night at 02:30 Dutch time (before the team app's own
-  nightly reading at 03:00).
+### The nightly dump
+- CronJob `team-postgresql-backup`, each night at 01:30 Dutch time: before the team app's own
+  nightly reading at 03:00, and outside the hour 02:00–03:00 that the clock change skips or
+  repeats.
 - One run:
   1. An init container (Alpine, pinned) installs `age` (a file encryption tool) with `apk`.
   2. `pg_dump --format=custom` makes a full dump of the database `team` into memory in the pod.
      The plain dump never touches a disk.
-  3. `pg_restore --list` reads the dump. A damaged dump makes the run fail here.
+  3. `pg_restore --file=/dev/null` reads the whole dump. A damaged or cut-off dump makes the run
+     fail here.
   4. `age` encrypts the dump to the backup public key. The file is written as
      `team-<UTC date-time>.dump.age.partial` and then renamed to `team-<UTC date-time>.dump.age`.
   5. All dumps except the newest 7 are deleted (by count, never by age, so a series of failed
@@ -65,24 +71,26 @@ Both are `critical`, so they reach the operator through Pushover:
   kubectl logs -n productivity job/<job> --all-containers
   ```
   Known causes:
-  - `install-age` fails: the Alpine package mirror was not reachable at night. Run the backup
+  - `install-age` fails: the Alpine package mirror was not reachable at night. Run the dump job
     again by hand (below) when the internet works.
   - `pg_dump` cannot connect: the database is down, or the NetworkPolicy changed.
   - The write fails: the share is full or TrueNAS is down.
 
-  After the fix, run the backup once by hand and check that the alert stops:
+  After the fix, run the dump job once by hand and check that the alert stops:
   ```bash
   kubectl create job --from=cronjob/team-postgresql-backup backup-manual-$(date +%s) -n productivity
   ```
 - **The dumps are only on TrueNAS.** TrueNAS also holds the database volume, so a lost TrueNAS
   loses both. An off-site copy is in the backlog. Until then, these dumps protect against a broken
   database, a deleted volume and a lost cluster, but not against a lost TrueNAS.
-- **The job needs the internet** at 02:30 to install `age`.
+- **The job needs the internet** at 01:30 to install `age`.
 - **At most 7 days back.** A problem that is seen after more than 7 nights cannot be undone from
-  the backup.
-- The restore steps below were tested on 2026-10-18 into a scratch database (see the change
-  `docs/changes/done/2026-10-18-team-database-backup/`). A restore into the running database
-  and the lost-cluster steps use the same commands, but were not run on the live data.
+  the dumps.
+- The recovery steps were tested on 2026-10-18 in a scratch namespace: the full path (copy,
+  decrypt, restore) into an empty database, and the steps of 3a against a database with a newer
+  schema than the dump (see the change folder `2026-10-18-team-database-backup` in
+  `docs/changes/`, or in `docs/changes/done/` after it is closed). They were not run against the
+  live database.
 
 ## Recovery steps
 
@@ -91,13 +99,15 @@ You need: `kubectl` access to the cluster, `age` on the workstation
 
 ### 1. Get a dump
 
-While the cluster runs, start a temporary pod that mounts the share read-only:
+While the cluster runs, start a temporary pod that mounts the share read-only. Run this from the
+repository root; it uses the pinned image of `backup.installImage`:
 ```bash
-kubectl run backup-copy -n productivity --restart=Never \
-  --image=docker.io/library/alpine:3.24.2 --overrides='
+IMG=$(yq '.backup.installImage | .repository + ":" + .tag + "@" + .digest' \
+  applications/productivity/team/postgresql-chart/values.yaml)
+kubectl run backup-copy -n productivity --restart=Never --image="$IMG" --overrides='
 {"spec":{"automountServiceAccountToken":false,
  "securityContext":{"runAsUser":999,"runAsGroup":999,"runAsNonRoot":true,"seccompProfile":{"type":"RuntimeDefault"}},
- "containers":[{"name":"backup-copy","image":"docker.io/library/alpine:3.24.2","command":["sleep","3600"],
+ "containers":[{"name":"backup-copy","image":"'"$IMG"'","command":["sleep","3600"],
   "securityContext":{"allowPrivilegeEscalation":false,"readOnlyRootFilesystem":true,"capabilities":{"drop":["ALL"]}},
   "resources":{"requests":{"cpu":"10m","memory":"32Mi"},"limits":{"memory":"32Mi"}},
   "volumeMounts":[{"name":"backup","mountPath":"/backup","readOnly":true}]}],
@@ -120,32 +130,50 @@ rm team-backup.key
 A wrong key gives `no identity matched any of the recipients`.
 
 ### 3a. Restore into the running database
-This replaces all data in the database `team` with the dump.
+This replaces all data in the database `team` with the dump. The dump goes into a new database
+`team_restore` first; then the two databases swap names. The old data stays as `team_old` until
+you have checked the app. Do not run this at 01:30, when the dump job runs.
 ```bash
 kubectl scale deployment/team -n productivity --replicas=0
+kubectl wait --for=delete pod -l app.kubernetes.io/name=team,app.kubernetes.io/instance=team \
+  -n productivity --timeout=120s
+kubectl exec -n productivity team-postgresql-0 -- createdb -U team -O team team_restore
 kubectl exec -i -n productivity team-postgresql-0 -- \
-  pg_restore --clean --if-exists --single-transaction --exit-on-error -U team -d team < team.dump
+  pg_restore --single-transaction --exit-on-error -U team -d team_restore < team.dump
+kubectl exec -n productivity team-postgresql-0 -- psql -U team -d postgres \
+  -c 'ALTER DATABASE team RENAME TO team_old' -c 'ALTER DATABASE team_restore RENAME TO team'
 kubectl scale deployment/team -n productivity --replicas=1
 ```
-`--single-transaction` means that a failed restore changes nothing. The ArgoCD application has
-no automatic sync, so the scale to 0 stays until you scale back. Check the app: log in, open the
-team page and the attendance page. The dump includes the table of applied migrations, so the
-running app image must be the same version as at the time of the dump, or newer.
+Check the app: log in, open the team page and the attendance page. Then delete the old data:
+```bash
+kubectl exec -n productivity team-postgresql-0 -- dropdb -U team team_old
+```
+- If `pg_restore` fails, nothing has changed: delete `team_restore` with `dropdb` and scale the
+  app back to 1.
+- If the rename says that the database is in use by other users, the app pod has not stopped
+  yet: run the `kubectl wait` again, then the rename.
+- If the app is wrong after the swap, scale it to 0, swap back (rename `team` to `team_restore`,
+  then `team_old` to `team`), and scale it to 1.
+- Do not use `pg_restore --clean` on the running database: when a later migration added a table
+  that refers to a table in the dump, the drop fails and the restore stops.
+- The dump includes the table of applied migrations. An app image of the same version as at the
+  time of the dump, or newer, runs its missing migrations when it starts. The ArgoCD application
+  has no automatic sync, so the scale to 0 stays until you scale back.
 
 ### 3b. Restore after a lost cluster
 1. Bootstrap the platform (`README.md`) and sync the `team` application. It makes a new, empty
    database, and the team app runs its migrations.
 2. Get the dump from the old TrueNAS dataset (step 1, "when the cluster is gone") and decrypt it
    (step 2).
-3. Restore it as in 3a.
-4. Run the backup once by hand, so the new backup volume has a good dump at once.
+3. Restore it as in 3a (it scales the app to 0 first).
+4. Run the dump job once by hand, so the new backup volume has a good dump at once.
 
 ### 3c. The private key is lost
 1. Make a new key pair: `nix shell nixpkgs#age -c age-keygen -o team-backup.key`. Store the
    private key in the password manager and on paper; delete the local file.
 2. Put the new public key in `backup.ageRecipient` in
    `applications/productivity/team/postgresql-chart/values.yaml`, merge and sync.
-3. Run the backup once by hand. The old dumps cannot be read any more; they are deleted after 7
+3. Run the dump job once by hand. The old dumps cannot be read any more; they are deleted after 7
    nights.
 
 ### 4. Clean up
@@ -158,7 +186,7 @@ Chart values (`applications/productivity/team/postgresql-chart/values.yaml`, blo
 | Value | Now | Meaning |
 |---|---|---|
 | `enabled` | `true` | Turns the job, the volume, the NetworkPolicy rule and the alerts on or off |
-| `schedule`, `timeZone` | `30 2 * * *`, `Europe/Amsterdam` | When the job runs |
+| `schedule`, `timeZone` | `30 1 * * *`, `Europe/Amsterdam` | When the job runs |
 | `keep` | `7` | Number of newest dumps kept |
 | `ageRecipient` | `age1m2x2…au74k` | The public key the dumps are encrypted to |
 | `installImage` | Alpine `3.24.2`, pinned digest | The image that installs `age` |

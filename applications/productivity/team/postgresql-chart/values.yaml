@@ -69,7 +69,10 @@ probes:
 # the platform, never in git, Vault or the cluster.
 backup:
   enabled: true
-  schedule: "30 2 * * *"
+  # Not between 02:00 and 03:00: that hour is skipped or repeated when the
+  # clock changes, and a skipped night would fire the age alert. Before the
+  # team app's own nightly reading at 03:00.
+  schedule: "30 1 * * *"
   timeZone: Europe/Amsterdam
   # Newest dumps kept on the share. Old dumps are deleted by count, never by
   # age, so a long series of failed runs keeps the last good dumps.
