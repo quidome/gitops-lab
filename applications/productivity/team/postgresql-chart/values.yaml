@@ -62,3 +62,36 @@ probes:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 6
+
+# Nightly encrypted dump of the database to a TrueNAS NFS share (see
+# docs/product/team-database.md). The plain dump stays in memory inside the job
+# pod; only the age-encrypted file is written. The private key is kept outside
+# the platform, never in git, Vault or the cluster.
+backup:
+  enabled: true
+  schedule: "30 2 * * *"
+  timeZone: Europe/Amsterdam
+  # Newest dumps kept on the share. Old dumps are deleted by count, never by
+  # age, so a long series of failed runs keeps the last good dumps.
+  keep: 7
+  # age public key (not secret).
+  ageRecipient: age1m2x2uzs9dtsvzk3e223spnckkx7qalqyfzqpzyc7er5aka29dqts6au74k
+  # Installs the age binary for the job at each run (apk add age).
+  installImage:
+    repository: docker.io/library/alpine
+    tag: "3.24.2"
+    digest: sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+  storage:
+    storageClass: truenas-nfs
+    accessModes:
+      - ReadWriteMany
+    size: 2Gi
+  # The in-memory dump counts against the memory limit.
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 256Mi
+  alert:
+    maxAgeHours: 26

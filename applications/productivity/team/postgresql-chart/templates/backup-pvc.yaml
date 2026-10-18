@@ -1,0 +1,20 @@
+{{- if .Values.backup.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "team-postgresql.fullname" . }}-backup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "team-postgresql.backupLabels" . | nindent 4 }}
+  annotations:
+    # The dumps must survive a chart change or a prune.
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Delete=false
+spec:
+  accessModes:
+    {{- toYaml .Values.backup.storage.accessModes | nindent 4 }}
+  storageClassName: {{ .Values.backup.storage.storageClass | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.backup.storage.size }}
+{{- end }}
