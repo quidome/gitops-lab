@@ -7,6 +7,7 @@ environments:
       - oidcClientSecret: {{ fetchSecretValue "ref+vault://kv/productivity/team#OIDC_CLIENT_SECRET" | quote }}
       - postgresPassword: {{ fetchSecretValue "ref+vault://kv/productivity/team#POSTGRES_PASSWORD" | quote }}
       - sessionSecret: {{ fetchSecretValue "ref+vault://kv/productivity/team#SESSION_SECRET" | quote }}
+      - playerNameKey: {{ fetchSecretValue "ref+vault://kv/productivity/team#PLAYER_NAME_KEY" | quote }}
 
 ---
 releases:
@@ -32,6 +33,7 @@ releases:
           clientId: {{ .Values.oidcClientId | quote }}
         oidcClientSecret: {{ .Values.oidcClientSecret | quote }}
         sessionSecret: {{ .Values.sessionSecret | quote }}
+        playerNameKey: {{ .Values.playerNameKey | quote }}
   - name: team-resources
     namespace: productivity
     needs:

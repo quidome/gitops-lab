@@ -17,6 +17,7 @@ migrationImage:
 databaseUrl: ""
 oidcClientSecret: ""
 sessionSecret: ""
+playerNameKey: ""
 
 origin: https://team.quido.me
 oidc:

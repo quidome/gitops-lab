@@ -45,6 +45,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "team.fullname" . }}
                   key: DATABASE_URL
+            - name: PLAYER_NAME_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "team.fullname" . }}
+                  key: PLAYER_NAME_KEY
           volumeMounts:
             - name: tmp
               mountPath: /tmp
@@ -86,6 +91,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "team.fullname" . }}
                   key: SESSION_SECRET
+            - name: PLAYER_NAME_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "team.fullname" . }}
+                  key: PLAYER_NAME_KEY
             - name: SESSION_TTL_SECONDS
               value: {{ .Values.sessionTtlSeconds | quote }}
             - name: DEV_AUTH_BYPASS
