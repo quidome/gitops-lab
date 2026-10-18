@@ -32,7 +32,8 @@ copy exists (backlog).
   1. An init container (Alpine, pinned) installs `age` (a file encryption tool) with `apk`.
   2. `pg_dump --format=custom` makes a full dump of the database `team` into memory in the pod.
      The plain dump never touches a disk.
-  3. `pg_restore --list` reads the dump. A damaged dump makes the run fail here.
+  3. `pg_restore --file=/dev/null` reads the whole dump. A damaged or cut-off dump makes the run
+     fail here.
   4. `age` encrypts the dump to the backup public key. The file is written as
      `team-<UTC date-time>.dump.age.partial` and then renamed to `team-<UTC date-time>.dump.age`.
   5. All dumps except the newest 7 are deleted (by count, never by age, so a series of failed
@@ -134,6 +135,8 @@ This replaces all data in the database `team` with the dump. The dump goes into 
 you have checked the app. Do not run this at 01:30, when the dump job runs.
 ```bash
 kubectl scale deployment/team -n productivity --replicas=0
+kubectl wait --for=delete pod -l app.kubernetes.io/name=team,app.kubernetes.io/instance=team \
+  -n productivity --timeout=120s
 kubectl exec -n productivity team-postgresql-0 -- createdb -U team -O team team_restore
 kubectl exec -i -n productivity team-postgresql-0 -- \
   pg_restore --single-transaction --exit-on-error -U team -d team_restore < team.dump
@@ -147,6 +150,8 @@ kubectl exec -n productivity team-postgresql-0 -- dropdb -U team team_old
 ```
 - If `pg_restore` fails, nothing has changed: delete `team_restore` with `dropdb` and scale the
   app back to 1.
+- If the rename says that the database is in use by other users, the app pod has not stopped
+  yet: run the `kubectl wait` again, then the rename.
 - If the app is wrong after the swap, scale it to 0, swap back (rename `team` to `team_restore`,
   then `team_old` to `team`), and scale it to 1.
 - Do not use `pg_restore --clean` on the running database: when a later migration added a table

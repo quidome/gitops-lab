@@ -93,7 +93,8 @@ spec:
                   ts=$(date -u +%Y%m%dT%H%M%SZ)
                   PGPASSWORD=$(cat /run/secrets/postgres/password) \
                     pg_dump --format=custom --file=/work/team.dump
-                  pg_restore --list /work/team.dump >/dev/null
+                  # Reads the whole dump, not only its table of contents.
+                  pg_restore --file=/dev/null /work/team.dump
                   /tools/age -r "$AGE_RECIPIENT" -o "/backup/team-$ts.dump.age.partial" /work/team.dump
                   mv "/backup/team-$ts.dump.age.partial" "/backup/team-$ts.dump.age"
                   printf '%s\n' /backup/team-*.dump.age | sort -r | tail -n +$((KEEP + 1)) | xargs -r rm --
