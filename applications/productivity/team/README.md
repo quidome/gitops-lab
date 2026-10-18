@@ -68,6 +68,11 @@ Required keys:
 - `OIDC_CLIENT_ID` - Pocket ID client identifier.
 - `OIDC_CLIENT_SECRET` - Pocket ID client secret.
 - `SESSION_SECRET` - random value of at least 32 characters.
+- `PLAYER_NAME_KEY` - the key that encrypts the player names in the database:
+  standard base64 of exactly 32 random bytes (`openssl rand -base64 32`). A
+  second copy is kept outside the platform (the password manager). Losing it
+  loses every player name, also in every backup. Required from the team release
+  with encrypted player names; earlier releases ignore it.
 
 Reviewable runtime defaults are defined in `helm-chart/values.yaml`; the deployed
 OIDC issuer URL and client identifier are supplied from Vault:
@@ -76,9 +81,10 @@ OIDC issuer URL and client identifier are supplied from Vault:
 - `SESSION_TTL_SECONDS=28800`
 - `DEV_AUTH_BYPASS=false`
 
-The runtime chart stores the three sensitive Vault-provided values in a
-Kubernetes Secret as base64-encoded data. The runtime consumes all three via
-`valueFrom`, while the migration init container consumes only `DATABASE_URL`.
+The runtime chart stores the four sensitive Vault-provided values in a
+Kubernetes Secret as base64-encoded data. The runtime consumes all four via
+`valueFrom`, while the migration init container consumes `DATABASE_URL` and
+`PLAYER_NAME_KEY` (it encrypts the player names once).
 `OIDC_ISSUER_URL` and `OIDC_CLIENT_ID` are rendered as direct runtime environment
 variables. The PostgreSQL chart stores
 `POSTGRES_PASSWORD` in its own Secret. Vault-backed changes alter the runtime
