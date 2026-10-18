@@ -88,8 +88,7 @@ Both are `critical`, so they reach the operator through Pushover:
   the dumps.
 - The recovery steps were tested on 2026-10-18 in a scratch namespace: the full path (copy,
   decrypt, restore) into an empty database, and the steps of 3a against a database with a newer
-  schema than the dump (see the change folder `2026-10-18-team-database-backup` in
-  `docs/changes/`, or in `docs/changes/done/` after it is closed). They were not run against the
+  schema than the dump (see `docs/changes/done/2026-10-18-team-database-backup/`). They were not run against the
   live database.
 
 ## Recovery steps
