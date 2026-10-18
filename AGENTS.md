@@ -227,3 +227,9 @@ kv/<realm>/<application>
 | `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | democratic-csi |
 | `kv/home-automation/zigbee2mqtt` | `secret.yaml` | zigbee2mqtt |
 | `kv/productivity/vikunja` | `POSTGRES_PASSWORD`, `SERVICE_SECRET`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | vikunja |
+
+## Way of working
+This project uses the product way of working (skill `product-workflow`).
+Team and roles: `.claude/team.md`. Word list: @docs/language.md
+Living documents: docs/vision.md, docs/architecture.md, docs/product/. Open changes: docs/changes/.
+Do not read docs/changes/done/ unless asked.
