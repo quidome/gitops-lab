@@ -115,13 +115,14 @@ kv/productivity/team
   DATABASE_URL=postgresql://team:<same-password>@team-postgresql.productivity.svc.cluster.local:5432/team
 ```
 
-A nightly CronJob (`team-postgresql-backup`, 02:30 Europe/Amsterdam) writes an
+A nightly CronJob (`team-postgresql-backup`, 01:30 Europe/Amsterdam) writes an
 age-encrypted `pg_dump` of the database to the `truenas-nfs` PVC
 `team-postgresql-backup` and keeps the newest 7 dumps. Critical alerts fire when
 no successful run is known for 26 hours. The private key is kept outside the
-platform. What is backed up, the alerts, and the recovery steps (tested on
+platform. What is dumped, the alerts, and the recovery steps (tested on
 2026-10-18) are in [docs/product/team-database.md](../../../docs/product/team-database.md).
-The dumps are on TrueNAS only; an off-site copy is not configured yet.
+The dumps are on TrueNAS only, so they are not yet a backup in the meaning of
+`docs/language.md`; an off-site copy is not configured yet.
 
 Migrations are forward-only from the application's perspective. Rolling back
 the runtime image is safe only when the previous image is compatible with the
