@@ -1,0 +1,128 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "team-postgresql.fullname" . }}-backup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "team-postgresql.backupLabels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  timeZone: {{ .Values.backup.timeZone | quote }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "team-postgresql.backupLabels" . | nindent 8 }}
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 1800
+      template:
+        metadata:
+          labels:
+            {{- include "team-postgresql.backupLabels" . | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            # Lets user 999 read the password file (mode 0440) and write the share.
+            fsGroup: 999
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          initContainers:
+            # The PostgreSQL image has no age; Alpine has it as a package. Both
+            # images use musl, so the binary runs in the backup container.
+            - name: install-age
+              image: "{{ .Values.backup.installImage.repository }}:{{ .Values.backup.installImage.tag }}@{{ .Values.backup.installImage.digest }}"
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                runAsUser: 0
+                allowPrivilegeEscalation: false
+              command:
+                - /bin/sh
+                - -c
+                - apk add --no-cache age && cp /usr/bin/age /tools/age
+              volumeMounts:
+                - name: tools
+                  mountPath: /tools
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+                limits:
+                  memory: 64Mi
+          containers:
+            - name: backup
+              image: "{{ .Values.image.repository }}@{{ .Values.image.digest }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              securityContext:
+                runAsUser: 999
+                runAsGroup: 999
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              env:
+                - name: PGHOST
+                  value: {{ include "team-postgresql.fullname" . | quote }}
+                - name: PGPORT
+                  value: {{ .Values.service.port | quote }}
+                - name: PGUSER
+                  value: {{ .Values.postgres.username | quote }}
+                - name: PGDATABASE
+                  value: {{ .Values.postgres.database | quote }}
+                - name: AGE_RECIPIENT
+                  value: {{ required "backup.ageRecipient is required" .Values.backup.ageRecipient | quote }}
+                - name: KEEP
+                  value: {{ .Values.backup.keep | quote }}
+              # The plain dump stays in /work (memory). Only the encrypted file
+              # is written to the share, first as .partial, then renamed. Logs
+              # carry the file name only.
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  rm -f /backup/*.partial
+                  ts=$(date -u +%Y%m%dT%H%M%SZ)
+                  PGPASSWORD=$(cat /run/secrets/postgres/password) \
+                    pg_dump --format=custom --file=/work/team.dump
+                  pg_restore --list /work/team.dump >/dev/null
+                  /tools/age -r "$AGE_RECIPIENT" -o "/backup/team-$ts.dump.age.partial" /work/team.dump
+                  mv "/backup/team-$ts.dump.age.partial" "/backup/team-$ts.dump.age"
+                  printf '%s\n' /backup/team-*.dump.age | sort -r | tail -n +$((KEEP + 1)) | xargs -r rm --
+                  echo "backup team-$ts.dump.age written"
+              volumeMounts:
+                - name: work
+                  mountPath: /work
+                - name: tools
+                  mountPath: /tools
+                  readOnly: true
+                - name: backup
+                  mountPath: /backup
+                - name: postgres-password
+                  mountPath: /run/secrets/postgres
+                  readOnly: true
+              resources:
+                {{- toYaml .Values.backup.resources | nindent 16 }}
+          volumes:
+            - name: work
+              emptyDir:
+                medium: Memory
+                sizeLimit: 128Mi
+            - name: tools
+              emptyDir: {}
+            - name: backup
+              persistentVolumeClaim:
+                claimName: {{ include "team-postgresql.fullname" . }}-backup
+            - name: postgres-password
+              secret:
+                secretName: {{ include "team-postgresql.fullname" . }}
+                defaultMode: 0440
+{{- end }}

@@ -23,6 +23,14 @@ spec:
             matchLabels:
               app.kubernetes.io/name: team
               app.kubernetes.io/instance: team
+{{- if .Values.backup.enabled }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- include "team-postgresql.backupSelectorLabels" . | nindent 14 }}
+{{- end }}
       ports:
         - protocol: TCP
           port: {{ .Values.service.port }}

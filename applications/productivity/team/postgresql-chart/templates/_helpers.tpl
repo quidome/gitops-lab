@@ -48,3 +48,25 @@ Selector labels.
 app.kubernetes.io/name: {{ include "team-postgresql.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Selector labels of the backup job pods. They must never match the database
+selector labels, or the database Service would also select the backup pod.
+*/}}
+{{- define "team-postgresql.backupSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "team-postgresql.name" . }}-backup
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Labels of the backup resources.
+*/}}
+{{- define "team-postgresql.backupLabels" -}}
+helm.sh/chart: {{ include "team-postgresql.chart" . }}
+{{ include "team-postgresql.backupSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: backup
+{{- end }}
