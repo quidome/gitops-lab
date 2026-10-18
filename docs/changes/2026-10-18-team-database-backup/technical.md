@@ -1,6 +1,6 @@
 # Technical spec: Nightly backup of the team database
 
-**Status**: in progress
+**Status**: done
 **Size**: story
 **Change**: docs/changes/2026-10-18-team-database-backup
 **Date**: 2026-10-18
@@ -469,6 +469,8 @@ checked restore. Before Close: merge and sync this branch and see one scheduled 
 
 **Builder's answers to the accept review (2026-10-18), branch `fix/team-database-backup-review` (PR #189):**
 - A1 – open until merge and sync: the CronJob must show `30 1 * * *`, and one run on its own schedule must succeed before Close.
+  - 2026-10-18, after PR #189 merged and synced (`f8bc8fe`, `team` Synced and Healthy): the live CronJob has `30 1 * * *`, `Europe/Amsterdam`, and the check `pg_restore --file=/dev/null`. A job started by hand with it completed in 7 s (`team-20261018T084046Z.dump.age`). `lastScheduleTime` is still empty: the first run on the schedule is 2026-10-19 01:30.
+  - 2026-10-18, operator: not checked before Close. The operator cannot check the first scheduled run in the coming week and accepts the change on the alerts: if the run of 2026-10-19 01:30 (or a later one) fails, `TeamDatabaseBackupTooOld` sends a critical push message (at about 03:45 for a first failed night). The operator reopens the change when needed.
 - A2 – fixed: the job checks the dump with `pg_restore --file=/dev/null` (reads all data) instead of `pg_restore --list`. Tested on the workstation with the same PostgreSQL image and a 4.4 MB dump: the good dump passes both checks (exit 0); the dump cut off at 2/3 passes `--list` (exit 0) but fails the new check (exit 1, `could not read from input file: end of file`). The product doc says so. Recorded under Deviations.
 - A6 – fixed: step 3a waits for the app pod to be gone (`kubectl wait --for=delete pod -l app.kubernetes.io/name=team,app.kubernetes.io/instance=team`) before the restore, and says what to do if the rename still finds the database in use.
 - A3, A4, A5, A7, A8 – no change needed.
