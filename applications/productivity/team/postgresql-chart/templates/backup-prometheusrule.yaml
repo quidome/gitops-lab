@@ -1,0 +1,38 @@
+{{- if .Values.backup.enabled }}
+{{- $selector := printf "namespace=\"%s\", cronjob=\"%s-backup\"" .Release.Namespace (include "team-postgresql.fullname" .) }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "team-postgresql.fullname" . }}-backup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "team-postgresql.backupLabels" . | nindent 4 }}
+    prometheus: kube-prometheus-stack
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: team-database-backup
+      rules:
+        # Only critical alerts reach the operator (Pushover); others only show in Karma.
+        - alert: TeamDatabaseBackupTooOld
+          expr: |
+            time() - kube_cronjob_status_last_successful_time{ {{- $selector -}} } > {{ .Values.backup.alert.maxAgeHours }} * 3600
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "The team database backup is too old"
+            description: "The last successful backup of the team database is more than {{ .Values.backup.alert.maxAgeHours }} hours old. Read the log of the last job: kubectl get jobs -n {{ .Release.Namespace }}, then kubectl logs -n {{ .Release.Namespace }} job/<job> --all-containers."
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/docs/product/team-database.md"
+        # Waits as long as the age limit, so it does not fire between a deploy and the first night.
+        - alert: TeamDatabaseBackupMissing
+          expr: |
+            absent(kube_cronjob_status_last_successful_time{ {{- $selector -}} })
+          for: {{ .Values.backup.alert.maxAgeHours }}h
+          labels:
+            severity: critical
+          annotations:
+            summary: "No successful team database backup is known"
+            description: "Prometheus has no time of a successful run of the team database backup job. The job may never have succeeded, or the CronJob is gone. Read the log of the last job: kubectl get jobs -n {{ .Release.Namespace }}, then kubectl logs -n {{ .Release.Namespace }} job/<job> --all-containers."
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/docs/product/team-database.md"
+{{- end }}

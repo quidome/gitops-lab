@@ -235,8 +235,8 @@ Choices of the operator (2026-10-18):
 - The job needs the Alpine package mirror on the internet at 02:30.
 
 ## Progress
-- [x] Step 0 – age key pair (operator), 2026-10-18: public key `age1m2x2…au74k` in `values.yaml`. Waiting for the operator to confirm that the private key is in the password manager and on paper, and that the local file is deleted.
-- [ ] Step 1 – backup job. Built 2026-10-18; workstation checks pass, cluster tests 6–8 open:
+- [x] Step 0 – age key pair (operator), 2026-10-18: public key `age1m2x2…au74k` in `values.yaml`. The operator confirmed that the private key is in the password manager and on paper, and that `~/team-backup.key` is deleted.
+- [x] Step 1 – backup job. PR #186, merged and synced 2026-10-18. Workstation checks and cluster tests 6–8 pass:
   - `helm lint` of `postgresql-chart`, `helm-chart`, `resources`: pass.
   - Test 1: rendering with `backup.enabled=false` is the same as before the change: pass.
   - Test 2: `kubeconform -strict`, Kubernetes 1.33: 7 resources valid.
@@ -244,7 +244,17 @@ Choices of the operator (2026-10-18):
   - Test 4: `shellcheck -s sh` on the rendered script: pass.
   - Extra, on the workstation with Docker: the rendered script, run with the same images, as user 999 with a read-only root file system, against a scratch database, writes one `.age` file; the name in the test data is not in the file; a wrong key cannot decrypt it; of 9 files the newest 7 stay and `.partial` files are removed.
   - Not run: `helmfile … lint`/`template` of the whole app needs Vault, which this workstation cannot reach. ArgoCD renders it at sync.
-- [ ] Step 2 – alert
+  - Cluster, 2026-10-18: ArgoCD `team` Synced and Healthy; CronJob, PVC `team-postgresql-backup` (`pvc-612723f9-2a7f-4889-9b7a-7b999638c420`, `truenas-nfs`, RWX) and the NetworkPolicy rule exist.
+  - Test 6: a job started by hand completes in 14 s; the share has one `.age` file (29 KB, age header), no `.partial`, no plain dump. User 999 can write the NFS volume.
+  - Test 7: 8 runs leave exactly the newest 7 files; the first one is deleted.
+  - Test 8: a run with a wrong `PGHOST` fails (`could not translate host name`) and the 7 files stay. A wrong host makes `pg_dump` fail before any file is written, so a second failing job (`backoffLimit: 0`) writes a `.partial` and exits 1, the same as a crash during encryption. The `.partial` stays until the next good run removes it; 7 files stay. In the first try, the second attempt of the wrong-host job (`backoffLimit: 1`) removed the `.partial` before the check; this is the designed behaviour.
+  - The test jobs are deleted. The 7 dumps from the tests stay on the share as real backups.
+- [ ] Step 2 – alert. Built 2026-10-18; workstation checks and test 9 pass, the sync check is open:
+  - `templates/backup-prometheusrule.yaml`: `TeamDatabaseBackupTooOld` (`for: 15m`) and `TeamDatabaseBackupMissing` (`for: 26h`), both `critical`, selector `namespace="productivity", cronjob="team-postgresql-backup"`. The `runbook_url` points to `docs/product/team-database.md`, which step 3 writes.
+  - `helm lint`: pass. Test 1 again: with `backup.enabled=false` the rendering is the same as before the change.
+  - Test 5: `promtool check rules` (Prometheus 3.12, `nixpkgs#prometheus.cli`): 2 rules, success.
+  - `kubeconform -strict` with the CRD schemas of the datreeio CRDs catalog: 8 resources valid.
+  - Test 9, against the live Prometheus before the merge: the `TooOld` expression with `> 60` gives a result (last success 101 s before); with `> 26 * 3600` and `absent(…)` there is no result, so neither alert fires now.
 - [ ] Step 3 – recovery steps and tested restore
 - [ ] All checks pass
 
