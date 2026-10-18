@@ -249,14 +249,19 @@ Choices of the operator (2026-10-18):
   - Test 7: 8 runs leave exactly the newest 7 files; the first one is deleted.
   - Test 8: a run with a wrong `PGHOST` fails (`could not translate host name`) and the 7 files stay. A wrong host makes `pg_dump` fail before any file is written, so a second failing job (`backoffLimit: 0`) writes a `.partial` and exits 1, the same as a crash during encryption. The `.partial` stays until the next good run removes it; 7 files stay. In the first try, the second attempt of the wrong-host job (`backoffLimit: 1`) removed the `.partial` before the check; this is the designed behaviour.
   - The test jobs are deleted. The 7 dumps from the tests stay on the share as real backups.
-- [ ] Step 2 – alert. Built 2026-10-18; workstation checks and test 9 pass, the sync check is open:
+- [x] Step 2 – alert. PR #187, merged and synced 2026-10-18. Workstation checks, test 9 and the sync check pass:
   - `templates/backup-prometheusrule.yaml`: `TeamDatabaseBackupTooOld` (`for: 15m`) and `TeamDatabaseBackupMissing` (`for: 26h`), both `critical`, selector `namespace="productivity", cronjob="team-postgresql-backup"`. The `runbook_url` points to `docs/product/team-database.md`, which step 3 writes.
   - `helm lint`: pass. Test 1 again: with `backup.enabled=false` the rendering is the same as before the change.
   - Test 5: `promtool check rules` (Prometheus 3.12, `nixpkgs#prometheus.cli`): 2 rules, success.
   - `kubeconform -strict` with the CRD schemas of the datreeio CRDs catalog: 8 resources valid.
   - Test 9, against the live Prometheus before the merge: the `TooOld` expression with `> 60` gives a result (last success 101 s before); with `> 26 * 3600` and `absent(…)` there is no result, so neither alert fires now.
-- [ ] Step 3 – recovery steps and tested restore
-- [ ] All checks pass
+  - After the sync (2026-10-18, 08:16:50 UTC): Prometheus loaded the group `team-database-backup` (interval 60 s); both rules have health `ok`, state `inactive`, no error; no `TeamDatabaseBackup*` alert is active.
+- [x] Step 3 – recovery steps and tested restore, 2026-10-18:
+  - New `docs/product/team-database.md`: the database, the nightly backup, where the dumps are (NFS share `172.16.40.64:/mnt/datapool/k8s/nfs/volumes/pvc-612723f9-2a7f-4889-9b7a-7b999638c420`), the key, the alerts, errors and limits, and the recovery steps (get, decrypt, restore into the running database, after a lost cluster, a lost key, clean up). The team README paragraph "Backups remain owned by the homelab storage/backup process…" is replaced by a short paragraph and a link.
+  - Test 10, done by following the document: step 1 (temporary read-only pod, `kubectl cp`) copied `team-20261018T081212Z.dump.age`; the operator decrypted it with the private key from the password manager (step 2); the command of step 3a restored it into a temporary PostgreSQL 16 pod (same image) in the scratch namespace `team-restore-test`: `pg_restore` exit 0. All 13 tables have the same row count as the live database (for example `players` 14, `player_roles` 14, `games` 71, `absences` 2), the 6 migrations are all successful, and an MD5 checksum of the full content of each table is equal for all 13 tables. The scratch namespace and the local files (encrypted and plain dump) are deleted.
+  - Test 11 on the real cluster dump: a new, wrong key gives `no identity matched any of the recipients`, exit 1, no output.
+  - Not run on live data: the restore into the running database (3a) and the lost-cluster steps (3b). They use the same `pg_restore` command; the document says so.
+- [x] All checks pass (workstation checks of steps 1 and 2; cluster tests 6–11). Not run: the full `helmfile template`, which needs Vault from the workstation; ArgoCD rendered and synced it without errors.
 
 ## Deviations
 - 2026-10-18, step 1: the pod has `fsGroup: 999` (with `fsGroupChangePolicy: OnRootMismatch`) from the start, not only as the fallback for the NFS write test. Reason: the password file is mounted with mode 0440, and without `fsGroup` user 999 cannot read it (the database pod has `fsGroup: 999` for the same reason).
