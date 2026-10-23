@@ -158,6 +158,12 @@ kubectl exec -n productivity team-postgresql-0 -- dropdb -U team team_old
 - The dump includes the table of applied migrations. An app image of the same version as at the
   time of the dump, or newer, runs its missing migrations when it starts. The ArgoCD application
   has no automatic sync, so the scale to 0 stays until you scale back.
+- A dump made before team v0.3.1 went live (2026-10-18 11:29 UTC, for example
+  `team-20261018T102433Z.dump.age`) has plain player names. Team v0.3.2 and newer store names only
+  encrypted and refuse such a database (migration `0008` stops, the pod waits in Init). After the
+  swap and before the scale to 1, run the v0.3.1 migration image once, as the team repository's
+  README says: [Restoring a backup from before v0.3.1](https://github.com/quidome/team#restoring-a-backup-from-before-v031).
+  Such dumps leave the share after about a week (7 kept).
 
 ### 3b. Restore after a lost cluster
 1. Bootstrap the platform (`README.md`) and sync the `team` application. It makes a new, empty
