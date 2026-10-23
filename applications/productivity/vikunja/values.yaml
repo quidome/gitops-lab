@@ -4,7 +4,7 @@
 vikunja:
   image:
     repository: vikunja/vikunja
-    tag: "2.7.0"
+    tag: "2.7.1"
     pullPolicy: IfNotPresent
 
   controller:
