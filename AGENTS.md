@@ -93,14 +93,18 @@ helmfile -f infrastructure/gitops/argocd/helmfile.yaml apply
 kubectl apply -f infrastructure/applicationset.yaml
 ```
 
-### Utility Scripts
+### Common Tasks
+
+Common operator tasks are recipes in the `justfile` at the repo root; run `just` to list them. Keep recipes short and put longer logic in `scripts/`.
 
 ```bash
-# List all resources in a namespace
-python scripts/list_namespace_resources.py <namespace> [--json]
-
-# Remove stuck namespace finalizers
-./scripts/remove-namespace-finalizers.sh <namespace>
+just sync <app>                  # Hard refresh and sync an ArgoCD app, wait for the result
+just apps                        # List ArgoCD apps that are not Synced and Healthy
+just renovate                    # Start a manual Renovate run
+just job <namespace> <cronjob>   # Start a one-off job from a cronjob (e.g. a backup)
+just unseal                      # Unseal Vault with keys from gopass
+just resources <namespace> [--json]  # List all resources in a namespace
+just finalizers <namespace>      # Remove stuck namespace finalizers
 ```
 
 ## Key Conventions
@@ -190,7 +194,7 @@ applications/
 
 - All secrets injected at deploy-time via Vals
 - Secrets fetched during ArgoCD sync
-- To refresh: `kubectl patch application <app-name> -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'`
+- To refresh: `just sync <app-name>`
 
 #### Secret Injection with Vals
 
