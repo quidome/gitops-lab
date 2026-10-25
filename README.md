@@ -66,16 +66,20 @@ releases:
 #### Trigger sync after secret changes
 
 ```sh
-kubectl patch application <app-name> -n gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{}}}'
+just sync <app-name>
 ```
 
 #### Unseal Vault from gopass (first 3 of 5 keys)
 
 ```sh
-./scripts/unseal-vault.sh
+just unseal
 ```
 
-The script reads `personal/vault/prod` without printing the keys, applies the first three keys, and checks the final Vault status. Pass a different gopass entry as the first argument if needed.
+The script reads `personal/vault/prod` without printing the keys, applies the first three keys, and checks the final Vault status. Pass a different gopass entry as the first argument if needed (`just unseal <entry>`).
+
+### Common tasks
+
+Common operator tasks are recipes in the `justfile`. Run `just` to list them.
 
 ### Nixos
 
