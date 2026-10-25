@@ -38,6 +38,14 @@
       automerge: false,
     },
     {
+      // Chart 1.20.4 ships Envoy 1.39, and the agent does not serve its config
+      // services (unknown service ClusterDiscoveryService), so the Gateway gets
+      // no listeners. Remove this rule when a later release fixes it.
+      description: 'Skip Cilium 1.20.4: its Envoy image breaks the Gateway',
+      matchPackageNames: ['cilium'],
+      allowedVersions: '!/^1\\.20\\.4$/',
+    },
+    {
       description: 'Review major updates one by one',
       matchUpdateTypes: ['major'],
       automerge: false,
