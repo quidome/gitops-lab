@@ -5,7 +5,8 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 gitops_ns := "gitops"
 
-# List recipes
+# List recipes; private so it does not show in its own list
+[private]
 default:
     @just --list
 
