@@ -10,7 +10,7 @@ releases:
   - name: node-feature-discovery
     namespace: hardware
     chart: nfd/node-feature-discovery
-    version: 0.20.0
+    version: 0.20.1
     values:
       - topologyUpdater:
           enable: false
