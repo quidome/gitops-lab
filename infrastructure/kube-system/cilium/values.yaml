@@ -85,6 +85,10 @@ gatewayAPI:
     name: cilium-secrets
     sync: true
 envoy:
+  # Set explicitly: chart 1.20.4 dropped the "ads" default, and the old value
+  # in cilium-config (owned by the bootstrap helm install) kept the agent on
+  # ads while Envoy started in split mode.
+  xdsMode: ads
   resources:
     requests:
       cpu: 20m
