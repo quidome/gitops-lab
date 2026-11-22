@@ -1,10 +1,11 @@
 # Product vision: gitops-lab
 
 ## The user's problem space
-There are two kinds of users.
+There are three kinds of people.
 
 - **The operator** (the owner of this repository) builds and runs the platform alone. The operator is an engineer who knows Linux and Kubernetes. The operator wants the platform to run with little attention, wants to know when something is wrong, and must never lose data.
 - **The users** are the people in the household who use some of the services (for example Home Assistant, file sync, the RSS reader, the task list). They do not operate the platform. They want the services to work and to be easy to reach.
+- **The guests** are a few friends of the operator outside the household. They use a small number of services that the operator chose to share (for example the media apps). They reach them only over a private network (Tailscale), never from the open internet. They want those services to work; they get nothing else of the platform.
 
 The platform has two purposes, and both are real: it runs services that the home uses, and it is a lab where the operator learns to run a platform well.
 
@@ -48,6 +49,7 @@ Operational excellence. In order:
 - **The operator keeps things current.** Renovate opens an update pull request. The checks show if it is safe. The operator merges it, and the platform stays current without extra work.
 - **Something breaks.** A service fails, a disk fills up, or a backup does not run. The operator gets a push message before a user complains, sees what is wrong, and follows the written recovery steps.
 - **The platform is lost.** The operator runs the few bootstrap steps from the README. ArgoCD deploys everything from git, secrets come from Vault, and data comes back from backups.
+- **A guest opens a shared service.** The guest accepts a share from the operator once, keeps the private-network app on, and goes to the same clear HTTPS name as the household. Only the shared services are reachable.
 - **A user opens a service.** The user goes to a clear HTTPS name, logs in once, and the service works. If it is slow or down, the operator can see it.
 
 ## Priorities
@@ -58,15 +60,19 @@ Operational excellence. In order:
 ## Principles
 - Git is the truth. If it is not in git, it does not exist.
 - Data safety comes before uptime.
-- Manual work is acceptable only for the first bootstrap, and it must be written down.
+- Manual work is acceptable only for the first bootstrap, and it must be written down. One exception: managing guests (invite, remove) and the settings of third-party services that git cannot reach (for example the private network's access policy and public DNS) may be manual, if each step and its current value are written in the product document.
 - A service is not done until it has a backup (if it keeps data), alerting, and recovery steps.
 - Keep it simple enough for one operator to run.
+- Nothing is open to the public internet. Over the network, guests reach only the shared services, and only through the shared entry. The choice of shared services is made in the platform, not in each service. What a guest may do inside a service (accounts, logins, permissions) is a separate matter of each service.
 
 ## Open questions
-- What is out of scope for the platform (for example public access from the internet, or services for people outside the household)? No rule yet.
+- Other limits of scope for the platform (beyond the rule on public access and guests in Principles)? No rule yet.
 
 ## Change log
 | Date | Change |
 |------|--------|
 | 2026-10-10 | Vision created |
 | 2026-10-18 | Where we are: the team database has a nightly encrypted dump with a tested restore, not yet a copy outside the platform (change `done/2026-10-18-team-database-backup`) |
+| 2026-11-22 | New group of people: guests (friends outside the household) may use services that the operator chose to share, only over a private network. New principle: nothing open to the public internet. Open question on outside people answered (change `2026-11-22-guest-media-access`) |
+| 2026-11-22 | Principle on guests made about network access only; accounts and permissions are a separate matter. New words: shared service, shared entry (change `2026-11-22-guest-media-access`) |
+| 2026-11-22 | Principle on manual work: exception for managing guests and settings of third-party services that git cannot reach, if written down (change `2026-11-22-guest-media-access`) |
