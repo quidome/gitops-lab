@@ -1,0 +1,13 @@
+server: https://tasks.quido.me
+project_id: 4
+view_id: 16
+buckets:
+    todo: 14
+    in_progress: 15
+    in_review: 17
+    done: 16
+    scrapped: 18
+bot:
+    username: bot-gitops-lab
+    user_id: 2
+frontend_url: https://tasks.quido.me/
