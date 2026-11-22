@@ -261,6 +261,8 @@ This is an infrastructure project with one operator. Do not use the product way 
   once; then build and test step by step (render with `helmfile template`, sync with
   `just sync <app>`, check health with `just apps`). Stop only for surprises and for actions that
   are hard to undo.
+- **Merge with a merge commit** (`gh pr merge --merge`), not squash or rebase, so that the
+  history keeps the commits of each PR.
 - **Reviews**: only when the operator asks (for example `/code-review`).
 - **Docs in git** (update them in the same PR as the change):
   - `docs/architecture.md` – purpose, principles, and how the platform is built now.
