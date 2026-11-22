@@ -13,7 +13,9 @@
   // Registries such as lscr.io give no release date. Without this, the
   // renovate/stability-days check stays pending forever for those images.
   minimumReleaseAgeBehaviour: 'timestamp-optional',
-  internalChecksFilter: 'flexible',
+  // Propose only versions that already meet minimumReleaseAge. With 'flexible',
+  // one new release in a grouped PR restarts the wait for the whole PR.
+  internalChecksFilter: 'strict',
   // Lets a passed stability-days check count as green when no CI check runs.
   internalChecksAsSuccess: true,
   // config:recommended allows only 2 new PRs per hour; Renovate runs every 6 hours.
@@ -36,6 +38,16 @@
       matchUpdateTypes: ['minor', 'patch', 'digest'],
       groupName: 'helm charts and manifests',
       automerge: false,
+    },
+    {
+      // Own group: Renovate automerges a grouped PR only when every update in
+      // it has automerge, so patches must not share the group with minor updates.
+      description: 'Bundle and automerge Helm chart patch updates',
+      matchManagers: ['helmfile', 'helmv3'],
+      matchUpdateTypes: ['patch'],
+      groupName: 'helm chart patches',
+      automerge: true,
+      automergeType: 'pr',
     },
     {
       description: 'Review major updates one by one',
