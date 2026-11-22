@@ -236,8 +236,17 @@ kv/<realm>/<application>
 This is an infrastructure project with one operator. Do not use the product way of working
 (skill `product-workflow`): no stages, personas, spec reviews or change folders.
 
-- **What to do**: tasks, ideas and the backlog are in Vikunja, not in this repository. The
-  operator gives the task text at the start of the work.
+- **What to do**: tasks, ideas and the backlog are in Vikunja (project Platform, shared with
+  `gitops-apps`), not in this repository. Agents reach it with the `veans` CLI as the bot user
+  `bot-gitops-lab`; the session-start hook in `.claude/settings.json` prints the commands
+  (`veans prime`). See `docs/decisions/0002-agent-tasks-in-vikunja-with-veans.md`.
+  - The operator names a task (`#NN`) or gives the task text. Claim the task; if there is none,
+    create it in In Progress.
+  - A finding outside the current change becomes a new task in Todo; tell the operator.
+  - Put the task URL in the PR description and `Refs: #NN` in the commits. When the PR is open,
+    move the task to In Review. Only the operator closes tasks (there is no merge hook).
+  - If Vikunja is not reachable, work from the task text the operator gives and update the task
+    later.
 - **One change = one branch + one pull request.** The PR description is the plan: goal, steps,
   how to test, how to roll back. For a larger change, write the plan first and get it approved
   once; then build and test step by step (render with `helmfile template`, sync with
