@@ -126,7 +126,7 @@ age-encrypted `pg_dump` of the database to the `truenas-nfs` PVC
 `team-postgresql-backup` and keeps the newest 7 dumps. Critical alerts fire when
 no successful run is known for 26 hours. The private key is kept outside the
 platform. What is dumped, the alerts, and the recovery steps (tested on
-2026-10-18) are in [docs/product/team-database.md](../../../docs/product/team-database.md).
+2026-10-18) are in [docs/services/team-database.md](../../../docs/services/team-database.md).
 The dumps are on TrueNAS only, so they are not yet a backup in the meaning of
 `docs/language.md`; an off-site copy is not configured yet.
 

@@ -64,7 +64,7 @@ probes:
     failureThreshold: 6
 
 # Nightly encrypted dump of the database to a TrueNAS NFS share (see
-# docs/product/team-database.md). The plain dump stays in memory inside the job
+# docs/services/team-database.md). The plain dump stays in memory inside the job
 # pod; only the age-encrypted file is written. The private key is kept outside
 # the platform, never in git, Vault or the cluster.
 backup:

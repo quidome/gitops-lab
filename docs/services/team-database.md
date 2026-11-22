@@ -1,6 +1,6 @@
 # Team database
 
-What the team database and its nightly dump do **now**, for the operator. Updated at each /close that
+What the team database and its nightly dump do **now**, for the operator. Updated with each change that
 changes it.
 
 ## Purpose
@@ -12,7 +12,7 @@ them.
 
 The dumps are on TrueNAS, which is part of the platform. So they are not yet a backup in the
 meaning of `docs/language.md` (stored outside the platform). They become one when the off-site
-copy exists (backlog).
+copy exists (Vikunja).
 
 ## Behaviour
 
@@ -81,7 +81,7 @@ Both are `critical`, so they reach the operator through Pushover:
   kubectl create job --from=cronjob/team-postgresql-backup backup-manual-$(date +%s) -n productivity
   ```
 - **The dumps are only on TrueNAS.** TrueNAS also holds the database volume, so a lost TrueNAS
-  loses both. An off-site copy is in the backlog. Until then, these dumps protect against a broken
+  loses both. An off-site copy is a task in Vikunja. Until then, these dumps protect against a broken
   database, a deleted volume and a lost cluster, but not against a lost TrueNAS.
 - **The job needs the internet** at 01:30 to install `age`.
 - **At most 7 days back.** A problem that is seen after more than 7 nights cannot be undone from

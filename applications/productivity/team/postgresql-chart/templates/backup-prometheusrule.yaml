@@ -23,7 +23,7 @@ spec:
           annotations:
             summary: "The team database backup is too old"
             description: "The last successful backup of the team database is more than {{ .Values.backup.alert.maxAgeHours }} hours old. Read the log of the last job: kubectl get jobs -n {{ .Release.Namespace }}, then kubectl logs -n {{ .Release.Namespace }} job/<job> --all-containers."
-            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/docs/product/team-database.md"
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/docs/services/team-database.md"
         # Waits as long as the age limit, so it does not fire between a deploy and the first night.
         - alert: TeamDatabaseBackupMissing
           expr: |
@@ -34,5 +34,5 @@ spec:
           annotations:
             summary: "No successful team database backup is known"
             description: "Prometheus has no time of a successful run of the team database backup job. The job may never have succeeded, or the CronJob is gone. Read the log of the last job: kubectl get jobs -n {{ .Release.Namespace }}, then kubectl logs -n {{ .Release.Namespace }} job/<job> --all-containers."
-            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/docs/product/team-database.md"
+            runbook_url: "https://github.com/quidome/gitops-lab/blob/main/docs/services/team-database.md"
 {{- end }}
