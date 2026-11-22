@@ -64,7 +64,7 @@ never reaches anything else on the platform or the home network.
 - [ ] From a guest device, only Jellyfin and Overseerr answer. Other names under `quido.me` (for example the task list, Home Assistant, Plex, Tautulli) give no content.
 - [ ] From a guest device, only HTTP and HTTPS on the shared entry are reachable. Other ports and other addresses on the home network and the cluster do not answer.
 - [ ] A service in the same namespace as a shared service (for example Tautulli next to Overseerr) is not reachable for guests, unless the operator adds it to the shared services.
-- [ ] After this change, nothing on the platform is reachable from the public internet, checked from outside the home network. (Until 2026-11-22 the router forwarded the Plex port to the internet; the operator removed that forward on 2026-11-22. Plex's own remote access setting may still be on; that is a Plex setting, see Not in scope.)
+- [ ] After this change, nothing on the platform is reachable from the public internet, checked from outside the home network. (Until 2026-11-22 the router forwarded the Plex port to the internet; the operator removed that forward on 2026-11-22. The operator also turned off Plex's own remote access setting on 2026-11-22.)
 
 #### Errors and edge cases
 - A route for a service that is not in the list tries to use the shared entry: it is refused, and the operator can see that it was refused.
