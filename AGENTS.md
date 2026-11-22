@@ -233,7 +233,21 @@ kv/<realm>/<application>
 | `kv/productivity/vikunja` | `POSTGRES_PASSWORD`, `SERVICE_SECRET`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | vikunja |
 
 ## Way of working
-This project uses the product way of working (skill `product-workflow`).
-Team and roles: `.claude/team.md`. Word list: @docs/language.md
-Living documents: docs/vision.md, docs/architecture.md, docs/product/. Open changes: docs/changes/.
-Do not read docs/changes/done/ unless asked.
+This is an infrastructure project with one operator. Do not use the product way of working
+(skill `product-workflow`): no stages, personas, spec reviews or change folders.
+
+- **What to do**: tasks, ideas and the backlog are in Vikunja, not in this repository. The
+  operator gives the task text at the start of the work.
+- **One change = one branch + one pull request.** The PR description is the plan: goal, steps,
+  how to test, how to roll back. For a larger change, write the plan first and get it approved
+  once; then build and test step by step (render with `helmfile template`, sync with
+  `just sync <app>`, check health with `just apps`). Stop only for surprises and for actions that
+  are hard to undo.
+- **Reviews**: only when the operator asks (for example `/code-review`).
+- **Docs in git** (update them in the same PR as the change):
+  - `docs/architecture.md` – purpose, principles, and how the platform is built now.
+  - `docs/services/` – one document per service: what it does, where its data and secrets are,
+    and the recovery steps. Never put recovery steps only in Vikunja: it runs on the platform.
+  - `docs/decisions/` – a short record for a choice whose reason is not clear from the code.
+  - Word list: @docs/language.md
+- `docs/changes/done/` is history from the old process. Do not read it unless asked.

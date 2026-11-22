@@ -21,7 +21,7 @@ Core of the setup:
 
 ## Project layout
 
-- `docs/` — process/workflow documentation (audit, backlog, checklists, experiments, specs, stories, tasks, adrs)
+- `docs/` — architecture and principles, service documents with recovery steps, decision records
 - `.pi/skills/` — reusable Pi skills
 - `.pi/prompts/` — prompt templates (slash commands)
 - `.pi/extensions/` — custom TypeScript commands/tools

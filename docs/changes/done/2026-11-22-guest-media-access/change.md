@@ -1,7 +1,7 @@
 ---
 title: Guest access to media apps over Tailscale
 type: feature
-stage: design
+stage: abandoned
 closure: checks      # set by /design; only the user lowers it
 created: 2026-11-22
 ---
@@ -22,3 +22,4 @@ gateway that only shared services can use.
 | 2026-11-22 | discover | spec review 2: passed (all stories serve, some with notes). Operator: Plex port forward was still open and is now removed; vision exception for manual guest management; guest load out of scope |
 | 2026-11-22 | design | functional spec approved by the operator |
 | 2026-11-22 | design | operator turned off Plex remote access in the Plex settings; Story 2 note updated |
+| 2026-11-22 | abandoned | The project stopped using the product way of working. The work goes on as a Vikunja task and one pull request; `functional.md` is the input for its plan. |

@@ -1,7 +1,7 @@
 # Language
 
-The words that all documents, code and conversations about this product use. Only the Vision
-stage adds, changes or removes words. Define meaning, not mechanics: no flags, paths or formats.
+The words that all documents, code and conversations about the platform use. Change a word only
+on purpose, in its own commit. Define meaning, not mechanics: no flags, paths or formats.
 
 | Term | Meaning | Use / do not use |
 |------|---------|------------------|
@@ -14,4 +14,4 @@ stage adds, changes or removes words. Define meaning, not mechanics: no flags, p
 | shared entry | The one device on the private network through which guests reach the shared services | Not "gateway" alone; the gateway is one part of it |
 | backup | A copy of service data, stored outside the platform, that has been shown to restore | A copy that was never restored is not yet a backup that the operator can trust |
 | bootstrap | The few manual command-line steps that start the platform from nothing, before git and ArgoCD take over | Not used for routine changes |
-| recovery steps | Written steps to bring a service, its data, or the platform back after a failure | Part of the product document of each service |
+| recovery steps | Written steps to bring a service, its data, or the platform back after a failure | Part of the service document of each service |
