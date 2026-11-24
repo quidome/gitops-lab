@@ -233,6 +233,7 @@ kv/<realm>/<application>
 | `kv/storage/democratic-csi-iscsi` | `driver-config-file.yaml` | democratic-csi |
 | `kv/storage/democratic-csi-nfs` | `driver-config-file.yaml` | democratic-csi |
 | `kv/home-automation/zigbee2mqtt` | `secret.yaml` | zigbee2mqtt |
+| `kv/observability/truenas-exporter` | `API_KEY` | truenas-exporter |
 | `kv/productivity/vikunja` | `POSTGRES_PASSWORD`, `SERVICE_SECRET`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | vikunja |
 
 ## Way of working

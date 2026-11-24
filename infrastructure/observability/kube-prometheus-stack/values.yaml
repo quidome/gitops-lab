@@ -276,6 +276,12 @@ kubeStateMetrics:
   enabled: true
 
 kube-state-metrics:
+  # The standard volume alerts (KubePersistentVolumeFillingUp) skip volume
+  # claims with the label excluded_from_alerts: "true". They can only see the
+  # label when kube-state-metrics exports it. Used for the fixed media volumes
+  # on the TrueNAS pool bigdata: the truenas-exporter alerts on the pool.
+  metricLabelsAllowlist:
+    - persistentvolumeclaims=[excluded_from_alerts]
   resources:
     requests:
       cpu: 10m

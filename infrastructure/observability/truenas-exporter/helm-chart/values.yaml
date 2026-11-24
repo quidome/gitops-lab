@@ -1,0 +1,36 @@
+image:
+  repository: quay.io/prometheuscommunity/json-exporter
+  tag: "v0.8.0"
+  pullPolicy: IfNotPresent
+
+truenas:
+  # Pool list of the TrueNAS REST API. The REST API is deprecated since
+  # TrueNAS 25.04; it works in 25.10 but a later version can remove it.
+  url: ""     # Required: https://<nas>/api/v2.0/pool
+  apiKey: ""  # Required: API key of a read-only TrueNAS user
+  insecureSkipVerify: true  # The NAS has a self-signed certificate
+
+# Alert limits: part of the pool that is in use (0-1)
+alerts:
+  warning: 0.85
+  critical: 0.95
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 32Mi
+
+service:
+  port: 7979
+
+serviceMonitor:
+  interval: 60s
+  scrapeTimeout: 30s
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534

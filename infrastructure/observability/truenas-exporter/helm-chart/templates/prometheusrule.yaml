@@ -1,0 +1,53 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "truenas-exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "truenas-exporter.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: truenas
+      rules:
+        - alert: TrueNASPoolFillingUp
+          expr: |
+            truenas_pool_allocated_bytes / truenas_pool_size_bytes > {{ .Values.alerts.warning }}
+            unless
+            truenas_pool_allocated_bytes / truenas_pool_size_bytes > {{ .Values.alerts.critical }}
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: TrueNAS pool {{ "{{ $labels.pool }}" }} is more than {{ mulf .Values.alerts.warning 100 }} % full
+            description: Pool {{ "{{ $labels.pool }}" }} is {{ "{{ $value | humanizePercentage }}" }} full.
+        - alert: TrueNASPoolAlmostFull
+          expr: |
+            truenas_pool_allocated_bytes / truenas_pool_size_bytes > {{ .Values.alerts.critical }}
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: TrueNAS pool {{ "{{ $labels.pool }}" }} is more than {{ mulf .Values.alerts.critical 100 }} % full
+            description: >-
+              Pool {{ "{{ $labels.pool }}" }} is {{ "{{ $value | humanizePercentage }}" }} full.
+              Writes to the shares on this pool will soon fail.
+        - alert: TrueNASPoolUnhealthy
+          expr: truenas_pool_healthy == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: TrueNAS pool {{ "{{ $labels.pool }}" }} is not healthy
+            description: TrueNAS reports pool {{ "{{ $labels.pool }}" }} as not healthy. Check the pool status in the TrueNAS web UI.
+        - alert: TrueNASExporterDown
+          expr: |
+            up{job="{{ include "truenas-exporter.fullname" . }}"} == 0
+            or absent(truenas_pool_size_bytes)
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: No pool data from TrueNAS
+            description: >-
+              Prometheus gets no pool data from the TrueNAS API, so the pool alerts do not work.
+              Check the API key and the exporter logs.

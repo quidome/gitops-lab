@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "truenas-exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "truenas-exporter.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "truenas-exporter.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: metrics
+      path: /probe
+      interval: {{ .Values.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
+      params:
+        module:
+          - pool
+        target:
+          - {{ required "truenas.url is required" .Values.truenas.url }}
+      relabelings:
+        - action: replace
+          targetLabel: instance
+          replacement: truenas
