@@ -42,9 +42,13 @@ server:
     limits:
       memory: 256Mi
 
-  # Increase readiness probe timeout (default 3s is too short)
+  # HTTP check on the health endpoint. The default check runs `vault status`
+  # in the container every 5 s; that lines up with the kernel load sampling
+  # (every 5.001 s) and makes the load of the node look ~6 for hours.
+  # /v1/sys/health gives 200 when unsealed and 503 when sealed (not ready).
   readinessProbe:
     enabled: true
+    path: /v1/sys/health
     timeoutSeconds: 10
 
   # Schedule on kube2 node
