@@ -13,7 +13,7 @@ releases:
           pullPolicy: IfNotPresent
 
         proxmox:
-          host: pve2.lan.balti.casa
+          host: pve2.srv.balti.casa
           user: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_USER" | quote }}
           tokenName: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_TOKEN_NAME" | quote }}
           tokenValue: {{ fetchSecretValue "ref+vault://kv/observability/proxmox-exporter#PROXMOX_TOKEN_VALUE" | quote }}

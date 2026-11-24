@@ -77,7 +77,7 @@ kubectl get pods -n observability -l app.kubernetes.io/name=proxmox-exporter
 Check metrics endpoint:
 ```bash
 kubectl exec -n observability deployment/proxmox-exporter -- \
-  wget -q -O- "http://localhost:9221/pve?target=pve2.lan.balti.casa" | head -20
+  wget -q -O- "http://localhost:9221/pve?target=pve2.srv.balti.casa" | head -20
 ```
 
 Verify ServiceMonitor exists:
