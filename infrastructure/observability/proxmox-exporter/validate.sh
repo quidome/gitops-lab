@@ -44,7 +44,7 @@ fi
 # 4. Check metrics endpoint
 echo "4. Checking metrics endpoint..."
 if kubectl exec -n observability deployment/proxmox-exporter -- \
-  wget -q -O- "http://localhost:9221/pve?target=pve2.lan.balti.casa" 2>/dev/null | grep -q "pve_up"; then
+  wget -q -O- "http://localhost:9221/pve?target=pve2.srv.balti.casa" 2>/dev/null | grep -q "pve_up"; then
   echo "   ✓ Metrics exposed"
 else
   echo "   ✗ Metrics not available"
