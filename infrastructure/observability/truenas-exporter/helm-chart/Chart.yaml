@@ -1,6 +1,6 @@
 apiVersion: v2
 name: truenas-exporter
-description: Pool usage of the TrueNAS NAS from its REST API, with json_exporter
+description: Pool usage and alert list of the TrueNAS NAS from its JSON-RPC API
 type: application
 version: 1.0.0
-appVersion: "v0.8.0"
+appVersion: "1.0.0"

@@ -6,40 +6,5 @@ metadata:
   labels:
     {{- include "truenas-exporter.labels" . | nindent 4 }}
 data:
-  config.yml: |
-    modules:
-      pool:
-        http_client_config: &http
-          tls_config:
-            insecure_skip_verify: {{ .Values.truenas.insecureSkipVerify }}
-          authorization:
-            type: Bearer
-            credentials_file: /etc/truenas/api-key
-        metrics:
-          - name: truenas_pool
-            type: object
-            help: TrueNAS pool size, space in use and health
-            path: '{ [*] }'
-            labels:
-              pool: '{ .name }'
-            values:
-              size_bytes: '{ .size }'
-              allocated_bytes: '{ .allocated }'
-              free_bytes: '{ .free }'
-              healthy: '{ .healthy }'
-      alerts:
-        http_client_config: *http
-        metrics:
-          # Series truenas_alert_active: one per active (not dismissed) TrueNAS alert. The uuid label
-          # keeps two alerts of the same kind apart.
-          - name: truenas_alert
-            type: object
-            help: Active TrueNAS alert (value 1), from the TrueNAS alert list
-            path: '{ [?(@.dismissed == false)] }'
-            labels:
-              uuid: '{ .uuid }'
-              klass: '{ .klass }'
-              level: '{ .level }'
-              text: '{ .formatted }'
-            values:
-              active: 1
+  exporter.py: |
+    {{- .Files.Get "files/exporter.py" | nindent 4 }}
