@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "truenas-exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "truenas-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "truenas-exporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      labels:
+        {{- include "truenas-exporter.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: exporter
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}@{{ .Values.image.digest }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python3", "-u", "/app/exporter.py"]
+          env:
+            - name: TRUENAS_HOST
+              value: {{ required "truenas.host is required" .Values.truenas.host | quote }}
+            - name: TRUENAS_API_KEY_FILE
+              value: /etc/truenas/api-key
+            - name: TRUENAS_VERIFY_TLS
+              value: {{ .Values.truenas.verifyTls | quote }}
+            - name: LISTEN_PORT
+              value: {{ .Values.service.port | quote }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          # /healthz does not call TrueNAS: a NAS problem shows as truenas_up 0,
+          # not as a restarting pod
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /app
+              readOnly: true
+            - name: api-key
+              mountPath: /etc/truenas
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "truenas-exporter.fullname" . }}
+        - name: api-key
+          secret:
+            secretName: {{ include "truenas-exporter.fullname" . }}
+            defaultMode: 0440

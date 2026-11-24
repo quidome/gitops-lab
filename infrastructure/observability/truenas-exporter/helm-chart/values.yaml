@@ -1,0 +1,38 @@
+# Runs files/exporter.py (Python standard library only) from a ConfigMap
+image:
+  repository: docker.io/library/python
+  tag: "3.14.10-alpine"
+  digest: sha256:5862d971d1f0ae26b258cefa4e893556b1d3aba81bd2ff30888704ad378bab67
+  pullPolicy: IfNotPresent
+
+truenas:
+  host: ""    # Required: host name or address of the NAS
+  apiKey: ""  # Required: API key of a read-only TrueNAS user (POOL_READ, ALERT_LIST_READ)
+  verifyTls: false  # The NAS has a self-signed certificate
+
+# Alert limits: part of the pool that is in use (0-1)
+alerts:
+  warning: 0.85
+  critical: 0.95
+  # TrueNAS alert kinds that the pool rules already cover (regular expression)
+  excludedKlasses: "ZpoolCapacity.*|VolumeStatus"
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 48Mi
+  limits:
+    memory: 48Mi
+
+service:
+  port: 9814
+
+serviceMonitor:
+  interval: 60s
+  scrapeTimeout: 30s
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534

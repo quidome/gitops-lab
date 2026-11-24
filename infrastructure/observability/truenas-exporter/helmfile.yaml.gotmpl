@@ -1,0 +1,12 @@
+repositories: []  # Local chart
+
+releases:
+  - name: truenas-exporter
+    namespace: observability
+    chart: ./helm-chart
+    wait: true
+    timeout: 300
+    values:
+      - truenas:
+          host: 172.16.40.64
+          apiKey: {{ fetchSecretValue "ref+vault://kv/observability/truenas-exporter#API_KEY" | quote }}
