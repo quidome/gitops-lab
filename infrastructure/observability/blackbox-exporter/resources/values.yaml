@@ -31,32 +31,17 @@ probes:
     labels:
       probe_type: tcp
       scope: external
-  routerRt01Services:
+  technitiumDns:
     enabled: true
-    name: router-rt01-services
-    module: tcp_connect
-    jobName: blackbox-router-rt01-services
+    name: technitium-dns
+    module: dns_technitium_udp
+    jobName: blackbox-technitium-dns
     targets:
-      - 172.16.40.1:53
-      - 172.16.40.1:80
-      - 172.16.40.1:9100
-    labels:
-      probe_type: tcp
-      scope: lan
-      device: router
-      instance_name: rt01
-  piholeRt01Dns:
-    enabled: true
-    name: pihole-rt01-dns
-    module: dns_pihole_rt01_udp
-    jobName: blackbox-pihole-rt01-dns
-    targets:
-      - 172.16.40.1:53
+      - 172.16.40.78:53
     labels:
       probe_type: dns
       scope: lan
-      service: pihole
-      instance_name: rt01
+      service: technitium
   freedomDnsIpv4:
     enabled: true
     name: freedom-dns-ipv4

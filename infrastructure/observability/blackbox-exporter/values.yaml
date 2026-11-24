@@ -20,7 +20,9 @@ config:
       timeout: 5s
       tcp:
         preferred_ip_protocol: ip4
-    dns_pihole_rt01_udp:
+    # Technitium is the DNS server that DHCP gives to clients. Fail if the
+    # answer is not the address of the internal gateway.
+    dns_technitium_udp:
       prober: dns
       timeout: 5s
       dns:
@@ -29,6 +31,9 @@ config:
         valid_rcodes: [NOERROR]
         transport_protocol: udp
         preferred_ip_protocol: ip4
+        validate_answer_rrs:
+          fail_if_not_matches_regexp:
+            - '.*\sIN\s+A\s+172\.16\.40\.50$'
     dns_freedom_udp_ipv4:
       prober: dns
       timeout: 5s
