@@ -3,6 +3,9 @@ policy: sync
 sources: ["gateway-httproute"]
 triggerLoopOnEvent: true
 domainFilters: ["quido.me"]
+# Skip routes with the label external-dns=ignore (the HTTP-to-HTTPS redirect
+# routes in networking/gateway, which have no hostnames).
+labelFilter: external-dns!=ignore
 
 resources:
   requests:
