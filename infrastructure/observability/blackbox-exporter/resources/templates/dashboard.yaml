@@ -16,4 +16,6 @@ metadata:
 data:
   network-probes.json: |-
 {{ .Files.Get "dashboards/network-probes.json" | nindent 4 }}
+  dns-overview.json: |-
+{{ .Files.Get "dashboards/dns-overview.json" | nindent 4 }}
 {{- end }}
