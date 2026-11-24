@@ -39,6 +39,25 @@ spec:
           annotations:
             summary: TrueNAS pool {{ "{{ $labels.pool }}" }} is not healthy
             description: TrueNAS reports pool {{ "{{ $labels.pool }}" }} as not healthy. Check the pool status in the TrueNAS web UI.
+        # Alerts that TrueNAS raises itself (disks, SMART, scrubs, replication,
+        # certificates, ...). Pool capacity and pool status are left out: the
+        # rules above cover them.
+        - alert: TrueNASAlert
+          expr: |
+            truenas_alert_active{level="WARNING", klass!~"{{ .Values.alerts.excludedKlasses }}"}
+          labels:
+            severity: warning
+          annotations:
+            summary: "TrueNAS: {{ "{{ $labels.klass }}" }}"
+            description: "{{ "{{ $labels.text }}" }}"
+        - alert: TrueNASAlert
+          expr: |
+            truenas_alert_active{level=~"ERROR|CRITICAL|ALERT|EMERGENCY", klass!~"{{ .Values.alerts.excludedKlasses }}"}
+          labels:
+            severity: critical
+          annotations:
+            summary: "TrueNAS: {{ "{{ $labels.klass }}" }}"
+            description: "{{ "{{ $labels.text }}" }}"
         - alert: TrueNASExporterDown
           expr: |
             up{job="{{ include "truenas-exporter.fullname" . }}"} == 0

@@ -10,16 +10,22 @@ spec:
     matchLabels:
       {{- include "truenas-exporter.selectorLabels" . | nindent 6 }}
   endpoints:
+    {{- range $module, $path := .Values.truenas.modules }}
     - port: metrics
       path: /probe
-      interval: {{ .Values.serviceMonitor.interval }}
-      scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
+      interval: {{ $.Values.serviceMonitor.interval }}
+      scrapeTimeout: {{ $.Values.serviceMonitor.scrapeTimeout }}
       params:
         module:
-          - pool
+          - {{ $module }}
         target:
-          - {{ required "truenas.url is required" .Values.truenas.url }}
+          - {{ required "truenas.url is required" $.Values.truenas.url }}{{ $path }}
       relabelings:
         - action: replace
           targetLabel: instance
           replacement: truenas
+        # Two scrape targets on one exporter: keep them apart
+        - action: replace
+          sourceLabels: [__param_module]
+          targetLabel: module
+    {{- end }}

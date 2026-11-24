@@ -4,9 +4,13 @@ image:
   pullPolicy: IfNotPresent
 
 truenas:
-  # Pool list of the TrueNAS REST API. The REST API is deprecated since
+  # Base URL of the TrueNAS REST API. The REST API is deprecated since
   # TrueNAS 25.04; it works in 25.10 but a later version can remove it.
-  url: ""     # Required: https://<nas>/api/v2.0/pool
+  url: ""     # Required: https://<nas>/api/v2.0
+  # json_exporter module -> API path below url. Each one is a scrape target.
+  modules:
+    pool: /pool          # role POOL_READ
+    alerts: /alert/list  # role ALERT_LIST_READ
   apiKey: ""  # Required: API key of a read-only TrueNAS user
   insecureSkipVerify: true  # The NAS has a self-signed certificate
 
@@ -14,6 +18,8 @@ truenas:
 alerts:
   warning: 0.85
   critical: 0.95
+  # TrueNAS alert kinds that the pool rules already cover (regular expression)
+  excludedKlasses: "ZpoolCapacity.*|VolumeStatus"
 
 resources:
   requests:
