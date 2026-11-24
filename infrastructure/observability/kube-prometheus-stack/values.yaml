@@ -13,6 +13,9 @@ prometheus:
   enabled: true
 
   prometheusSpec:
+    # URL in alert links ("Source"); without it the in-cluster service name is used
+    externalUrl: https://prometheus.quido.me
+
     # Retention and storage
     retention: 30d
     retentionSize: "14GB"  # ~90% of 15Gi PVC
@@ -72,6 +75,9 @@ alertmanager:
   enabled: true
 
   alertmanagerSpec:
+    # URL in notification links; without it the in-cluster service name is used
+    externalUrl: https://alertmanager.quido.me
+
     # Storage (minimal, alerts are ephemeral)
     storage:
       volumeClaimTemplate:

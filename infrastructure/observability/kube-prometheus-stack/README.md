@@ -1,10 +1,23 @@
 # Observability
 
-The kube-prometheus-stack release exposes Grafana internally at:
+The kube-prometheus-stack release exposes these services on the internal gateway:
 
 ```text
 https://grafana.quido.me
+https://prometheus.quido.me
+https://alertmanager.quido.me
 ```
+
+Prometheus and Alertmanager have no login. They are reachable only on the
+internal network, the same as Karma.
+
+## Alert links
+
+Prometheus and Alertmanager use their `externalUrl` in the links they put in
+alerts. Without it, the links contain the service name inside the cluster
+(`kube-prometheus-stack-prometheus.observability:9090`), which does not resolve
+outside the cluster. In Pushover, the main link opens `https://karma.quido.me`
+and the "Source" link opens the alert query in Prometheus.
 
 ## Pocket ID OIDC
 
