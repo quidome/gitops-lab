@@ -130,6 +130,9 @@ just finalizers <namespace>      # Remove stuck namespace finalizers
   - StatefulSets handle this automatically (preferred for stateful apps)
   - Deployments need explicit `strategy: {type: Recreate}`
 - **Retain policy**: Storage classes use Retain policy to preserve PVs on deletion
+- **Hostnames**: the main hostname of a service is its product name (`karma.quido.me`, not
+  `alerts.quido.me`). A short job name is only an extra hostname for services that household users
+  open directly. See `docs/decisions/0003-hostnames-are-product-names.md`.
 - **HTTPRoute configuration**: When creating HTTPRoutes, always check existing examples (e.g., `infrastructure/observability/kube-prometheus-stack/resources/templates/http-route.yaml`) and include explicit defaults to prevent ArgoCD drift:
   ```yaml
   backendRefs:
