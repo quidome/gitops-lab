@@ -1,1 +1,5 @@
-internalDnsServer: 10.43.203.19
+# DNS servers for quido.me lookups from pods: Technitium net1.
+# Add net2 here when it runs. Other names follow the node DNS
+# (k3s CoreDNS forwards "." to /etc/resolv.conf of the node).
+quidoMeDnsServers:
+  - 172.16.40.78

@@ -11,5 +11,5 @@ data:
     quido.me:53 {
       errors
       cache 30
-      forward . {{ .Values.internalDnsServer }}
+      forward . {{ join " " .Values.quidoMeDnsServers }}
     }
