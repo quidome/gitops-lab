@@ -11,7 +11,7 @@ does not use the Gateway API `ExternalAuth` filter.
 - **Temporary URL:** `https://alerts-sso.quido.me`
 - **Gateway:** `gateway-internal`
 - **Upstream:** `http://karma.observability.svc.cluster.local:80/`
-- **Primary Karma URL:** `https://alerts.quido.me` (unchanged during the POC)
+- **Primary Karma URL:** `https://karma.quido.me` (unchanged during the POC; `alerts.quido.me` redirects to it)
 
 The ApplicationSet discovers `infrastructure/security/oauth2-proxy` as a
 separate application. The proxy's single upstream is intentionally configured
@@ -99,8 +99,8 @@ Do not promote the proxy until every check passes.
 
 Promotion is a separate reviewed change:
 
-1. Add the primary host `alerts.quido.me` to this proxy route.
-2. Remove or disable the direct `alerts.quido.me` HTTPRoute in the Karma
+1. Add the primary host `karma.quido.me` to this proxy route.
+2. Remove or disable the direct `karma.quido.me` HTTPRoute in the Karma
    component so only one route owns the hostname.
 3. Keep the temporary host until the primary route is verified, then remove it
    and revoke its temporary Pocket ID redirect/client when no longer needed.

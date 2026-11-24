@@ -13,7 +13,7 @@ spec:
       group: gateway.networking.k8s.io
       kind: Gateway
   hostnames:
-    - alerts.quido.me
+    - karma.quido.me
   rules:
     - matches:
         - path:
@@ -25,3 +25,32 @@ spec:
           kind: Service
           group: ""
           weight: 1
+---
+# Old hostname (before decision 0003). Redirects bookmarks to karma.quido.me.
+# Remove after some time.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: karma-alerts-redirect
+  labels:
+    app: karma
+    component: observability
+spec:
+  parentRefs:
+    - name: gateway-internal
+      namespace: networking
+      sectionName: https
+      group: gateway.networking.k8s.io
+      kind: Gateway
+  hostnames:
+    - alerts.quido.me
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            hostname: karma.quido.me
+            statusCode: 301
