@@ -20,6 +20,16 @@ config:
       timeout: 5s
       tcp:
         preferred_ip_protocol: ip4
+    # TLS handshake with the k3s API port, to read the expiry date of its
+    # serving certificate (CN=k3s). The cluster CA is private: skip the check.
+    tls_k3s_api:
+      prober: tcp
+      timeout: 5s
+      tcp:
+        preferred_ip_protocol: ip4
+        tls: true
+        tls_config:
+          insecure_skip_verify: true
     # Technitium is the DNS server that DHCP gives to clients. Fail if the
     # answer is not the address of the internal gateway.
     dns_technitium_udp:

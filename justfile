@@ -14,6 +14,10 @@ default:
 unseal entry="personal/vault/prod":
     ./scripts/unseal-vault.sh {{ quote(entry) }}
 
+# Copy a fresh admin kubeconfig from the k3s server (after k3s renews its certificates)
+kubeconfig host="kube2":
+    ./scripts/fetch-kubeconfig.sh {{ quote(host) }}
+
 # Show Vault seal status
 vault-status:
     kubectl exec -n security vault-0 -- vault status
