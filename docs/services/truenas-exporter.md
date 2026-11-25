@@ -38,12 +38,12 @@ each of the two media folders.
 
   | Alert | When | Severity |
   |---|---|---|
-  | `TrueNASPoolFillingUp` | pool more than 85 % in use for 15 min | warning |
+  | `TrueNASPoolFillingUp` | pool more than 85 % in use for 15 min | warning (Pushover, no sound) |
   | `TrueNASPoolAlmostFull` | pool more than 95 % in use for 5 min | critical (Pushover) |
   | `TrueNASPoolUnhealthy` | TrueNAS reports the pool as not healthy for 5 min | critical (Pushover) |
-  | `TrueNASAlert` | a TrueNAS alert with level WARNING | warning |
+  | `TrueNASAlert` | a TrueNAS alert with level WARNING | warning (Pushover, no sound) |
   | `TrueNASAlert` | a TrueNAS alert with level ERROR, CRITICAL, ALERT or EMERGENCY | critical (Pushover) |
-  | `TrueNASExporterDown` | no pool data for 15 min | warning |
+  | `TrueNASExporterDown` | no pool data for 15 min | warning (Pushover, no sound) |
 
   `TrueNASAlert` leaves out the TrueNAS kinds for pool capacity and pool status
   (`ZpoolCapacity*`, `VolumeStatus`): the pool alerts above cover them. INFO and NOTICE alerts
