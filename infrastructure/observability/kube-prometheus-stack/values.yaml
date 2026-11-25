@@ -110,11 +110,18 @@ alertmanager:
       group_by: [alertname, namespace]
       group_wait: 30s
       group_interval: 5m
-      repeat_interval: 4h
+      repeat_interval: 12h
       routes:
+        # Critical: Pushover priority 1 (high), a reminder every 12 h
         - receiver: pushover
           matchers:
             - severity=critical
+          continue: false
+        # Warning: Pushover priority -1 (no sound), a reminder each day
+        - receiver: pushover-low
+          matchers:
+            - severity=warning
+          repeat_interval: 24h
           continue: false
 
     # Receivers defined in secrets.yaml.gotmpl (Helm replaces arrays, doesn't merge)

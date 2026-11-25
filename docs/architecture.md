@@ -49,6 +49,21 @@ For each PostgreSQL database that keeps data. Reference: `applications/productiv
 - Restore: into a new database, then swap the names (`ALTER DATABASE … RENAME`); the app at 0 replicas and its pod gone first. Never `pg_restore --clean` on the running database.
 - A service document with recovery steps, and one restore that was really done and checked before the change is merged.
 
+### Alerts and how they reach the operator
+Configuration: `alertmanager.config.route` in `infrastructure/observability/kube-prometheus-stack/values.yaml`,
+receivers in `secrets.yaml.gotmpl`.
+- Set `severity` on each alert rule: it chooses how the alert reaches the operator.
+
+  | Severity | Receiver | Pushover priority | Reminder while active |
+  |---|---|---|---|
+  | `critical` | `pushover` | 1 (high: through quiet hours, one sound) | every 12 h |
+  | `warning` | `pushover-low` | -1 (low: no sound or vibration) | every 24 h |
+  | other | `null` | none, only in Karma | none |
+
+- Both receivers also send a message when the alert stops (priority 0 for `pushover`).
+- Never use Pushover priority 2 (emergency): Pushover repeats it every minute until it is acknowledged. It is the Alertmanager default, so each Pushover receiver sets `priority`.
+- A known problem that takes days to fix: silence the alert in Karma until the fix, with the task number in the comment. Do not raise `repeat_interval` for it.
+
 ## Known technical debt
 - The database backup job installs `age` from the Alpine package mirror at each run, in an init container that runs as root (`backup.installImage`). It needs the internet at night. Fix: our own image with `pg_dump` and `age` (Vikunja).
 - The team database dumps are on TrueNAS only, the same system as the database volume, so they are not yet a backup in the meaning of `docs/language.md`. Fix: an off-site copy (Vikunja).
