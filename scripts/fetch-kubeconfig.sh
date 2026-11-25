@@ -12,11 +12,15 @@ target="${KUBECONFIG:-$HOME/.kube/config}"
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 
-# k3s.yaml is readable by root only. Copy it to a private temporary file on the
-# host (sudo asks for the password on the terminal), fetch it, delete it.
-remote_tmp="$(ssh -t "$host" 'f=$(mktemp) && sudo install -m 600 -o "$(id -un)" /etc/rancher/k3s/k3s.yaml "$f" && echo "$f"' | tr -d '\r' | tail -n 1)"
-scp -q "$host:$remote_tmp" "$tmp"
-ssh "$host" rm -f "$remote_tmp"
+# k3s.yaml is readable by root only. Copy it to a private file in the home
+# directory on the host, fetch it, delete it. The ssh output is not captured, so
+# the sudo password prompt shows on the terminal.
+remote_copy=".k3s-kubeconfig.tmp"
+echo "Copying k3s.yaml on $host (sudo may ask for your password)..."
+ssh -t "$host" "sudo install -m 600 -o \"\$(id -un)\" /etc/rancher/k3s/k3s.yaml ~/$remote_copy"
+# From here on, delete the copy on the host also when a later step fails
+trap 'rm -f "$tmp"; ssh "$host" rm -f "$remote_copy" >/dev/null 2>&1 || true' EXIT
+scp -q "$host:$remote_copy" "$tmp"
 
 # k3s.yaml points at 127.0.0.1; use the address of the server instead
 kubectl --kubeconfig "$tmp" config set-cluster default --server="$server" >/dev/null
