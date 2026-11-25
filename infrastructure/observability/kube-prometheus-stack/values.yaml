@@ -5,6 +5,55 @@
 defaultRules:
   create: true  # Include default PrometheusRules (alerts)
 
+# Own rules for platform parts that have no chart of their own
+additionalPrometheusRulesMap:
+  # k3s client and server certificates live 365 days. k3s renews them only when
+  # it starts and they expire within 120 days. Needs --supervisor-metrics on the
+  # k3s server (nixos-config): k3s then adds k3s_certificate_expiration_seconds
+  # to the /metrics that the apiserver job scrapes. min by: the same metric can
+  # come from more than one scrape job.
+  k3s-certificates:
+    groups:
+      - name: k3s-certificates
+        rules:
+          - alert: K3sCertificateExpiresSoon
+            expr: |
+              min by (subject, usage) (k3s_certificate_expiration_seconds) < 45 * 86400
+              unless
+              min by (subject, usage) (k3s_certificate_expiration_seconds) < 14 * 86400
+            for: 1h
+            labels:
+              severity: warning
+            annotations:
+              summary: "k3s certificate {{ $labels.subject }} expires in {{ $value | humanizeDuration }}"
+              description: >-
+                Restart k3s on the node (sudo systemctl restart k3s): k3s renews
+                certificates that expire within 120 days when it starts. Then run
+                `just kubeconfig` on the workstation. See docs/services/k3s.md.
+          - alert: K3sCertificateExpiresVerySoon
+            expr: |
+              min by (subject, usage) (k3s_certificate_expiration_seconds) < 14 * 86400
+            for: 1h
+            labels:
+              severity: critical
+            annotations:
+              summary: "k3s certificate {{ $labels.subject }} expires in {{ $value | humanizeDuration }}"
+              description: >-
+                When it expires, parts of the cluster stop working. Restart k3s on
+                the node now (sudo systemctl restart k3s), then run `just kubeconfig`.
+                See docs/services/k3s.md.
+          - alert: K3sCertificateMetricMissing
+            expr: absent(k3s_certificate_expiration_seconds)
+            for: 1h
+            labels:
+              severity: warning
+            annotations:
+              summary: No k3s certificate expiry data
+              description: >-
+                Prometheus gets no k3s_certificate_expiration_seconds, so the k3s
+                certificate alerts do not work. Check that k3s on kube2 runs with
+                --supervisor-metrics (nixos-config).
+
 # ============================================================================
 # Prometheus Configuration
 # ============================================================================
