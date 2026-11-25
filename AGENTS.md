@@ -241,21 +241,22 @@ This is an infrastructure project with one operator. Do not use the product way 
 (skill `product-workflow`): no stages, personas, spec reviews or change folders.
 
 - **What to do**: tasks, ideas and the backlog are in Vikunja (project Platform, shared with
-  `gitops-apps`), not in this repository. Agents reach it with the `veans` CLI as the bot user
-  `bot-gitops-lab`; the session-start hook in `.claude/settings.json` prints the commands
+  `gitops-apps` and `nixos-config`), not in this repository. Agents reach it with the `veans` CLI as
+  the bot user `bot-gitops-lab`; the session-start hook in `.claude/settings.json` prints the commands
   (`veans prime`). See `docs/decisions/0002-agent-tasks-in-vikunja-with-veans.md`.
   - The operator names a task (`#NN`) or gives the task text. Claim the task; if there is none,
     create it in In Progress.
   - A finding outside the current change becomes a new task in Todo; tell the operator.
   - **Repository label**: each task has a label for the repository where the fix is made:
-    `repo:gitops-lab` or `repo:gitops-apps` (veans stores them as `veans:repo:<repository>`).
+    `repo:gitops-lab`, `repo:gitops-apps` or `repo:nixos-config` (veans stores them as
+    `veans:repo:<repository>`).
     Add it to each task you create (`veans create ... --label repo:gitops-lab`). A finding that
-    must be fixed in the other repository gets the label of that repository. A task without the
+    must be fixed in another repository gets the label of that repository. A task without the
     label gets it before you claim it (`veans update #NN --label-add repo:gitops-lab`). A change in
-    both repositories becomes two tasks, one per pull request.
+    more than one repository becomes one task per repository, one per pull request.
   - Find the work for this repository with `veans list --ready --filter 'labels in 3'`.
     The filter needs the label ID, not the name: 3 is `veans:repo:gitops-lab`
-    (4 is `veans:repo:gitops-apps`).
+    (4 is `veans:repo:gitops-apps`, 8 is `veans:repo:nixos-config`).
   - Put the task URL in the PR description and `Refs: #NN` in the commits. When the PR is open,
     move the task to In Review. Only the operator closes tasks (there is no merge hook).
   - If Vikunja is not reachable, work from the task text the operator gives and update the task
