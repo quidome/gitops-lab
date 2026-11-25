@@ -51,8 +51,8 @@ makes sure that the next expiry is seen weeks before, and that it is quick to fi
 - **Dates on 2026-11-25:**
   - Most client and server certificates on `kube2`, the admin certificate included, expire on
     2027-08-03. A k3s restart from 2027-04-05 (120 days before) renews them.
-  - The API serving certificate (`CN=k3s`) expires on 2027-04-07. I expect dynamiclistener to
-    renew it while k3s runs, but this has not been seen yet; the alerts show it if it does not.
+  - The API serving certificate (`CN=k3s`) expires on 2027-04-07. dynamiclistener probably
+    renews it while k3s runs, but this has not been seen yet; the alerts show it if it does not.
 
 ## Secrets
 - The private keys of all certificates are on the nodes in `/var/lib/rancher/k3s/server/tls/`
