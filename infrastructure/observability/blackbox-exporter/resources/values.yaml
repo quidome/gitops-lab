@@ -31,6 +31,19 @@ probes:
     labels:
       probe_type: tcp
       scope: external
+  # The serving certificate of the k3s API (CN=k3s) is not in
+  # k3s_certificate_expiration_seconds; alert in kube-prometheus-stack values
+  k3sApiTls:
+    enabled: true
+    name: k3s-api-tls
+    module: tls_k3s_api
+    jobName: blackbox-k3s-api-tls
+    targets:
+      - 172.16.40.76:6443
+    labels:
+      probe_type: tls
+      scope: lan
+      service: k3s
   technitiumDns:
     enabled: true
     name: technitium-dns

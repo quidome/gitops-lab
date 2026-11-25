@@ -10,49 +10,67 @@ additionalPrometheusRulesMap:
   # k3s client and server certificates live 365 days. k3s renews them only when
   # it starts and they expire within 120 days. Needs --supervisor-metrics on the
   # k3s server (nixos-config): k3s then adds k3s_certificate_expiration_seconds
-  # to the /metrics that the apiserver job scrapes. min by: the same metric can
-  # come from more than one scrape job.
+  # to /metrics. The apiserver and kubelet jobs both scrape it on kube2, so the
+  # recording rule takes the minimum per node (address without port), subject
+  # and usages. The API serving certificate (CN=k3s) is not in that metric: a
+  # blackbox TLS probe reads it (infrastructure/observability/blackbox-exporter).
   k3s-certificates:
     groups:
       - name: k3s-certificates
         rules:
+          - record: k3s:certificate_expiration_seconds:min
+            expr: |
+              min by (node, subject, usages) (
+                label_replace(k3s_certificate_expiration_seconds, "node", "$1", "instance", "([^:]+):.*")
+              )
+          - record: k3s:certificate_expiration_seconds:min
+            expr: |
+              min by (node) (
+                label_replace(probe_ssl_earliest_cert_expiry{job="blackbox-k3s-api-tls"}, "node", "$1", "instance", "([^:]+):.*")
+              ) - time()
+            labels:
+              subject: CN=k3s
+              usages: ServerAuth
           - alert: K3sCertificateExpiresSoon
             expr: |
-              min by (subject, usage) (k3s_certificate_expiration_seconds) < 45 * 86400
+              k3s:certificate_expiration_seconds:min < 45 * 86400
               unless
-              min by (subject, usage) (k3s_certificate_expiration_seconds) < 14 * 86400
+              k3s:certificate_expiration_seconds:min < 14 * 86400
             for: 1h
             labels:
               severity: warning
             annotations:
-              summary: "k3s certificate {{ $labels.subject }} expires in {{ $value | humanizeDuration }}"
+              summary: "k3s certificate {{ $labels.subject }} on {{ $labels.node }} expires in {{ $value | humanizeDuration }}"
               description: >-
                 Restart k3s on the node (sudo systemctl restart k3s): k3s renews
                 certificates that expire within 120 days when it starts. Then run
                 `just kubeconfig` on the workstation. See docs/services/k3s.md.
           - alert: K3sCertificateExpiresVerySoon
             expr: |
-              min by (subject, usage) (k3s_certificate_expiration_seconds) < 14 * 86400
+              k3s:certificate_expiration_seconds:min < 14 * 86400
             for: 1h
             labels:
               severity: critical
             annotations:
-              summary: "k3s certificate {{ $labels.subject }} expires in {{ $value | humanizeDuration }}"
+              summary: "k3s certificate {{ $labels.subject }} on {{ $labels.node }} expires in {{ $value | humanizeDuration }}"
               description: >-
                 When it expires, parts of the cluster stop working. Restart k3s on
                 the node now (sudo systemctl restart k3s), then run `just kubeconfig`.
                 See docs/services/k3s.md.
           - alert: K3sCertificateMetricMissing
-            expr: absent(k3s_certificate_expiration_seconds)
+            expr: |
+              absent(k3s_certificate_expiration_seconds)
+              or absent(probe_ssl_earliest_cert_expiry{job="blackbox-k3s-api-tls"})
             for: 1h
             labels:
               severity: warning
             annotations:
               summary: No k3s certificate expiry data
               description: >-
-                Prometheus gets no k3s_certificate_expiration_seconds, so the k3s
-                certificate alerts do not work. Check that k3s on kube2 runs with
-                --supervisor-metrics (nixos-config).
+                Prometheus gets no k3s_certificate_expiration_seconds or no TLS probe
+                result for the k3s API, so the k3s certificate alerts do not work.
+                Check that k3s on kube2 runs with --supervisor-metrics (nixos-config)
+                and the probe blackbox-k3s-api-tls.
 
 # ============================================================================
 # Prometheus Configuration

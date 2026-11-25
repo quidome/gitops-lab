@@ -15,8 +15,10 @@ makes sure that the next expiry is seen weeks before, and that it is quick to fi
   NixOS configuration of the nodes is in the repository `nixos-config` (`hosts/kube*/configuration.nix`).
 - **Lifetimes:**
   - Client and server certificates: 365 days.
-  - The certificate authorities (CA) of the cluster: 3650 days (created 2025-11-23, so they
-    expire around 2035-11). k3s never renews them by itself (`k3s certificate rotate-ca`).
+  - The certificate authorities (CA) of the cluster: 3650 days (created 2025-07-20, so they
+    expire around 2035-07). k3s never renews them by itself (`k3s certificate rotate-ca`).
+  - The serving certificate of the API port 6443 (`CN=k3s`) is managed by a separate part of
+    k3s (dynamiclistener) and has its own date.
 - **Renewal:** k3s renews each client and server certificate that is expired or expires within
   120 days, **only when k3s starts**. A node that runs without a k3s restart for a long time
   keeps its old certificates until they expire. k3s also creates a Kubernetes event
@@ -24,23 +26,33 @@ makes sure that the next expiry is seen weeks before, and that it is quick to fi
 - **Admin kubeconfig:** k3s writes `/etc/rancher/k3s/k3s.yaml` on `kube2` (root only) with the
   current admin certificate. The copy on the workstation (`~/.kube/config`) does not change when
   k3s renews: it must be fetched again (`just kubeconfig`).
-- **Metric:** k3s on `kube2` runs with `--supervisor-metrics`. k3s then adds
-  `k3s_certificate_expiration_seconds` (labels `subject`, `usage`: seconds until each certificate
-  expires) to the `/metrics` endpoint on port 6443, which Prometheus already scrapes (job
-  `apiserver`).
+- **Metrics:**
+  - k3s on `kube2` runs with `--supervisor-metrics`. k3s then adds
+    `k3s_certificate_expiration_seconds` (labels `subject`, `usages`: seconds until each
+    certificate expires) to `/metrics`. Prometheus already scrapes it on `kube2` (jobs
+    `apiserver` and `kubelet`) and on the agents (job `kubelet`), so the certificates of all three
+    nodes are covered.
+  - The API serving certificate (`CN=k3s`) is not in that metric. The blackbox exporter makes a
+    TLS handshake with `172.16.40.76:6443` (probe `blackbox-k3s-api-tls`) and reads its expiry
+    date (`probe_ssl_earliest_cert_expiry`).
+  - The recording rule `k3s:certificate_expiration_seconds:min` joins both, with one series per
+    node address (`node`), `subject` and `usages`. The alerts use it.
 - **Alerts** (`additionalPrometheusRulesMap` in `infrastructure/observability/kube-prometheus-stack/values.yaml`):
 
   | Alert | When | Severity |
   |---|---|---|
   | `K3sCertificateExpiresSoon` | a k3s certificate expires within 45 days | warning (Pushover, no sound) |
   | `K3sCertificateExpiresVerySoon` | a k3s certificate expires within 14 days | critical (Pushover) |
-  | `K3sCertificateMetricMissing` | no `k3s_certificate_expiration_seconds` for 1 h | warning (Pushover, no sound) |
+  | `K3sCertificateMetricMissing` | no `k3s_certificate_expiration_seconds` or no TLS probe result for 1 h | warning (Pushover, no sound) |
 
   The standard alerts of kube-prometheus-stack also stay: `KubeClientCertificateExpiration`
   (a client certificate used against the API server expires within 7 days or 24 hours) and the
   kubelet certificate alerts.
-- **Dates on 2026-11-25:** the server certificates on `kube2` expire on 2027-04-07; a k3s
-  restart from 2026-12-08 renews them. The admin certificate expires on 2027-08-03.
+- **Dates on 2026-11-25:**
+  - Most client and server certificates on `kube2`, the admin certificate included, expire on
+    2027-08-03. A k3s restart from 2027-04-05 (120 days before) renews them.
+  - The API serving certificate (`CN=k3s`) expires on 2027-04-07. I expect dynamiclistener to
+    renew it while k3s runs, but this has not been seen yet; the alerts show it if it does not.
 
 ## Secrets
 - The private keys of all certificates are on the nodes in `/var/lib/rancher/k3s/server/tls/`
