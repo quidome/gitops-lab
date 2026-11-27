@@ -28,6 +28,16 @@ at `https://hass.quido.me`.
   serves all entities at `/api/prometheus`. The chart ServiceMonitor `hass` makes Prometheus
   scrape it each 60 s with a bearer token. Metrics start with `hass_` (for example
   `hass_sensor_power_w`, `hass_sensor_energy_kwh`, `hass_sensor_temperature_celsius`), job `hass`.
+  State metrics have no area; join them with `hass_entity_info` (label `area`) and
+  `hass_area_info` (label `area_name`) on `entity` and `area`.
+- Grafana dashboards: the JSON files in `resources/dashboards/` become the ConfigMap
+  `hass-grafana-dashboards`, which the Grafana sidecar loads into the folder "Home". Change them in
+  git; a change in the Grafana UI is lost at the next load.
+  - "Home Assistant - House overview": room temperature and humidity, outside temperature,
+    lights, solar power and production, car battery, device batteries, and entities without a
+    state. `hass_entity_available` is 0 for "unavailable" and for "unknown", so the panel leaves
+    out the types where "unknown" is normal (buttons, notify, conversation, scenes, events,
+    updates).
 
 ## Data
 - Volume `hass-hass-0` (5 Gi, `truenas-iscsi`, Retain) mounted at `/config`: the database
