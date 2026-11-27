@@ -1,0 +1,5 @@
+apiVersion: v2
+name: hass-resources
+description: Home Assistant additional resources (HTTPRoute, Prometheus token secret)
+type: application
+version: 0.1.0

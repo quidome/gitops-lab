@@ -227,6 +227,7 @@ kv/<realm>/<application>
 | Vault Path | Keys | Application |
 |---|---|---|
 | `kv/home-automation/mosquitto` | `passwordfile` | mosquitto |
+| `kv/home-automation/hass` | `PROMETHEUS_TOKEN` | hass (Prometheus scraping) |
 | `kv/home-automation/saic-mqtt-gateway` | `SAIC_USER`, `SAIC_PASSWORD`, etc. | saic-mqtt-gateway |
 | `kv/networking/external-dns` | `EXTERNAL_DNS_PIHOLE_PASSWORD` | external-dns |
 | `kv/security/cert-manager` | `api-token`, `email` | cert-manager |

@@ -75,11 +75,25 @@ configuration:
         {{- range .Values.configuration.trusted_proxies }}
         - {{ . }}
         {{- end }}
+    prometheus:
+      requires_auth: true
     frontend:
       themes: !include_dir_merge_named themes
     automation: !include automations.yaml
     script: !include scripts.yaml
     scene: !include scenes.yaml
+
+# Prometheus scraping of /api/prometheus.
+# templateConfig above is overridden, so the prometheus block is added there by hand.
+# The token is a long-lived access token from Home Assistant, stored in Vault at
+# kv/home-automation/hass#PROMETHEUS_TOKEN and rendered by hass-resources.
+serviceMonitor:
+  enabled: true
+  requiresAuth: true
+  scrapeInterval: 60s
+  bearerToken:
+    secretName: hass-prometheus-token
+    secretKey: token
 
 # Prefer node with P1 meter USB adapter, but allow scheduling elsewhere
 affinity:

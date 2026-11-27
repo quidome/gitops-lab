@@ -10,4 +10,7 @@ releases:
     values:
       - values.yaml
   - name: hass-resources
+    namespace: home-automation
     chart: ./resources
+    values:
+      - prometheusToken: {{ fetchSecretValue "ref+vault://kv/home-automation/hass#PROMETHEUS_TOKEN" | quote }}
