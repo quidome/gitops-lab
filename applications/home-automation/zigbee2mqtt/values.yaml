@@ -3,6 +3,11 @@ zigbee2mqtt:
     channel: 25
     network_key: "!secret network_key"
   timezone: Europe/Amsterdam
+  homeassistant:
+    # Home Assistant sends its online message on homeassistant/status (the chart default
+    # hass/status is never used). On that message zigbee2mqtt sends all device states again,
+    # so Zigbee entities are not "unknown" after a Home Assistant restart.
+    status_topic: homeassistant/status
   mqtt:
     server: mqtt://mosquitto.home-automation:1883
     user: "!secret username"
