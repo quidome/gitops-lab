@@ -9,7 +9,8 @@ releases:
     version: 1.24.0
     values:
       - values.yaml
-      - extraArgs:
+      - replicaCount: 0  # Pi-holes switched off (Vikunja #63)
+        extraArgs:
           - --pihole-server=http://pihole-a-web.networking.svc.cluster.local
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
@@ -21,7 +22,8 @@ releases:
     version: 1.24.0
     values:
       - values.yaml
-      - extraArgs:
+      - replicaCount: 0  # Pi-holes switched off (Vikunja #63)
+        extraArgs:
           - --pihole-server=http://pihole-b-web.networking.svc.cluster.local
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
@@ -33,7 +35,8 @@ releases:
     version: 1.24.0
     values:
       - values.yaml
-      - extraArgs:
+      - replicaCount: 0  # Pi-holes switched off (Vikunja #63)
+        extraArgs:
           - --pihole-server=http://pihole-c-web.networking.svc.cluster.local
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD

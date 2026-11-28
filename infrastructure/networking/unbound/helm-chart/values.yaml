@@ -1,4 +1,5 @@
-replicaCount: 2
+# Switched off with the Pi-holes (Vikunja #63). Set back to 2 to undo.
+replicaCount: 0
 
 image:
   repository: docker.io/mvance/unbound
