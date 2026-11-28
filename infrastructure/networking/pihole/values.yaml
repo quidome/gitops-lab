@@ -19,7 +19,8 @@ serviceDns:
   externalTrafficPolicy: Cluster
 serviceDhcp:
   enabled: false
-replicaCount: 1
+# Switched off: DNS moved to Technitium (Vikunja #63). Set back to 1 to undo.
+replicaCount: 0
 
 monitoring:
   podMonitor:
