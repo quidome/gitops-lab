@@ -4,7 +4,8 @@
 > project Platform: #33 (critical and warning alerts to Pushover), #34 (alarm when the platform is
 > down) and #35 (ArgoCD alerts). The choice of Pushover is in
 > `docs/decisions/0004-push-messages-through-pushover.md`. Do not work from these sections. The
-> e-mail parts (Brevo, Pocket ID) are still valid here.
+> e-mail parts (Brevo, Pocket ID) are on hold for a long time (operator, 2026-11-28). Check the
+> details again before you use them: versions and settings will be out of date.
 
 Based on: `tasks/prd-notifications-and-email.md`
 
