@@ -1,5 +1,11 @@
 # Implementation Tasks: Notifications and Outbound E-mail
 
+> **Status 2026-11-28:** The push parts (sections A, B and C, tasks 1.0 to 3.0) continue in Vikunja,
+> project Platform: #33 (critical and warning alerts to Pushover), #34 (alarm when the platform is
+> down) and #35 (ArgoCD alerts). The choice of Pushover is in
+> `docs/decisions/0004-push-messages-through-pushover.md`. Do not work from these sections. The
+> e-mail parts (Brevo, Pocket ID) are still valid here.
+
 Based on: `tasks/prd-notifications-and-email.md`
 
 ## Relevant Files
